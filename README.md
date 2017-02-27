@@ -21,7 +21,9 @@ One way to install it is:
     sudo pip3 install ply
 
 ## Run tests
-    python3 testnlpparser.py
+    python3 test_pyrata.py
+
+The main module is pyrata_re. It is the one you should import.
 
 
 # How does it work?
@@ -30,23 +32,23 @@ One way to install it is:
 
 (as generated in parser.out)
 
-Rule 0     S' -> expression
-Rule 1     expression -> quantifiedstep
-Rule 2     expression -> quantifiedstep expression
-Rule 3     quantifiedstep -> step
-Rule 4     quantifiedstep -> OPTION step
-Rule 5     quantifiedstep -> ATLEASTONE step
-Rule 6     quantifiedstep -> ANY step
-Rule 7     step -> atomicconstraint
-Rule 8     step -> NOT step
-Rule 9     step -> LBRACKET classconstraint RBRACKET
-Rule 10    classconstraint -> partofclassconstraint
-Rule 11    classconstraint -> partofclassconstraint AND classconstraint
-Rule 12    classconstraint -> partofclassconstraint OR classconstraint
-Rule 13    partofclassconstraint -> atomicconstraint
-Rule 14    partofclassconstraint -> LPAREN classconstraint RPAREN
-Rule 15    partofclassconstraint -> NOT classconstraint
-Rule 16    atomicconstraint -> NAME IS VALUE
+    Rule 0     S' -> expression
+    Rule 1     expression -> quantifiedstep
+    Rule 2     expression -> quantifiedstep expression
+    Rule 3     quantifiedstep -> step
+    Rule 4     quantifiedstep -> OPTION step
+    Rule 5     quantifiedstep -> ATLEASTONE step
+    Rule 6     quantifiedstep -> ANY step
+    Rule 7     step -> atomicconstraint
+    Rule 8     step -> NOT step
+    Rule 9     step -> LBRACKET classconstraint RBRACKET
+    Rule 10    classconstraint -> partofclassconstraint
+    Rule 11    classconstraint -> partofclassconstraint AND classconstraint
+    Rule 12    classconstraint -> partofclassconstraint OR classconstraint
+    Rule 13    partofclassconstraint -> atomicconstraint
+    Rule 14    partofclassconstraint -> LPAREN classconstraint RPAREN
+    Rule 15    partofclassconstraint -> NOT classconstraint
+    Rule 16    atomicconstraint -> NAME IS VALUE
 
 ## parcours pour une règle note: des règles comme des items ordonnés d'une liste ?
 textInitialCursor=0
