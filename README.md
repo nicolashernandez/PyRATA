@@ -28,6 +28,12 @@ The main module is pyrata_re. It is the one you should import.
 
 # How does it work?
 
+## Concepts 
+
+A grammar to parse. Right now a pattern. Which is made of 1 or several steps. A step is in its simplest form the specification of a single constraint. A step can be a quantified step or a class step (the latter aims at specify more than one constraints and conditions on them with logical operators ('and', 'or' and 'not')).
+
+A data structure to parse too... on which the pattern is applied.
+
 ## Grammar
 
 (as generated in parser.out)
@@ -74,10 +80,17 @@ si pas d'erreur et on arrive à la fin (de la grammaire/d'une règle):
 * implementation of quantifier +
 * lexer and parser as classes
 * regex operation match 
-
+* rename package, file, module, class, variable names
+* improve the log experience by displaying parsed lextoken from the grammar, the grammar/pattern step, and the data token with length, Line Number and Position (based on http://www.dabeaz.com/ply/ply.html#ply_nn33)
+* rename global step grammar -> patternStep and local into localstep (quantifiedStep is ambiguous since it is the name of the production just before expression)
 
 ## TODO
+* move the code for testing the validity of a patternstep into the quantifier production rule and non in expression
+* in pyrata_parser log if p.lexer.globalgrammarstepPosition < p.lexer.grammarsize: should works with string length since we cannot know a priori the size because of complex class
+
+* fix global step count based on works on split(' ') when class constraints with multiple constraints 
 * fix use test_match_inside_sequence_at_least_one_including_negation_on_atomic_constraint and test_match_inside_sequence_at_least_one_including_negation_in_class_constraint
+* when a quantifier step is not valid, the parsing should be aborted wo waiting for expression parsing
 * class atomic with non atomic contraint should be prefered to not step : partofclassconstraint -> NOT classconstraint more than step -> NOT step (to remove the latter)
 * implzmznr optional quantifier: see quantifiedstep : step (or other) to restart the parser 
 * implement tests in particular search then firstall (be careful for lexpos...)

@@ -66,11 +66,24 @@ class Lexer(object):
     return t
 
 
+  # Define a rule so we can track line numbers
+  # http://www.dabeaz.com/ply/ply.html#ply_nn9
   def t_newline(self,t):
     r'\n+'
     t.lexer.lineno += t.value.count("\n")
+    #t.lexer.lineno += len(t.value)
 
-  
+  # Compute column. 
+  # http://www.dabeaz.com/ply/ply.html#ply_nn9
+  #     input is the input text string
+  #     token is a token instance
+  def find_column(self, input, token):
+    last_cr = input.rfind('\n',0,token.lexpos)
+    if last_cr < 0:
+      last_cr = 0
+    column = (token.lexpos - last_cr) + 1
+    return column
+
   def __init__(self, **kwargs): # grammar, data, re):
     # grammar is at least a pattern definition
 
@@ -114,19 +127,38 @@ class Lexer(object):
     self.lexer.currentExploredDataPosition = self.lexer.lastFirstExploredDataPosition 
 
     # the whole grammar
+    # redundant with lexer.lexdata
     self.lexer.grammar = grammar  
 
+
+    # list of LexToken (self.type, self.value, self.lineno, self.lexpos)
+    self.lexTokenList = [] 
+
+    # map endposition to lextoken (by getting the len(.value of the element), 
+    # you can then get the endposition of the previous element, useful to delimit quantified steps 
+    # indeed, p.lexer.lexpos attribute is an integer that contains the current position within the input text.
+    # Within token rule functions, this points to the first character after the matched text 
+    # and the matched text includes the next lextToken (not only reduced to a single char).
+    self.lexTokenEndDict = {} 
+
+
     # the number of global grammar step
-    self.lexer.grammarsize = len(grammar.split())
+    # TODO Fix since step made of class with multiple constraints will be wrongly split
+    # len(grammar.split()) 
+    self.lexer.grammarsize = None 
 
     # the grammar part which is in focus when processing a quantifier ; 
-    self.lexer.grammarstep = '' 
+    self.lexer.localstep = '' 
 
     # in the context of local step grammar the step is bare wo quantifier but globally it comes with so 
-    self.lexer.globalgrammarstep = grammar.split()[0]
+    # (log use case) 
+    # TODO Fix since step made of class with multiple constraints will be wrongly split   
+    #grammar.split()[0]
+    # patternstep
+    self.lexer.patternStep = None
 
-    # position in the grammar which is currently in focus during the parsing
-    self.lexer.globalgrammarstepPosition = 0
+    # cursor to follow the parsing progress in the grammar (log use case) 
+    self.lexer.patternStepPosition = 0
 
     # to exchange information between global and local parser when dealing with quantifiers
     # indicate the local parser that it is a local one
@@ -148,6 +180,24 @@ class Lexer(object):
   def t_error(self, t):
     raise Exception('Illegal character "{t}"'.format(t=t.value[0]))
 
+
+  def storeLexTokenList(self):
+    """ store the the list of the LexToken
+    and a map from the end position of a lextoken to the lextoken """
+
+    self.lexer.lexTokenEndDict = {}
+    self.lexer.lexTokenList = [] # LexToken (self.type, self.value, self.lineno, self.lexpos)
+    while True:
+      tok = self.lexer.token()
+      if not tok: 
+        break      # No more input
+      #print(tok)
+      self.lexer.lexTokenList.append(tok)
+      self.lexer.lexTokenEndDict[tok.lexpos+len(tok.value)] = tok
+    #print (lexTokenList)  
+    # reinit the lexer
+    self.lexer.input(self.lexer.lexdata)
+  
 #  def build(self, debug=False, debuglog=None, **kwargs):
     # """Create a lexer."""
     # if debug and debuglog is None:
@@ -163,15 +213,22 @@ class Lexer(object):
     """Create a lexer."""
     self.lexer = lex.lex(module=self, **kwargs)
     self.lexer.input(grammar)
+    self.storeLexTokenList()
 
 
 # example use:
 if __name__ == '__main__':
   grammar='?lem:"the" +pos:"JJ" [pos:"NN" & (lem:"car" | !lem:"bike" | !(lem:"bike"))] [raw:"is" | raw:"are"] ;\n'
   #grammar='+pos:"JJ" pos:"NN"'
-
+  grammar = 'pos:"DT" +[pos:"JJ" & !pos:"EX"]  pos:"NN"'
+  
+  # 
   myLexer = Lexer(grammar=grammar, data=[], re='search')
   #myLexer.lexer.input(grammar)
+
+  # 
+
+
 
   print ("tokenize the given grammar:",grammar)
   while True:
