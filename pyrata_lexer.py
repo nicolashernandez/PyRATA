@@ -170,6 +170,8 @@ class Lexer(object):
     # store the result after parsing the grammar given a certain data (context)
     self.lexer.expressionresult = False # 
 
+    #self.lexer.is
+
 #  def __init__(self, debug=False):
 #    self.tokens = (
 #      self.delimiters + self.operators +

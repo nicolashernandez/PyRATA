@@ -114,6 +114,8 @@ class TestPyrata(object):
     pattern = 'pos:"DT" +[pos:"JJ" & !pos:"EX"]  pos:"NN"'
     data = [{'raw':'Here', 'lem':'here', 'pos':'ADV'}, {'raw':'the', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = [ {'raw':'the', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]     
+#    data = [{'pos':'ADV'}, {'pos':'DT'}, {'pos':'JJ'}, {'pos':'JJ'}, {'pos':'JJ'}, {'pos':'NN'}, { 'pos':'VB'}, {'pos':'JJ'}]     
+#    expected = [ {'pos':'DT'}, {'pos':'JJ'}, {'pos':'JJ'}, {'pos':'JJ'}, {'pos':'NN'}]
     self.test(description, pattern, data, expected, loglevel) 
 
   def test_match_inside_sequence_at_least_one_including_negation_in_class_constraint(self, loglevel):
@@ -161,11 +163,11 @@ class TestPyrata(object):
   def __init__(self):
     #self.test_match_at_the_sequence_begining_is_atomic_constraint(0)
     #self.test_match_whole_sequence_with_pattern_of_atomic_constraints(0)
-    #self.test_match_inside_sequence_of_atomic_constraints(0)
+    self.test_match_inside_sequence_of_atomic_constraints(2)
     #self.test_match_at_the_sequence_begining_quantifier_at_least_one_on_atomic_constraint(0)
     #self.test_match_inside_sequence_quantifier_at_least_one_on_atomic_constraint(0)
     #self.test_match_inside_sequence_at_least_one_including_negation_on_atomic_constraint(0)
-    self.test_match_inside_sequence_surrounded_at_least_one_complex_class_constraint(2)
+    #self.test_match_inside_sequence_surrounded_at_least_one_complex_class_constraint(0)
     #self.test_match_inside_sequence_at_least_one_including_negation_in_class_constraint(2)
     #self.test_match_at_the_ending_sequence_quantifier_at_least_one_on_atomic_constraint(0)
     #self.test_match_inside_sequence_class_constraint(0)
