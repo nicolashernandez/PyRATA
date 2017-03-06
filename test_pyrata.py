@@ -24,26 +24,27 @@ class TestPyrata(object):
 
   def test (self,description, pattern, data, expected, loglevel):
     ''' output the result in console '''
-    debug = False
     if loglevel>0:
       print ('________________________________________________')
+    if loglevel>1:
       print ('Test:',description)
       print ('Pattern:\t',pattern)
       print ('Data:\t\t',data)
       print ('Expected:\t',expected)
-    if loglevel>1: 
-      debug = True
+
      
-    result = pyrata_re.search(pattern, data, debug=debug)
+    result = pyrata_re.search(pattern, data, loglevel=loglevel)
     #print('Result:',l.lexer.finalresult,'; start:',l.lexer.groupstartindex,'; end:',l.lexer.groupendindex)
     #if debug:    
-    if loglevel>0:
+    if loglevel>1:
       print ('Result:',result) 
     if result == expected:
-      print ('Test:',description, '- SUCCESS')
+      if loglevel>1:
+        print ('Test:',description, '- SUCCESS')
       self.testSuccess +=1
     else:
-      print ('Test:',description, '- FAIL')
+      if loglevel>1:
+        print ('Test:',description, '- FAIL')
     self.testCounter +=1
 
     if loglevel>0:
@@ -73,6 +74,15 @@ class TestPyrata(object):
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'beautiful', 'lem':'beautiful', 'pos':'JJ'}]
     expected = [{'raw':'cars', 'lem':'car', 'pos':'NN'}]
     self.test(description, pattern, data, expected, loglevel)
+
+  def test_match_multiple_inside_sequence_of_atomic_constraints(self, loglevel):
+    description = 'match_multiple_inside_sequence_of_atomic_constraints'
+    pattern = 'pos:"NN"'
+    data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'beautiful', 'lem':'beautiful', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]
+    expected = [{'raw':'cars', 'lem':'car', 'pos':'NN'}]
+    self.test(description, pattern, data, expected, loglevel)
+
+
 
   def test_match_at_the_sequence_begining_quantifier_at_least_one_on_atomic_constraint(self, loglevel):
     description = 'match_at_the_sequence_begining_quantifier_at_least_one_on_atomic_constraint'
@@ -161,9 +171,14 @@ class TestPyrata(object):
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
   def __init__(self):
-    #self.test_match_at_the_sequence_begining_is_atomic_constraint(0)
-    #self.test_match_whole_sequence_with_pattern_of_atomic_constraints(0)
+    # 0 None
+    # 1 production rules
+    # 2 +header
+    # 3 +production details 
+    self.test_match_at_the_sequence_begining_is_atomic_constraint(2)
+    self.test_match_whole_sequence_with_pattern_of_atomic_constraints(2)
     self.test_match_inside_sequence_of_atomic_constraints(2)
+    self.test_match_multiple_inside_sequence_of_atomic_constraints(2)
     #self.test_match_at_the_sequence_begining_quantifier_at_least_one_on_atomic_constraint(0)
     #self.test_match_inside_sequence_quantifier_at_least_one_on_atomic_constraint(0)
     #self.test_match_inside_sequence_at_least_one_including_negation_on_atomic_constraint(0)
@@ -184,4 +199,4 @@ if __name__ == '__main__':
   tests = TestPyrata()
   
   accuracy=tests.testSuccess/float(tests.testCounter)
-  print ("testCounter=",tests.testCounter,'; testSuccess=',tests.testSuccess,'; accuracy=',accuracy)
+  print ("PyRATA - testCounter=",tests.testCounter,'; testSuccess=',tests.testSuccess,'; accuracy=',accuracy)
