@@ -19,6 +19,10 @@ def search (pattern, data, **kwargs):
   m = Parser(tokens=l.tokens, **kwargs)
   
   m.parser.parse(pattern, l.lexer, tracking=True)
-  if l.lexer.expressionresult:
+  if len(l.lexer.groupstartindex)>0 and len(l.lexer.groupendindex)>0:
+    #print ("Debug: l.lexer.expressionresult:", l.lexer.expressionresult)
+    #print ("Debug: l.lexer.groupstartindex[0]:", l.lexer.groupstartindex[0])
+    #print ("Debug: l.lexer.groupendindex[0]:", l.lexer.groupendindex[0])
     return data[l.lexer.groupstartindex[0]:l.lexer.groupendindex[0]]
+    
   return None

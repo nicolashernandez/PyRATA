@@ -82,7 +82,12 @@ class TestPyrata(object):
     expected = [{'raw':'cars', 'lem':'car', 'pos':'NN'}]
     self.test(description, pattern, data, expected, loglevel)
 
-
+  def test_match_unpresent_inside_sequence_of_atomic_constraints(self, loglevel):
+    description = 'match_unpresent_inside_sequence_of_atomic_constraints'
+    pattern = 'pos:"Ex"'
+    data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'beautiful', 'lem':'beautiful', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]
+    expected = None
+    self.test(description, pattern, data, expected, loglevel)
 
   def test_match_at_the_sequence_begining_quantifier_at_least_one_on_atomic_constraint(self, loglevel):
     description = 'match_at_the_sequence_begining_quantifier_at_least_one_on_atomic_constraint'
@@ -130,7 +135,7 @@ class TestPyrata(object):
 
   def test_match_inside_sequence_at_least_one_including_negation_in_class_constraint(self, loglevel):
     description = 'match_inside_sequence_at_least_one_including_negation_in_class_constraint'
-    pattern = 'pos:"DT" +[!pos:"NN" & !pos:"EX"] pos:"NN"'
+    pattern = 'pos:"DT" +[!pos:"NN" & !pos:"EX" ] pos:"NN"'
     data = [{'raw':'Here', 'lem':'here', 'pos':'ADV'}, {'raw':'the', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = [ {'raw':'the', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]     
     self.test(description, pattern, data, expected, loglevel) 
@@ -141,8 +146,6 @@ class TestPyrata(object):
     data = [{'raw':'Here', 'lem':'here', 'pos':'ADV'}, {'raw':'the', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = [ {'raw':'the', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]     
     self.test(description, pattern, data, expected, loglevel) 
-
-
 
 
   def test_match_inside_sequence_quantifier_option_on_atomic_constraint(self, loglevel):
@@ -175,21 +178,23 @@ class TestPyrata(object):
     # 1 production rules
     # 2 +header
     # 3 +production details 
-    self.test_match_at_the_sequence_begining_is_atomic_constraint(2)
-    self.test_match_whole_sequence_with_pattern_of_atomic_constraints(2)
-    self.test_match_inside_sequence_of_atomic_constraints(2)
-    self.test_match_multiple_inside_sequence_of_atomic_constraints(2)
-    #self.test_match_at_the_sequence_begining_quantifier_at_least_one_on_atomic_constraint(0)
-    #self.test_match_inside_sequence_quantifier_at_least_one_on_atomic_constraint(0)
-    #self.test_match_inside_sequence_at_least_one_including_negation_on_atomic_constraint(0)
-    #self.test_match_inside_sequence_surrounded_at_least_one_complex_class_constraint(0)
-    #self.test_match_inside_sequence_at_least_one_including_negation_in_class_constraint(2)
-    #self.test_match_at_the_ending_sequence_quantifier_at_least_one_on_atomic_constraint(0)
-    #self.test_match_inside_sequence_class_constraint(0)
-    #self.test_match_inside_sequence_quantifier_at_least_one_on_class_constraint(0)
-    #self.test_match_inside_sequence_quantifier_option_on_atomic_constraint(0)
-    #self.test_search_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint(0)
-    #self.test_search_unpresent_pattern_wi_surrounded_quantifier_option_on_atomic_constraint(0)
+    myloglevel=1
+    self.test_match_at_the_sequence_begining_is_atomic_constraint(myloglevel)
+    self.test_match_whole_sequence_with_pattern_of_atomic_constraints(myloglevel)
+    self.test_match_inside_sequence_of_atomic_constraints(myloglevel)
+    self.test_match_multiple_inside_sequence_of_atomic_constraints(myloglevel)
+    self.test_match_unpresent_inside_sequence_of_atomic_constraints(myloglevel)
+    self.test_match_at_the_sequence_begining_quantifier_at_least_one_on_atomic_constraint(myloglevel)
+    self.test_match_inside_sequence_quantifier_at_least_one_on_atomic_constraint(myloglevel)
+    self.test_match_inside_sequence_at_least_one_including_negation_on_atomic_constraint(myloglevel)
+    self.test_match_inside_sequence_surrounded_at_least_one_complex_class_constraint(myloglevel)
+    self.test_match_inside_sequence_at_least_one_including_negation_in_class_constraint(myloglevel)
+    self.test_match_at_the_ending_sequence_quantifier_at_least_one_on_atomic_constraint(myloglevel)
+    #self.test_match_inside_sequence_class_constraint(myloglevel)
+    #self.test_match_inside_sequence_quantifier_at_least_one_on_class_constraint(myloglevel)
+    #self.test_match_inside_sequence_quantifier_option_on_atomic_constraint(myloglevel)
+    #self.test_search_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint(myloglevel)
+    #self.test_search_unpresent_pattern_wi_surrounded_quantifier_option_on_atomic_constraint(myloglevel)
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # Run all the tests

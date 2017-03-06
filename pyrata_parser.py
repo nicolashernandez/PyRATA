@@ -17,11 +17,12 @@ class Parser(object):
   loglevel = 0 # degree of verbosity
   
   precedence = (
+    ('left', 'LBRACKET','RBRACKET'),    
     ('left',  'OR'),
     ('left', 'AND'),
-   # ('left', 'LBRACKET','RBRACKET'),    
     ('left', 'LPAREN','RPAREN'),
     ('right', 'NOT'),
+
     ('left', 'IS'),
 #  ('right', 'OPTION', 'ANY', 'ATLEASTONE')
   )
@@ -128,7 +129,7 @@ class Parser(object):
             print ('\tDebug: the parsing of a pattern is on going (True so far) but no more data remains to explore ; we empty the parser buffer')
           while True:
             tok = p.parser.token()             # Get the next token
-            print ("Debug: p[0] and not(p.lexer.islocal) - p.parser.token()")
+            #print ("Debug: p[0] and not(p.lexer.islocal) - p.parser.token()")
             if not tok: 
               #tok = p.parser.token() 
               break
@@ -256,7 +257,9 @@ class Parser(object):
         if self.loglevel >2: print ('\tDebug: some data remains to explore and (not matched yet or re mode is "findall") we relaunch the grammar parser')
      #   self.parser.restart()
   # #      #self.parser = yacc.yacc(module=self) #start='expression',
+        # consequently the following lines will make as many p_expression calls as relaunch...
         p.parser.parse(p.lexer.grammar, p.lexer, tracking=True)
+
       else:
         if self.loglevel >2: print ('\tDebug: no more data to explore')
 
@@ -307,15 +310,23 @@ class Parser(object):
       p.lexer.groupstartindex.append(p.lexer.currentExploredDataPosition)
 
 # _______________________________________________________________
+
+  # def p_empty(self,p):
+  #  'empty :'
+  #  pass
+# _______________________________________________________________
   def p_classconstraint(self,p):
-    '''classconstraint : partofclassconstraint 
-            | partofclassconstraint AND classconstraint
-            | partofclassconstraint OR classconstraint '''
+    '''classconstraint : partofclassconstraint AND classconstraint
+            | partofclassconstraint OR classconstraint 
+            | partofclassconstraint ''' # partofclassconstraint  | terminalpartofclassconstraint 
+            #| empty
     self.setPatternStep(p)
     if len(p) == 2:
-      p[0] = p[1]
-      self.log(p, '(classconstraint->partofclassconstraint)')
-    
+
+      #2:
+      p[0] = p[1] #True # p[1]
+    #  self.log(p, '(classconstraint->partofclassconstraint)')
+    #
     else:
       if p[2] == '&':
         p[0] = p[1] and p[3]
@@ -328,6 +339,9 @@ class Parser(object):
     if p.lexer.islocal:
       if self.loglevel >2: print ("\tDebug: processing a (local) step grammar")
 
+# _______________________________________________________________
+  #def p_terminalpartofclassconstraint(self,p):
+  #  p_partofclassconstraint(self,p)
 
 # _______________________________________________________________
   def p_partofclassconstraint(self,p):
