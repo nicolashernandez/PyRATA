@@ -13,6 +13,12 @@ The objective is to offer a language and an engine to define patterns aiming at 
 In the most common use case, a token list is a data structure used to represent a sentence as sequence of words, each word token coming with a set of features. 
 The data structure is not limited to the representation of sentences. It can also be used to represent a text, with the sentence as token unit. Each sentence with its own set of features.
 
+In comparison
+  * [nltk.RegexpParser](https://gist.github.com/alexbowe/879414) ; http://www.nltk.org/_modules/nltk/chunk/regexp.html#RegexpChunkParser ; http://nbviewer.jupyter.org/github/lukewrites/NP_chunking_with_nltk/blob/master/NP_chunking_with_the_NLTK.ipynb
+  * pattern
+  * ruta
+  * xpath from me over graph of objects
+
 # Install and run
 
 ## Requirement
@@ -91,12 +97,9 @@ si pas d'erreur et on arrive à la fin (de la grammaire/d'une règle):
 
 
 ## TODO
-* implzmznr optional quantifier: see quantifiedstep : step (or other) to restart the parser 
-* implement tests in particular search then firstall (be careful for lexpos...)
-
-
-
-* class atomic with non atomic contraint should be prefered to not step : partofclassconstraint -> NOT classconstraint more than step -> NOT step (to remove the latter)
+* implement optional quantifier: see quantifiedstep : step (or other) to restart the parser 
+* implement re.firstall
+* class atomic with non atomic contraint should be prefered to not step to adapt one single way of doing stuff: partofclassconstraint -> NOT classconstraint more than step -> NOT step ; but the latter is simpler so check if it is working as expected wi quantifier +!pos:"EX" = +[!pos:"EX"])
 * separte lexer, parser and semantic implementation in distinct files
 * implement search * Si l'expression est trouvée, la fonction renvoie un objet symbolisant l'expression recherchée. Sinon, elle renvoie None.
 * implement regex operation findall(grammar,data) which return a list of recognized feature structure sequences
