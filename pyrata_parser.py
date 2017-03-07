@@ -316,10 +316,13 @@ class Parser(object):
   #  pass
 # _______________________________________________________________
   def p_classconstraint(self,p):
-    '''classconstraint : partofclassconstraint AND classconstraint
-            | partofclassconstraint OR classconstraint 
+    '''classconstraint : classconstraint AND partofclassconstraint
+            | classconstraint OR partofclassconstraint 
             | partofclassconstraint ''' # partofclassconstraint  | terminalpartofclassconstraint 
             #| empty
+            #     '''classconstraint : partofclassconstraint AND classconstraint
+#            | partofclassconstraint OR classconstraint 
+#            | partofclassconstraint ''' 
     self.setPatternStep(p)
     if len(p) == 2:
 

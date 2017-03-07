@@ -178,7 +178,7 @@ class TestPyrata(object):
     # 1 production rules
     # 2 +header
     # 3 +production details 
-    myloglevel=1
+    myloglevel=0
     self.test_match_at_the_sequence_begining_is_atomic_constraint(myloglevel)
     self.test_match_whole_sequence_with_pattern_of_atomic_constraints(myloglevel)
     self.test_match_inside_sequence_of_atomic_constraints(myloglevel)
@@ -190,9 +190,9 @@ class TestPyrata(object):
     self.test_match_inside_sequence_surrounded_at_least_one_complex_class_constraint(myloglevel)
     self.test_match_inside_sequence_at_least_one_including_negation_in_class_constraint(myloglevel)
     self.test_match_at_the_ending_sequence_quantifier_at_least_one_on_atomic_constraint(myloglevel)
-    #self.test_match_inside_sequence_class_constraint(myloglevel)
-    #self.test_match_inside_sequence_quantifier_at_least_one_on_class_constraint(myloglevel)
-    #self.test_match_inside_sequence_quantifier_option_on_atomic_constraint(myloglevel)
+    self.test_match_inside_sequence_class_constraint(myloglevel)
+    self.test_match_inside_sequence_quantifier_at_least_one_on_class_constraint(myloglevel)
+    self.test_match_inside_sequence_quantifier_option_on_atomic_constraint(myloglevel)
     #self.test_search_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint(myloglevel)
     #self.test_search_unpresent_pattern_wi_surrounded_quantifier_option_on_atomic_constraint(myloglevel)
 

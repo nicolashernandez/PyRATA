@@ -87,11 +87,13 @@ si pas d'erreur et on arrive à la fin (de la grammaire/d'une règle):
 * fix global step count based on works on split(' ') when class constraints with multiple constraints 
 * fix use test_match_inside_sequence_at_least_one_including_negation_on_atomic_constraint and test_match_inside_sequence_at_least_one_including_negation_in_class_constraint
 * when a quantifier step is not valid, the parsing should be aborted wo waiting for expression parsing
+* solve the shift/reduce conflict with AND and OR  ; The parser does not know what to apply between Rule 10    classconstraint -> partofclassconstraint,  and   (Rule 11    classconstraint -> partofclassconstraint AND classconstraint and Rule 12  or  classconstraint -> partofclassconstraint OR classconstraint) ; sol1 : removing Rule 10 since classconstraint should only be used to combine atomic constraint (at least two); but consequently negation should be accepted wo class (i.e. bracket) and with quantifier if so ; the use of empty rule lead to Parsing error: found token type= RBRACKET  with value= ] but not expected ; sol2 : which solve the problem, inverse the order partofclassconstraint AND classconstraint  -> classconstraint AND partofclassconstraint
+
 
 ## TODO
 * implzmznr optional quantifier: see quantifiedstep : step (or other) to restart the parser 
 * implement tests in particular search then firstall (be careful for lexpos...)
-* solve the shift/reduce conflict with AND and OR  ; Rule 10    classconstraint -> partofclassconstraint should not exist since class is used to combine atomic constraint ; but consequently negation should be accepted wo class (i.e. bracket) and with quantifier if so ; use of empty rule lead to Parsing error: found token type= RBRACKET  with value= ] but not expected
+
 
 
 * class atomic with non atomic contraint should be prefered to not step : partofclassconstraint -> NOT classconstraint more than step -> NOT step (to remove the latter)

@@ -5,9 +5,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'quantifiedstepleftLBRACKETRBRACKETleftORleftANDleftLPARENRPARENrightNOTleftISNAME VALUE IS AND OR LBRACKET RBRACKET LPAREN RPAREN NOT OPTION ATLEASTONE ANYexpression : quantifiedstep expression\n                  | quantifiedstep quantifiedstep : step \n            | OPTION step\n            | ATLEASTONE step \n            | ANY stepstep : atomicconstraint\n            | NOT step\n            | LBRACKET classconstraint RBRACKET classconstraint : partofclassconstraint AND classconstraint\n            | partofclassconstraint OR classconstraint \n            | partofclassconstraint partofclassconstraint : atomicconstraint\n                    | LPAREN classconstraint RPAREN  \n                    | NOT classconstraint atomicconstraint : NAME IS VALUE '
+_lr_signature = 'quantifiedstepleftLBRACKETRBRACKETleftORleftANDleftLPARENRPARENrightNOTleftISNAME VALUE IS AND OR LBRACKET RBRACKET LPAREN RPAREN NOT OPTION ATLEASTONE ANYexpression : quantifiedstep expression\n                  | quantifiedstep quantifiedstep : step \n            | OPTION step\n            | ATLEASTONE step \n            | ANY stepstep : atomicconstraint\n            | NOT step\n            | LBRACKET classconstraint RBRACKET classconstraint : classconstraint AND partofclassconstraint\n            | classconstraint OR partofclassconstraint \n            | partofclassconstraint partofclassconstraint : atomicconstraint\n                    | LPAREN classconstraint RPAREN  \n                    | NOT classconstraint atomicconstraint : NAME IS VALUE '
     
-_lr_action_items = {'ANY':([0,],[1,]),'NAME':([0,1,4,6,7,9,15,17,21,22,],[3,3,3,3,3,3,3,3,3,3,]),'OR':([14,18,20,25,26,27,28,],[21,-13,-16,-15,-11,-10,-14,]),'RPAREN':([14,18,20,23,25,26,27,28,],[-12,-13,-16,28,-15,-11,-10,-14,]),'IS':([3,],[11,]),'LPAREN':([7,15,17,21,22,],[15,15,15,15,15,]),'VALUE':([11,],[20,]),'NOT':([0,1,4,6,7,9,15,17,21,22,],[4,4,4,4,17,4,17,17,17,17,]),'ATLEASTONE':([0,],[9,]),'OPTION':([0,],[6,]),'RBRACKET':([14,16,18,20,25,26,27,28,],[-12,24,-13,-16,-15,-11,-10,-14,]),'LBRACKET':([0,1,4,6,9,],[7,7,7,7,7,]),'AND':([14,18,20,25,26,27,28,],[22,-13,-16,-15,-11,-10,-14,]),'$end':([2,5,8,10,12,13,19,20,24,],[-3,-7,0,-6,-8,-4,-5,-16,-9,]),}
+_lr_action_items = {'$end':([2,7,8,10,11,13,19,20,22,],[0,-3,-7,-6,-8,-5,-4,-16,-9,]),'RBRACKET':([15,17,18,20,21,26,27,28,],[22,-12,-13,-16,-15,-11,-10,-14,]),'ANY':([0,],[1,]),'OR':([15,17,18,20,21,25,26,27,28,],[23,-12,-13,-16,-15,23,-11,-10,-14,]),'NOT':([0,1,3,5,6,9,14,16,23,24,],[3,3,3,3,14,3,14,14,14,14,]),'NAME':([0,1,3,5,6,9,14,16,23,24,],[4,4,4,4,4,4,4,4,4,4,]),'ATLEASTONE':([0,],[5,]),'LBRACKET':([0,1,3,5,9,],[6,6,6,6,6,]),'LPAREN':([6,14,16,23,24,],[16,16,16,16,16,]),'VALUE':([12,],[20,]),'AND':([15,17,18,20,21,25,26,27,28,],[24,-12,-13,-16,-15,24,-11,-10,-14,]),'IS':([4,],[12,]),'OPTION':([0,],[9,]),'RPAREN':([17,18,20,21,25,26,27,28,],[-12,-13,-16,-15,28,-11,-10,-14,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -16,7 +16,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'partofclassconstraint':([7,15,17,21,22,],[14,14,14,14,14,]),'classconstraint':([7,15,17,21,22,],[16,23,25,26,27,]),'step':([0,1,4,6,9,],[2,10,12,13,19,]),'quantifiedstep':([0,],[8,]),'atomicconstraint':([0,1,4,6,7,9,15,17,21,22,],[5,5,5,5,18,5,18,18,18,18,]),}
+_lr_goto_items = {'step':([0,1,3,5,9,],[7,10,11,13,19,]),'partofclassconstraint':([6,14,16,23,24,],[17,17,17,26,27,]),'classconstraint':([6,14,16,],[15,21,25,]),'quantifiedstep':([0,],[2,]),'atomicconstraint':([0,1,3,5,6,9,14,16,23,24,],[8,8,8,8,18,8,18,18,18,18,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -35,11 +35,11 @@ _lr_productions = [
   ('step -> atomicconstraint','step',1,'p_step','pyrata_parser.py',273),
   ('step -> NOT step','step',2,'p_step','pyrata_parser.py',274),
   ('step -> LBRACKET classconstraint RBRACKET','step',3,'p_step','pyrata_parser.py',275),
-  ('classconstraint -> partofclassconstraint AND classconstraint','classconstraint',3,'p_classconstraint','pyrata_parser.py',319),
-  ('classconstraint -> partofclassconstraint OR classconstraint','classconstraint',3,'p_classconstraint','pyrata_parser.py',320),
+  ('classconstraint -> classconstraint AND partofclassconstraint','classconstraint',3,'p_classconstraint','pyrata_parser.py',319),
+  ('classconstraint -> classconstraint OR partofclassconstraint','classconstraint',3,'p_classconstraint','pyrata_parser.py',320),
   ('classconstraint -> partofclassconstraint','classconstraint',1,'p_classconstraint','pyrata_parser.py',321),
-  ('partofclassconstraint -> atomicconstraint','partofclassconstraint',1,'p_partofclassconstraint','pyrata_parser.py',348),
-  ('partofclassconstraint -> LPAREN classconstraint RPAREN','partofclassconstraint',3,'p_partofclassconstraint','pyrata_parser.py',349),
-  ('partofclassconstraint -> NOT classconstraint','partofclassconstraint',2,'p_partofclassconstraint','pyrata_parser.py',350),
-  ('atomicconstraint -> NAME IS VALUE','atomicconstraint',3,'p_atomicconstraint','pyrata_parser.py',370),
+  ('partofclassconstraint -> atomicconstraint','partofclassconstraint',1,'p_partofclassconstraint','pyrata_parser.py',351),
+  ('partofclassconstraint -> LPAREN classconstraint RPAREN','partofclassconstraint',3,'p_partofclassconstraint','pyrata_parser.py',352),
+  ('partofclassconstraint -> NOT classconstraint','partofclassconstraint',2,'p_partofclassconstraint','pyrata_parser.py',353),
+  ('atomicconstraint -> NAME IS VALUE','atomicconstraint',3,'p_atomicconstraint','pyrata_parser.py',373),
 ]
