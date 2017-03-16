@@ -95,14 +95,18 @@ si pas d'erreur et on arrive à la fin (de la grammaire/d'une règle):
 * when a quantifier step is not valid, the parsing should be aborted wo waiting for expression parsing
 * solve the shift/reduce conflict with AND and OR  ; The parser does not know what to apply between Rule 10    classconstraint -> partofclassconstraint,  and   (Rule 11    classconstraint -> partofclassconstraint AND classconstraint and Rule 12  or  classconstraint -> partofclassconstraint OR classconstraint) ; sol1 : removing Rule 10 since classconstraint should only be used to combine atomic constraint (at least two); but consequently negation should be accepted wo class (i.e. bracket) and with quantifier if so ; the use of empty rule lead to Parsing error: found token type= RBRACKET  with value= ] but not expected ; sol2 : which solve the problem, inverse the order partofclassconstraint AND classconstraint  -> classconstraint AND partofclassconstraint
 * done nltk facilities to turn it into pyrata data structure
+* implement optional quantifier: 
+* implement any in quantifiedstep
+
 
 ## TODO
-* implement optional quantifier: 
+
+* implement re.firstall
+
 * fix the management of start/end group index Debug: len(l.lexer.groupstartindex): 1 ; Debug: len(l.lexer.groupendindex): 2 ; we should remove value when quantifiedstep fails and we should not store end when no start has been stored (or at least no more than len (start))
 
 * return a specific result object where to get the offset and the matched data structure
 * revise the README and create a specific developer page
-* implement re.firstall
 * class atomic with non atomic contraint should be prefered to not step to adapt one single way of doing stuff: partofclassconstraint -> NOT classconstraint more than step -> NOT step ; but the latter is simpler so check if it is working as expected wi quantifier +!pos:"EX" = +[!pos:"EX"])
 * separate lexer, parser and semantic implementation in distinct files
 * implement search * Si l'expression est trouvée, la fonction renvoie un objet symbolisant l'expression recherchée. Sinon, elle renvoie None.

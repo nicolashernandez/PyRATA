@@ -281,11 +281,75 @@ class Parser(object):
           self.log(p, '(quantifiedstep-> ' + p[1] + 'step)')
           #p.lexer.matchongoing = False
       elif p[1] == '*':
-        if self.loglevel >2: print ("\tTODO process semantics of quantifier *")
-        # TODO p[0] = ; currently None          
+        p[0] = p[2]
         self.log(p, '(quantifiedstep-> ' + p[1] + 'step)')
-      #p[0]=p[2]
+        #if not(p.lexer.islocal): when processing local step we never go to the quantified step so, this should not be called here
+        if p[0]:
+          p.lexer.currentExploredDataPosition +=1
+  
+#print ("p.lexer.grammar:",p.lexer.grammar)
+          localLexer = Lexer(grammar=p.lexer.localstep, data=p.lexer.data)  # p.lexer.data)
+          localLexer.lexer.localresult = True
+          localLexer.lexer.currentExploredDataPosition = p.lexer.currentExploredDataPosition 
+          localgrammarstepparsingiter = 0
+          #print ('Debug: before loop - data=', p.lexer.data, '; len(data)=',len(p.lexer.data), '; position=',localLexer.lexer.currentExploredDataPosition) 
+          if self.loglevel >2: print("Debug: call localparser on step grammar=",p.lexer.localstep)
+          #if self.loglevel >2: print('\tDebug: p.lexer.lexpos=',p.lexer.lexpos)
+          
+          ''' pre: the first step of the quantifier is true, we now explore if more tokens valid the grammar step'''
+          localLexer.lexer.currentExploredDataPosition += 1
+          while (localLexer.lexer.localresult and (localLexer.lexer.currentExploredDataPosition < len(p.lexer.data))):
+            if self.loglevel >2: print ("\tDebug: start processing a (local) step grammar ; iteration=",localgrammarstepparsingiter)
+            
+            #print ('Debug: in loop - data=', p.lexer.data, '; len(data)=',len(p.lexer.data), '; position=',localLexer.lexer.currentExploredDataPosition)
+            if self.loglevel >2:
+              #print ("\tDebug: len(p.lexer.data)=",len(p.lexer.data),"; inc(currentExploredDataPosition) ; currentExploredDataPosition=",localLexer.lexer.currentExploredDataPosition)
+              print ("\tDebug: futuretoken=",p.lexer.data[localLexer.lexer.currentExploredDataPosition])
+            localLexer.lexer.islocal = True
+  #          locallexer = lex.lex()
+  #          locallexer.islocal = True
+  #          locallexer.localresult = ''
+            localLexer.lexer.localstep = p.lexer.localstep
+  #          locallexer.currentExploredDataPosition = p.lexer.currentExploredDataPosition
+            #localparser = yacc.yacc()
+            #localparser.parse(p.lexer.localstep,lexer=lexer, tracking=True) #,start='expression'
+            
+            localParser = Parser(tokens=localLexer.tokens, loglevel=self.loglevel, start='quantifiedstep') # Set Add True for debugging
+            localParser.parser.parse(localLexer.lexer.localstep, localLexer.lexer) #, tracking=True)
+            #localparser.parse(p.lexer.localstep,lexer=locallexer) #,start='expression'
+            #print ("\tDebug: localparser.parser=",localParser.parser)
+            
+            if self.loglevel >2: print ("\tDebug: localLexer.lexer.localresult=",localLexer.lexer.localresult)
+            localgrammarstepparsingiter += 1
+            localLexer.lexer.currentExploredDataPosition += 1
+            if localLexer.lexer.currentExploredDataPosition >= len(p.lexer.data):
+              if self.loglevel >2: 
+                print ('\tDebug: the local parsing of a pattern is on going (True so far) but no more data remains to explore ; we empty the parser buffer')
+              while True:
+                tok = p.parser.token()             # Get the next token
+                if not tok: 
+                  break
 
+          if self.loglevel >2: print("Debug: resume the global parser")          
+          if self.loglevel >2: print ('\tDebug: localparser result=',localLexer.lexer.localresult)
+          if not(localLexer.lexer.localresult): 
+            if self.loglevel >2: print("Debug: since the last step grammar was False we decrement currentExploredDataPosition")
+            localLexer.lexer.currentExploredDataPosition -=1
+          localLexer.lexer.islocal = False
+          #print ('\tDebug: localparser result=',locallexer.localresult)
+          if self.loglevel >2: print ("\tDebug: + quantifier goes until the dataPosition=",localLexer.lexer.currentExploredDataPosition) #,'; token=',p.lexer.data[localLexer.lexer.currentExploredDataPosition])
+          # TODO for '+' operator p.lexer.currentExploredDataPosition > localLexer.lexer.currentExploredDataPosition -1 otherwise the pattern is not matched
+          p.lexer.currentExploredDataPosition = localLexer.lexer.currentExploredDataPosition #-1
+         # if self.loglevel >2: print ("\tDebug: future dataPosition=",(p.lexer.currentExploredDataPosition),'; token=',p.lexer.data[p.lexer.currentExploredDataPosition])
+
+          if self.loglevel >2: print('\tDebug: localLexer.lexer.lexpos=',localLexer.lexer.lexpos)
+
+          if self.loglevel >2: print('\tDebug: p.lexer.lexpos=',p.lexer.lexpos)
+          #print ("\tDebug: p.parser=",p.parser)
+          #print ("\tDebug: p.lexer=",p.lexer)
+          #parser.restart()
+
+      
     # to log the parsing of the grammar
     #if p[0]  and not (p.lexer.islocal):
     p.lexer.patternStepPosition += 1

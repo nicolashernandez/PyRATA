@@ -206,6 +206,20 @@ class TestPyrata(object):
     expected = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]
     self.test(description, pattern, data, expected, loglevel)
 
+  def test_search_quantifier_any_inside_the_pattern_on_atomic_constraint(self, loglevel):
+    description = 'search_quantifier_any_inside_the_pattern_on_atomic_constraint'
+    pattern = 'pos:"DT" *pos:"JJ" pos:"NN"'
+    data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'},  {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
+    expected = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]
+    self.test(description, pattern, data, expected, loglevel)  
+
+  def test_search_quantifier_any_at_the_pattern_beginning_on_atomic_constraint(self, loglevel):
+    description = 'search_quantifier_any_at_the_pattern_beginning_on_atomic_constraint'
+    pattern = '*pos:"JJ" pos:"NN"'
+    data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'},  {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
+    expected = [{'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]
+    self.test(description, pattern, data, expected, loglevel)     
+
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # Declare here all the tests you want to run
@@ -238,6 +252,11 @@ class TestPyrata(object):
     self.test_search_quantifier_option_at_the_pattern_beginning_on_atomic_constraint(myloglevel)
     self.test_search_quantifier_option_at_the_pattern_end_on_atomic_constraint(myloglevel)
     self.test_search_multiple_consecutive_quantifier_option_inside_the_pattern_on_atomic_constraint(myloglevel)
+    self.test_search_quantifier_any_inside_the_pattern_on_atomic_constraint(myloglevel)
+    self.test_search_quantifier_any_at_the_pattern_beginning_on_atomic_constraint(myloglevel)
+
+
+    
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # Run all the tests
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
