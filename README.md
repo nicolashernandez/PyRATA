@@ -97,7 +97,7 @@ si pas d'erreur et on arrive à la fin (de la grammaire/d'une règle):
 * done nltk facilities to turn it into pyrata data structure
 * implement optional quantifier: 
 * implement any in quantifiedstep
-
+* symbol ':' turned into '=' (since it had an equal meaning)
 
 ## TODO
 
