@@ -44,7 +44,7 @@ class Parser(object):
     ('left', 'LPAREN','RPAREN'),
     ('right', 'NOT'),
 
-    ('left', 'IS'),
+    ('left', 'EQ'),
 #  ('right', 'OPTION', 'ANY', 'ATLEASTONE')
   )
 
@@ -494,12 +494,12 @@ class Parser(object):
 
 # _______________________________________________________________
   def p_atomicconstraint(self,p):
-    '''atomicconstraint : NAME IS VALUE '''
+    '''atomicconstraint : NAME EQ VALUE '''
     self.setPatternStep(p)
     attName=p[1]
     attValue=p[3][1:-1]
     p[0] = (p.lexer.data[p.lexer.currentExploredDataPosition][attName] == attValue)
-    self.log(p, '(atomicconstraint->NAME IS VALUE: ' + attName + ' is ' +attValue +')')
+    self.log(p, '(atomicconstraint->NAME=VALUE: ' + attName + ' = ' +attValue +')')
 
     if p.lexer.islocal:
       if self.loglevel >2: print ("\tDebug: processing a (local) step grammar")

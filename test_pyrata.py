@@ -56,77 +56,77 @@ class TestPyrata(object):
 
   def test_match_at_the_sequence_begining_is_atomic_constraint(self, loglevel):
     description = 'match_at_the_sequence_begining_is_atomic_constraint'
-    pattern = 'lem:"the"'
+    pattern = 'lem="the"'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}]
     expected = [{'raw':'The', 'lem':'the', 'pos':'DT'}]
     self.test(description, pattern, data, expected, loglevel)
 
   def test_match_whole_sequence_with_pattern_of_atomic_constraints(self, loglevel):
     description = 'match_whole_sequence_with_pattern_of_atomic_constraints'
-    pattern = 'pos:"DT" pos:"JJ" pos:"NN"'
+    pattern = 'pos="DT" pos="JJ" pos="NN"'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]
     expected = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]
     self.test(description, pattern, data, expected, loglevel)
 
   def test_match_inside_sequence_of_atomic_constraints(self, loglevel):
     description = 'search and match inside a sequence of "is" atomic constraints'
-    pattern = 'pos:"NN"'
+    pattern = 'pos="NN"'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'beautiful', 'lem':'beautiful', 'pos':'JJ'}]
     expected = [{'raw':'cars', 'lem':'car', 'pos':'NN'}]
     self.test(description, pattern, data, expected, loglevel)
 
   def test_match_multiple_inside_sequence_of_atomic_constraints(self, loglevel):
     description = 'match_multiple_inside_sequence_of_atomic_constraints'
-    pattern = 'pos:"NN"'
+    pattern = 'pos="NN"'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'beautiful', 'lem':'beautiful', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]
     expected = [{'raw':'cars', 'lem':'car', 'pos':'NN'}]
     self.test(description, pattern, data, expected, loglevel)
 
   def test_match_unpresent_inside_sequence_of_atomic_constraints(self, loglevel):
     description = 'match_unpresent_inside_sequence_of_atomic_constraints'
-    pattern = 'pos:"Ex"'
+    pattern = 'pos="Ex"'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'beautiful', 'lem':'beautiful', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]
     expected = None
     self.test(description, pattern, data, expected, loglevel)
 
   def test_match_at_the_sequence_begining_quantifier_at_least_one_on_atomic_constraint(self, loglevel):
     description = 'match_at_the_sequence_begining_quantifier_at_least_one_on_atomic_constraint'
-    pattern = 'pos:"DT" +pos:"JJ"'
+    pattern = 'pos="DT" +pos="JJ"'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}]
     self.test(description, pattern, data, expected, loglevel)
 
   def test_match_inside_sequence_quantifier_at_least_one_on_atomic_constraint(self, loglevel):
     description = 'match_inside_sequence_quantifier_at_least_one_on_atomic_constraint'
-    pattern = '+pos:"JJ"'
+    pattern = '+pos="JJ"'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = [{'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}]
     self.test(description, pattern, data, expected, loglevel)
 
   def test_match_at_the_ending_sequence_quantifier_at_least_one_on_atomic_constraint(self, loglevel):
     description = 'match_at_the_ending_sequence_quantifier_at_least_one_on_atomic_constraint'
-    pattern = '+pos:"JJ"'
+    pattern = '+pos="JJ"'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}]     
     expected = [{'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}]
     self.test(description, pattern, data, expected, loglevel)
 
   def test_match_inside_sequence_class_constraint(self, loglevel):
     description = 'match_inside_sequence_class_constraint'
-    pattern = '[lem:"be" | raw:"is"]'
+    pattern = '[lem="be" | raw="is"]'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = [ {'raw':'are', 'lem':'be', 'pos':'VB'}]     
     self.test(description, pattern, data, expected, loglevel)
 
   def test_match_inside_sequence_quantifier_at_least_one_on_class_constraint(self, loglevel):
     description = 'match_inside_sequence_quantifier_at_least_one_on_class_constraint'
-    pattern = '+[lem:"be" | raw:"is"]'
+    pattern = '+[lem="be" | raw="is"]'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = [ {'raw':'are', 'lem':'be', 'pos':'VB'}]     
     self.test(description, pattern, data, expected, loglevel)  
 
   def test_match_inside_sequence_surrounded_at_least_one_complex_class_constraint(self, loglevel):
     description = 'match_inside_sequence_surrounded_at_least_one_complex_class_constraint'
-    pattern = 'pos:"DT" +[pos:"JJ" & !pos:"EX"]  pos:"NN"'
+    pattern = 'pos="DT" +[pos="JJ" & !pos="EX"]  pos="NN"'
     data = [{'raw':'Here', 'lem':'here', 'pos':'ADV'}, {'raw':'the', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = [ {'raw':'the', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]     
 #    data = [{'pos':'ADV'}, {'pos':'DT'}, {'pos':'JJ'}, {'pos':'JJ'}, {'pos':'JJ'}, {'pos':'NN'}, { 'pos':'VB'}, {'pos':'JJ'}]     
@@ -135,14 +135,14 @@ class TestPyrata(object):
 
   def test_match_inside_sequence_at_least_one_including_negation_in_class_constraint(self, loglevel):
     description = 'match_inside_sequence_at_least_one_including_negation_in_class_constraint'
-    pattern = 'pos:"DT" +[!pos:"NN" & !pos:"EX" ] pos:"NN"'
+    pattern = 'pos="DT" +[!pos="NN" & !pos="EX" ] pos="NN"'
     data = [{'raw':'Here', 'lem':'here', 'pos':'ADV'}, {'raw':'the', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = [ {'raw':'the', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]     
     self.test(description, pattern, data, expected, loglevel) 
 
   def test_match_inside_sequence_at_least_one_including_negation_on_atomic_constraint(self, loglevel):
     description = 'match_inside_sequence_at_least_one_including_negation_on_atomic_constraint'
-    pattern = 'pos:"DT" +!pos:"NN" pos:"NN"'
+    pattern = 'pos="DT" +!pos="NN" pos="NN"'
     data = [{'raw':'Here', 'lem':'here', 'pos':'ADV'}, {'raw':'the', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = [ {'raw':'the', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]     
     self.test(description, pattern, data, expected, loglevel) 
@@ -150,28 +150,28 @@ class TestPyrata(object):
 
   def test_match_inside_sequence_quantifier_option_on_atomic_constraint(self, loglevel):
     description = 'match_inside_sequence_quantifier_option_on_atomic_constraint'
-    pattern = '?pos:"ADV"'
+    pattern = '?pos="ADV"'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = None
     self.test(description, pattern, data, expected, loglevel)
 
   def test_search_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint(self, loglevel):
     description = 'search_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint'
-    pattern = 'pos:"NN" ?pos:"VB" pos:"JJ"'
+    pattern = 'pos="NN" ?pos="VB" pos="JJ"'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = [ {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]
     self.test(description, pattern, data, expected, loglevel)
 
   def test_search_partially_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint(self, loglevel):
     description = 'search_partially_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint'
-    pattern = 'pos:"NN" ?pos:"VB" pos:"JJ"'
+    pattern = 'pos="NN" ?pos="VB" pos="JJ"'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'},  {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = [ {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]
     self.test(description, pattern, data, expected, loglevel)
 
   def test_search_partially_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint_with_trailer(self, loglevel):
     description = 'search_partially_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint_with_trailer'
-    pattern = 'pos:"NN" ?pos:"VB" pos:"JJ"'
+    pattern = 'pos="NN" ?pos="VB" pos="JJ"'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'},  {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}, {'raw':'are', 'lem':'be', 'pos':'VB'}]     
     expected = [ {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]
     self.test(description, pattern, data, expected, loglevel)
@@ -179,14 +179,14 @@ class TestPyrata(object):
 
   def test_search_unpresent_pattern_wi_surrounded_quantifier_option_on_atomic_constraint(self, loglevel):
     description = 'search_unpresent_pattern_wi_surrounded_quantifier_option_on_atomic_constraint'
-    pattern = 'pos:"NN" ?pos:"ADV" pos:"JJ"'
+    pattern = 'pos="NN" ?pos="ADV" pos="JJ"'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = None
     self.test(description, pattern, data, expected, loglevel)    
 
   def test_search_quantifier_option_at_the_pattern_beginning_on_atomic_constraint(self, loglevel):
     description = 'search_partially_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint'
-    pattern = '?pos:"JJ" pos:"NN"'
+    pattern = '?pos="JJ" pos="NN"'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'},  {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = [{'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]
     self.test(description, pattern, data, expected, loglevel)
@@ -194,28 +194,28 @@ class TestPyrata(object):
   def test_search_quantifier_option_at_the_pattern_end_on_atomic_constraint(self, loglevel):
     #echo 0 |  perl -ne '$s="abbbcb"; if ($s =~/(bc?)/) {print "$1\n"}'
     description = 'search_partially_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint'
-    pattern = 'pos:"JJ" ?pos:"NN"'
+    pattern = 'pos="JJ" ?pos="NN"'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'},  {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = [{'raw':'big', 'lem':'big', 'pos':'JJ'}]
     self.test(description, pattern, data, expected, loglevel)
 
   def test_search_multiple_consecutive_quantifier_option_inside_the_pattern_on_atomic_constraint(self, loglevel):
     description = 'search_multiple_consecutive_quantifier_option_inside_the_pattern_on_atomic_constraint'
-    pattern = 'pos:"DT" ?pos:"JJ" ?pos:"JJ" ?pos:"JJ" pos:"NN"'
+    pattern = 'pos="DT" ?pos="JJ" ?pos="JJ" ?pos="JJ" pos="NN"'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'},  {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]
     self.test(description, pattern, data, expected, loglevel)
 
   def test_search_quantifier_any_inside_the_pattern_on_atomic_constraint(self, loglevel):
     description = 'search_quantifier_any_inside_the_pattern_on_atomic_constraint'
-    pattern = 'pos:"DT" *pos:"JJ" pos:"NN"'
+    pattern = 'pos="DT" *pos="JJ" pos="NN"'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'},  {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]
     self.test(description, pattern, data, expected, loglevel)  
 
   def test_search_quantifier_any_at_the_pattern_beginning_on_atomic_constraint(self, loglevel):
     description = 'search_quantifier_any_at_the_pattern_beginning_on_atomic_constraint'
-    pattern = '*pos:"JJ" pos:"NN"'
+    pattern = '*pos="JJ" pos="NN"'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'},  {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = [{'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]
     self.test(description, pattern, data, expected, loglevel)     

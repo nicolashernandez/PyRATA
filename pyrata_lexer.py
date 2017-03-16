@@ -21,7 +21,7 @@ class Lexer(object):
   literals = [ '"']
 
   tokens = (
-    'NAME', 'VALUE', 'IS',
+    'NAME', 'VALUE', 'EQ',
     'AND', 'OR',
     'LBRACKET','RBRACKET',
     'LPAREN','RPAREN',
@@ -38,7 +38,7 @@ class Lexer(object):
 
   t_NAME = r'[a-zA-Z_][a-zA-Z0-9_]*'
   t_VALUE    = r'\"[a-zA-Z_][a-zA-Z0-9_]*\"' # FIXME whatever character except un excaped QUOTE 
-  t_IS  = r':'
+  t_EQ  = r'='
   #t_QUOTE  = r'"'
   t_AND  = r'&'
   t_OR  = r'\|'
