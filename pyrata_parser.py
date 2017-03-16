@@ -7,6 +7,27 @@
 import ply.yacc as yacc
 from pyrata_lexer import *
 
+
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+class Result(object):
+
+  value = ''
+  begin = -1
+  end = -1
+
+  def __init__(self, **kwargs):
+    if 'begin' in kwargs.keys(): # MANDATORY
+      self.begin = kwargs['begin']
+    if 'end' in kwargs.keys(): # MANDATORY
+      self.end = kwargs['end']
+    if 'value' in kwargs.keys(): # MANDATORY
+      self.value = kwargs['value']
+    if  self.value == '' or self.begin == -1 or self.end == -1:   
+      raise Exception('pyrata_re - attempt to create a Result object with incomplete informations')
+
+
+
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # loglevel (0 None 1 global 2 verbose) 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -58,11 +79,29 @@ class Parser(object):
     # so we store the end position of the recognized structure 
     # and we move the cursor at the next first at the end of the current match
     ''' the whole expression has been successfully recognized '''
-    if p[0]: # and p.lexer.matchongoing:
-      p.lexer.matchongoing = False
-      p.lexer.groupendindex.append(p.lexer.currentExploredDataPosition)
+    if p[0]:
+      if p.lexer.matchongoing:
+        if self.loglevel >2: print ("\tDebug: matchongoing ; currentExploredDataPosition=",p.lexer.currentExploredDataPosition)
+        p.lexer.matchongoing = False
+      #  print ("Debug: len(l.lexer.groupstartindex):", len(p.lexer.groupstartindex), "; l.lexer.groupstartindex=",p.lexer.groupstartindex)
+      #  print ("Debug: len(l.lexer.groupendindex):", len(p.lexer.groupendindex), "; l.lexer.groupendindex=",p.lexer.groupendindex)
+      #print ("Debug: p.lexer.patternStep:", p.lexer.patternStep, "; p.lexer.lexdata=",p.lexer.lexdata)
+      #if p.lexer.patternStep.strip() == p.lexer.lexdata.strip():
+      #  if self.loglevel >2: print ("\tDebug: the current rule should be the most global one")
+        
+
+      p.lexer.groupendindex.append(p.lexer.currentExploredDataPosition) # FIXME quand j'indente je tombe dans une infinite loop
       p.lexer.lastFirstExploredDataPosition=p.lexer.currentExploredDataPosition
+
       if self.loglevel >2: print ("\tDebug: we store the end position of the current match and set the next token position at the end of the current match")
+      #else:
+      #  if self.loglevel >2: print ("\tDebug: we already stored the end position of the current match and set the next token position at the end of the current match")
+
+     # and p.lexer.matchongoing:
+      #p.lexer.matchongoing = False
+      #p.lexer.groupendindex.append(p.lexer.currentExploredDataPosition)
+      #p.lexer.lastFirstExploredDataPosition=p.lexer.currentExploredDataPosition
+      #if self.loglevel >2: print ("\tDebug: we store the end position of the current match and set the next token position at the end of the current match")
     else: #if not(p[0]) and p.lexer.matchongoing:
       ''' the recognition of the expression has failed so we only the cursor of 1 data token'''
       p.lexer.lastFirstExploredDataPosition += 1
@@ -82,7 +121,7 @@ class Parser(object):
       '''and if (none match so far and re mode is 'search') or (re mode is findall)
           then we relaunch the parser at the current location '''
       #if not (p[0]) or p.lexer.re == 'findall':
-      if not (p.lexer.groupendindex) or p.lexer.re == 'findall': 
+      if len(p.lexer.groupendindex) ==0 or p.lexer.re == 'findall': 
       # si la liste est non vide alors on a matché qqch 
         if self.loglevel >2: print ("Context: dataPosition=",p.lexer.currentExploredDataPosition,"; dataToken=",p.lexer.data[p.lexer.currentExploredDataPosition], '; lexpos=',p.lexer.lexpos)
         if self.loglevel >2: print ('\tDebug: some data remains to explore and (not matched yet or re mode is "findall") we relaunch the grammar parser')
@@ -144,13 +183,24 @@ class Parser(object):
       
       #print ("Debug: symbol on the stack that appears immediately to the left=",p[-1])
       if p[1] == '?':
-        '''in any case we move to the next token '''
-        # TODO p[0] = ; currently None
-        if self.loglevel >2: print ("\tTODO process semantics of quantifier ?")
-        if not(p.lexer.islocal):
+        '''gram ab?c recognizes abc or ac ; 
+           when grammar step b is true we move forward in terms of data cursor ; we always move the grammar step''' 
+        p[0] = p[2]
+        self.log(p, '(quantifiedstep-> ' + p[1] + 'step)')
+        #if not(p.lexer.islocal): when processing local step we never go to the quantified step so, this should not be called here
+        if p[0]:
           p.lexer.currentExploredDataPosition +=1
-          if self.loglevel >2: 
-            print ('\tDebug: whatever the recognition, we move to the next data token ; currentExploredDataPosition=',p.lexer.currentExploredDataPosition )
+        #else:
+        #  p.lexer.matchongoing = False  
+        if self.loglevel >2: 
+          if p[0]:
+            print ('\tDebug: Since we recognized the token, we move to the next data token ; currentExploredDataPosition=',p.lexer.currentExploredDataPosition)
+          else:
+            print ('\tDebug: We did not recognized the token, so we wont move to the next data token ; currentExploredDataPosition=',p.lexer.currentExploredDataPosition)
+        p[0] = True 
+        if self.loglevel >2: 
+          print ('\tDebug: and change p[0]', p[0])
+
         if p.lexer.currentExploredDataPosition >= len(p.lexer.data):
           if self.loglevel >2: 
             print ('\tDebug: the parsing of a pattern is on going (True so far) but no more data remains to explore ; we empty the parser buffer')
@@ -229,7 +279,7 @@ class Parser(object):
           # TODO #else: error, il faut passer à initial+1 et faire un restart du parseur sur la grammaire principale (si une seule règle)
           # ou bien rester sur initial et tester les autres règles et quand plus de règles passer à initial+1 et faire un parser.restart
           self.log(p, '(quantifiedstep-> ' + p[1] + 'step)')
-
+          #p.lexer.matchongoing = False
       elif p[1] == '*':
         if self.loglevel >2: print ("\tTODO process semantics of quantifier *")
         # TODO p[0] = ; currently None          
@@ -248,7 +298,13 @@ class Parser(object):
       p.lexer.lastFirstExploredDataPosition += 1
       p.lexer.currentExploredDataPosition = p.lexer.lastFirstExploredDataPosition
       p.lexer.patternStepPosition = 0
-
+      
+      ''' if we already start to match something and consequently stored a start, we should remove it'''
+      if p.lexer.matchongoing and len(p.lexer.groupstartindex) >0:
+        if self.loglevel >2:
+          print ("\t(Should be) Removing the last indexed start offset")
+        p.lexer.groupstartindex.pop()  
+        p.lexer.matchongoing = False
       # if some data remains to explore
       if  p.lexer.lastFirstExploredDataPosition < len(p.lexer.data):
   #       # and if none match so far or re mode is findall
@@ -261,7 +317,11 @@ class Parser(object):
         p.parser.parse(p.lexer.grammar, p.lexer, tracking=True)
 
       else:
-        if self.loglevel >2: print ('\tDebug: no more data to explore')
+        if self.loglevel >2: print ('\tDebug: no more data to explore ; we empty the parser buffer')
+        while True:
+          tok = p.parser.token()             # Get the next token
+          if not tok: 
+            break
 
     if p.lexer.islocal: 
       if self.loglevel >2: print ("\tDebug: stop processing a (local) step grammar")

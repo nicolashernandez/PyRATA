@@ -162,12 +162,50 @@ class TestPyrata(object):
     expected = [ {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]
     self.test(description, pattern, data, expected, loglevel)
 
+  def test_search_partially_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint(self, loglevel):
+    description = 'search_partially_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint'
+    pattern = 'pos:"NN" ?pos:"VB" pos:"JJ"'
+    data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'},  {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
+    expected = [ {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]
+    self.test(description, pattern, data, expected, loglevel)
+
+  def test_search_partially_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint_with_trailer(self, loglevel):
+    description = 'search_partially_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint_with_trailer'
+    pattern = 'pos:"NN" ?pos:"VB" pos:"JJ"'
+    data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'},  {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}, {'raw':'are', 'lem':'be', 'pos':'VB'}]     
+    expected = [ {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]
+    self.test(description, pattern, data, expected, loglevel)
+
+
   def test_search_unpresent_pattern_wi_surrounded_quantifier_option_on_atomic_constraint(self, loglevel):
     description = 'search_unpresent_pattern_wi_surrounded_quantifier_option_on_atomic_constraint'
     pattern = 'pos:"NN" ?pos:"ADV" pos:"JJ"'
     data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     expected = None
     self.test(description, pattern, data, expected, loglevel)    
+
+  def test_search_quantifier_option_at_the_pattern_beginning_on_atomic_constraint(self, loglevel):
+    description = 'search_partially_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint'
+    pattern = '?pos:"JJ" pos:"NN"'
+    data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'},  {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
+    expected = [{'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]
+    self.test(description, pattern, data, expected, loglevel)
+
+  def test_search_quantifier_option_at_the_pattern_end_on_atomic_constraint(self, loglevel):
+    #echo 0 |  perl -ne '$s="abbbcb"; if ($s =~/(bc?)/) {print "$1\n"}'
+    description = 'search_partially_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint'
+    pattern = 'pos:"JJ" ?pos:"NN"'
+    data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'},  {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
+    expected = [{'raw':'big', 'lem':'big', 'pos':'JJ'}]
+    self.test(description, pattern, data, expected, loglevel)
+
+  def test_search_multiple_consecutive_quantifier_option_inside_the_pattern_on_atomic_constraint(self, loglevel):
+    description = 'search_multiple_consecutive_quantifier_option_inside_the_pattern_on_atomic_constraint'
+    pattern = 'pos:"DT" ?pos:"JJ" ?pos:"JJ" ?pos:"JJ" pos:"NN"'
+    data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'},  {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
+    expected = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}]
+    self.test(description, pattern, data, expected, loglevel)
+
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # Declare here all the tests you want to run
@@ -193,9 +231,13 @@ class TestPyrata(object):
     self.test_match_inside_sequence_class_constraint(myloglevel)
     self.test_match_inside_sequence_quantifier_at_least_one_on_class_constraint(myloglevel)
     self.test_match_inside_sequence_quantifier_option_on_atomic_constraint(myloglevel)
-    #self.test_search_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint(myloglevel)
-    #self.test_search_unpresent_pattern_wi_surrounded_quantifier_option_on_atomic_constraint(myloglevel)
-
+    self.test_search_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint(myloglevel)
+    self.test_search_partially_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint(myloglevel)
+    self.test_search_partially_present_pattern_wi_surrounded_quantifier_option_on_atomic_constraint_with_trailer(myloglevel)
+    self.test_search_unpresent_pattern_wi_surrounded_quantifier_option_on_atomic_constraint(myloglevel)
+    self.test_search_quantifier_option_at_the_pattern_beginning_on_atomic_constraint(myloglevel)
+    self.test_search_quantifier_option_at_the_pattern_end_on_atomic_constraint(myloglevel)
+    self.test_search_multiple_consecutive_quantifier_option_inside_the_pattern_on_atomic_constraint(myloglevel)
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # Run all the tests
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
