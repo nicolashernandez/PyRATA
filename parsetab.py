@@ -5,9 +5,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'expressionleftLBRACKETRBRACKETleftORleftANDleftLPARENRPARENrightNOTleftEQNAME VALUE EQ AND OR LBRACKET RBRACKET LPAREN RPAREN NOT OPTION ATLEASTONE ANYexpression : quantifiedstep expression\n                  | quantifiedstep quantifiedstep : step \n            | OPTION step\n            | ATLEASTONE step \n            | ANY stepstep : atomicconstraint\n            | NOT step\n            | LBRACKET classconstraint RBRACKET classconstraint : classconstraint AND partofclassconstraint\n            | classconstraint OR partofclassconstraint \n            | partofclassconstraint partofclassconstraint : atomicconstraint\n                    | LPAREN classconstraint RPAREN  \n                    | NOT classconstraint atomicconstraint : NAME EQ VALUE '
+_lr_signature = 'quantifiedstepleftLBRACKETRBRACKETleftORleftANDleftLPARENRPARENrightNOTleftEQNAME VALUE EQ AND OR LBRACKET RBRACKET LPAREN RPAREN NOT OPTION ATLEASTONE ANYexpression : quantifiedstep expression\n                  | quantifiedstep quantifiedstep : step \n            | OPTION step\n            | ATLEASTONE step \n            | ANY stepstep : atomicconstraint\n            | NOT step\n            | LBRACKET classconstraint RBRACKET classconstraint : classconstraint AND partofclassconstraint\n            | classconstraint OR partofclassconstraint \n            | partofclassconstraint partofclassconstraint : atomicconstraint\n                    | LPAREN classconstraint RPAREN  \n                    | NOT classconstraint atomicconstraint : NAME EQ VALUE '
     
-_lr_action_items = {'RBRACKET':([18,19,20,22,24,28,29,30,],[25,-13,-12,-16,-15,-14,-11,-10,]),'NOT':([0,2,3,4,5,6,7,8,9,12,14,15,16,17,21,22,25,26,27,],[2,2,-7,2,2,-3,2,17,2,-8,-5,-6,17,17,-4,-16,-9,17,17,]),'OPTION':([0,3,4,6,12,14,15,21,22,25,],[9,-7,9,-3,-8,-5,-6,-4,-16,-9,]),'$end':([3,4,6,10,12,13,14,15,21,22,25,],[-7,-2,-3,0,-8,-1,-5,-6,-4,-16,-9,]),'LPAREN':([8,16,17,26,27,],[16,16,16,16,16,]),'VALUE':([11,],[22,]),'OR':([18,19,20,22,23,24,28,29,30,],[26,-13,-12,-16,26,-15,-14,-11,-10,]),'AND':([18,19,20,22,23,24,28,29,30,],[27,-13,-12,-16,27,-15,-14,-11,-10,]),'ATLEASTONE':([0,3,4,6,12,14,15,21,22,25,],[5,-7,5,-3,-8,-5,-6,-4,-16,-9,]),'RPAREN':([19,20,22,23,24,28,29,30,],[-13,-12,-16,28,-15,-14,-11,-10,]),'ANY':([0,3,4,6,12,14,15,21,22,25,],[7,-7,7,-3,-8,-5,-6,-4,-16,-9,]),'LBRACKET':([0,2,3,4,5,6,7,9,12,14,15,21,22,25,],[8,8,-7,8,8,-3,8,8,-8,-5,-6,-4,-16,-9,]),'NAME':([0,2,3,4,5,6,7,8,9,12,14,15,16,17,21,22,25,26,27,],[1,1,-7,1,1,-3,1,1,1,-8,-5,-6,1,1,-4,-16,-9,1,1,]),'EQ':([1,],[11,]),}
+_lr_action_items = {'NAME':([0,2,3,7,8,9,14,18,23,24,],[1,1,1,1,1,1,1,1,1,1,]),'NOT':([0,2,3,7,8,9,14,18,23,24,],[2,2,2,2,14,2,14,14,14,14,]),'OR':([15,16,17,20,21,25,26,27,28,],[-12,-13,24,-16,-15,24,-10,-11,-14,]),'ANY':([0,],[3,]),'AND':([15,16,17,20,21,25,26,27,28,],[-12,-13,23,-16,-15,23,-10,-11,-14,]),'VALUE':([10,],[20,]),'RBRACKET':([15,16,17,20,21,26,27,28,],[-12,-13,22,-16,-15,-10,-11,-14,]),'OPTION':([0,],[9,]),'RPAREN':([15,16,20,21,25,26,27,28,],[-12,-13,-16,-15,28,-10,-11,-14,]),'LBRACKET':([0,2,3,7,9,],[8,8,8,8,8,]),'EQ':([1,],[10,]),'$end':([4,5,6,11,12,13,19,20,22,],[-7,-3,0,-8,-6,-5,-4,-16,-9,]),'ATLEASTONE':([0,],[7,]),'LPAREN':([8,14,18,23,24,],[18,18,18,18,18,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -16,7 +16,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'quantifiedstep':([0,4,],[4,4,]),'classconstraint':([8,16,17,],[18,23,24,]),'partofclassconstraint':([8,16,17,26,27,],[20,20,20,29,30,]),'step':([0,2,4,5,7,9,],[6,12,6,14,15,21,]),'expression':([0,4,],[10,13,]),'atomicconstraint':([0,2,4,5,7,8,9,16,17,26,27,],[3,3,3,3,3,19,3,19,19,19,19,]),}
+_lr_goto_items = {'quantifiedstep':([0,],[6,]),'classconstraint':([8,14,18,],[17,21,25,]),'atomicconstraint':([0,2,3,7,8,9,14,18,23,24,],[4,4,4,4,16,4,16,16,16,16,]),'step':([0,2,3,7,9,],[5,11,12,13,19,]),'partofclassconstraint':([8,14,18,23,24,],[15,15,15,26,27,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -25,7 +25,7 @@ for _k, _v in _lr_goto_items.items():
        _lr_goto[_x][_k] = _y
 del _lr_goto_items
 _lr_productions = [
-  ("S' -> expression","S'",1,None,None,None),
+  ("S' -> quantifiedstep","S'",1,None,None,None),
   ('expression -> quantifiedstep expression','expression',2,'p_expression','pyrata_parser.py',62),
   ('expression -> quantifiedstep','expression',1,'p_expression','pyrata_parser.py',63),
   ('quantifiedstep -> step','quantifiedstep',1,'p_quantifiedstep','pyrata_parser.py',145),

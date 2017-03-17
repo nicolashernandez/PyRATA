@@ -284,7 +284,7 @@ class Parser(object):
         self.log(p, '(quantifiedstep-> ' + p[1] + 'step)')
         #if not(p.lexer.islocal): when processing local step we never go to the quantified step so, this should not be called here
         if p[0]:
-          p.lexer.currentExploredDataPosition +=1
+          #p.lexer.currentExploredDataPosition +=1
   
 #print ("p.lexer.grammar:",p.lexer.grammar)
           localLexer = Lexer(grammar=p.lexer.localstep, data=p.lexer.data)  # p.lexer.data)
