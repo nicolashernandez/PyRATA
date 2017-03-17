@@ -43,7 +43,6 @@ class Parser(object):
     ('left', 'AND'),
     ('left', 'LPAREN','RPAREN'),
     ('right', 'NOT'),
-
     ('left', 'EQ'),
 #  ('right', 'OPTION', 'ANY', 'ATLEASTONE')
   )
@@ -348,6 +347,14 @@ class Parser(object):
           #print ("\tDebug: p.parser=",p.parser)
           #print ("\tDebug: p.lexer=",p.lexer)
           #parser.restart()
+        if self.loglevel >2: 
+          if p[0]:
+            print ('\tDebug: Since we recognized at least one token, we move to the next data token ; currentExploredDataPosition=',p.lexer.currentExploredDataPosition)
+          else:
+            print ('\tDebug: We did not recognized the token, so we wont move to the next data token ; currentExploredDataPosition=',p.lexer.currentExploredDataPosition)
+        p[0] = True 
+        if self.loglevel >2: 
+          print ('\tDebug: and anyway change p[0]', p[0])  
 
       
     # to log the parsing of the grammar
@@ -358,7 +365,7 @@ class Parser(object):
     if not (p[0]) and not (p.lexer.islocal):
       ''' the current pattern step is False so it abords the parsing, moves in the data to explore, and restart the parsing'''
       if self.loglevel >2:
-        print ("\tQuantifier step fail to recognize")
+        print ("\tQuantifier step fails to recognize")
       p.lexer.lastFirstExploredDataPosition += 1
       p.lexer.currentExploredDataPosition = p.lexer.lastFirstExploredDataPosition
       p.lexer.patternStepPosition = 0
