@@ -104,8 +104,9 @@ class Lexer(object):
     self.lexer.data = data
 
     # re method 
-    # search: stop at first match, return the matched structure or None otherwise
-    # findall: find all the matches, return a list of objects embedding the recognized structure and the positions in the data
+    # search: Scan through data looking for the first location where the regular expression pattern produces a match, and return a corresponding match object. 
+    # findall: Return all non-overlapping matches of pattern in data, as a list of datas. 
+    # finditer: Return an iterator yielding match objects over all non-overlapping matches for the RE pattern in data.
     self.lexer.re = re
 
     # list of start/end index of each recognized group 
