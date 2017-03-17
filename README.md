@@ -1,9 +1,11 @@
 # PyRATA
 =========
+
 PyRATA is an acronym which stands for "Python Rule-based feAture sTructure Analysis" or "Python Rule-bAsed Text Analysis".
 
 # Description
 -------------
+
 Traditional regular expression (RE) engines handle character strings; In other words lists of character tokens.
 re are used to define patterns which are used to recognized some phenomena in texts.
 In Natural Language Processing, they are the essence of the rule-based approach for analysing the texts.
@@ -29,43 +31,53 @@ In comparison
 ## Requirement
 PyRATA use the [PLY](http://www.dabeaz.com/ply/ply.html "PLY") implementation of lex and yacc parsing tools for Python (version 3.10).
 One way to install it is:
+
     sudo pip3 install ply
 
 ## Use it (in console)
 First run python
+
     python3
 
 Then import the main pyrata regular expression module:
+
     >>> import pyrata_re
 
 Let's say you have a sentence in the pyrata data structure format (__a list of dict__).
+
     >>> data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
 
 By the way, you can also easily turn a sentence into the pyrata data structure, for example by doing:
+
     >>> import nltk
     >>> sentence = "It is fast easy and funny to write regular expressions with Pyrata"
     >>> data =  [{'raw':word, 'pos':pos} for (word, pos) in nltk.pos_tag(nltk.word_tokenize(sentence))]
 
 At this point you can use the regular expression methods available to explore the data. 
 To *search the first location* where a given pattern (here `pos="JJ"`) produces a match:
+
     >>> pyrata_re.search('pos="JJ"', data)
     >>> <pyrata_re Match object; span=(2, 3), match="[{'pos': 'JJ', 'raw': 'fast'}]">
 
 To get the value of the match:
+
     >>> pyrata_re.search('pos="JJ"', data).group()
     >>> [{'raw': 'fast', 'pos': 'JJ'}]
     
 To get the value of the start and the end:
+
     >>> pyrata_re.search('pos="JJ"', data).start()
     >>> 2
     >>> pyrata_re.search('pos="JJ"', data).end()
     >>> 3
 
 To *find all non-overlapping matches* of pattern in data, as a list of datas:
+
     >>> pyrata_re.findall('pos="JJ"', data)
     >>> [[{'pos': 'JJ', 'raw': 'fast'}], [{'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}], [{'pos': 'JJ', 'raw': 'regular'}]]]
 
 To *get an iterator yielding match objects* over all non-overlapping matches for the RE pattern in data:
+
     >>> for m in pyrata_re.finditer('pos="JJ"', data): print (m)
     ... 
     <pyrata_re Match object; span=(2, 3), match="[{'pos': 'JJ', 'raw': 'fast'}]">
@@ -75,34 +87,42 @@ To *get an iterator yielding match objects* over all non-overlapping matches for
 
 What about the expressivity of the pyrata grammar? A pattern is made of *steps*, eachone specifying the form of the element to match. 
 You can search a *sequence of elements* (Here an adjective (tagged __JJ__) followed by a proper noun (tagged __NPP__):
+
     >>> pyrata_re.search('pos="JJ" pos="NNS"', data).group()
     [{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}]
 
 You can specify a *class of elements* by specifying constraints on the properties of the required element with logical operators like:
+
     >>> pyrata_re.findall('[(pos="NNS" | pos="NNP") & !raw="pattern"]', data)
     [[{'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'NNP', 'raw': 'Pyrata'}]]
 
 You can quantify the repetition of a step: in other words specifying a *quantifier to match one or more times* the same form of an element:
+
     >>> pyrata_re.findall('+pos="JJ" [(pos="NNS" | pos="NNP")]', data)
     [{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}]
 
 Or specifying a *quantifier to match zero or more times* a certain form of an element:
+
     >>> pyrata_re.findall('*pos="JJ" [(pos="NNS" | pos="NNP")]', data)
     [[[{'raw': 'regular', 'pos': 'JJ'}, {'raw': 'expressions', 'pos': 'NNS'}], [{'raw': 'Pyrata', 'pos': 'NNP'}]]
 
 Or specifying a *quantifier to match once or not at all* the given form of an element*:
+
     >>> pyrata_re.findall('?pos="JJ" [(pos="NNS" | pos="NNP")]', data)
     [[{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'NNP', 'raw': 'Pyrata'}]]
 
 To understand the process of a method, specify a verbosity degree to it:
+
     >>> pyrata_re.findall('*pos="JJ" [(pos="NNS" | pos="NNP")]', data, loglevel=3)
     ....
 
 ## Run tests
+
     python3 test_pyrata.py
 
 
 More complex data     
+
     >>> data =  [{'raw':word, 'pos':pos, 'stem':nltk.stem.SnowballStemmer('english').stem(word), 'lem':nltk.WordNetLemmatizer().lemmatize(word.lower()), 'sw':(word in nltk.corpus.stopwords.words('english'))} for (word, pos) in nltk.pos_tag(nltk.word_tokenize(sentence))]
     >>> data
     [{'lem': 'it', 'stem': 'it', 'raw': 'It', 'pos': 'PRP', 'sw': False}, {'lem': "'s", 'stem': "'s", 'raw': "'s", 'pos': 'VBZ', 'sw': False}, {'lem': 'fun', 'stem': 'fun', 'raw': 'fun', 'pos': 'JJ', 'sw': False}, {'lem': 'and', 'stem': 'and', 'raw': 'and', 'pos': 'CC', 'sw': True}, {'lem': 'easy', 'stem': 'easi', 'raw': 'easy', 'pos': 'JJ', 'sw': False}, {'lem': 'to', 'stem': 'to', 'raw': 'to', 'pos': 'TO', 'sw': True}, {'lem': 'play', 'stem': 'play', 'raw': 'play', 'pos': 'VB', 'sw': False}, {'lem': 'with', 'stem': 'with', 'raw': 'with', 'pos': 'IN', 'sw': True}, {'lem': 'pyrata', 'stem': 'pyrata', 'raw': 'Pyrata', 'pos': 'NNP', 'sw': False}]
