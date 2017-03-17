@@ -90,32 +90,32 @@ To __get an iterator yielding match objects__ over all non-overlapping matches f
     <pyrata_re Match object; span=(8, 9), match="[{'pos': 'JJ', 'raw': 'regular'}]">
 
 What about the expressivity of the pyrata grammar? A pattern is made of __steps__, eachone specifying the form of the element to match. 
-You can search a __sequence of elements__ (Here an adjective (tagged *JJ_) followed by a proper noun (tagged __NPP__):
+You can search a __sequence of elements__, for example an adjective (tagged *JJ*) followed by a noun in plural form  (tagged *NNS*):
 
     >>> pyrata_re.search('pos="JJ" pos="NNS"', data).group()
     [{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}]
 
-You can specify a *class of elements* by specifying constraints on the properties of the required element with logical operators like:
+You can specify a __class of elements__ by specifying constraints on the properties of the required element with logical operators like:
 
     >>> pyrata_re.findall('[(pos="NNS" | pos="NNP") & !raw="pattern"]', data)
     [[{'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'NNP', 'raw': 'Pyrata'}]]
 
-You can quantify the repetition of a step: in other words specifying a *quantifier to match one or more times* the same form of an element:
+You can quantify the repetition of a step: in other words specifying a __quantifier to match one or more times__ the same form of an element:
 
     >>> pyrata_re.findall('+pos="JJ" [(pos="NNS" | pos="NNP")]', data)
     [{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}]
 
-Or specifying a *quantifier to match zero or more times* a certain form of an element:
+Or specifying a __quantifier to match zero or more times__ a certain form of an element:
 
     >>> pyrata_re.findall('*pos="JJ" [(pos="NNS" | pos="NNP")]', data)
     [[[{'raw': 'regular', 'pos': 'JJ'}, {'raw': 'expressions', 'pos': 'NNS'}], [{'raw': 'Pyrata', 'pos': 'NNP'}]]
 
-Or specifying a *quantifier to match once or not at all* the given form of an element*:
+Or specifying a __quantifier to match once or not at all__ the given form of an element:
 
     >>> pyrata_re.findall('?pos="JJ" [(pos="NNS" | pos="NNP")]', data)
     [[{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'NNP', 'raw': 'Pyrata'}]]
 
-To understand the process of a method, specify a verbosity degree to it:
+To understand the process of a method, specify a __verbosity degree__ to it:
 
     >>> pyrata_re.findall('*pos="JJ" [(pos="NNS" | pos="NNP")]', data, loglevel=3)
     ....
