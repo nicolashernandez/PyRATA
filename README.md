@@ -1,5 +1,5 @@
 # PyRATA
-=========
+-------------
 
 PyRATA is an acronym which stands for "Python Rule-based feAture sTructure Analysis" or "Python Rule-bAsed Text Analysis".
 
@@ -43,9 +43,11 @@ Then import the main pyrata regular expression module:
 
     >>> import pyrata_re
 
-Let's say you have a sentence in the pyrata data structure format (__a list of dict__).
+Let's say you have a sentence in the pyrata data structure format, __a list of dict__. A dict is a map i.e. a set of features, eachone with a name and value (in our case a primitive value).
 
     >>> data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+
+There is no requirement on the names of the features.
 
 By the way, you can also easily turn a sentence into the pyrata data structure, for example by doing:
 
@@ -53,30 +55,32 @@ By the way, you can also easily turn a sentence into the pyrata data structure, 
     >>> sentence = "It is fast easy and funny to write regular expressions with Pyrata"
     >>> data =  [{'raw':word, 'pos':pos} for (word, pos) in nltk.pos_tag(nltk.word_tokenize(sentence))]
 
-At this point you can use the regular expression methods available to explore the data. 
-To *search the first location* where a given pattern (here `pos="JJ"`) produces a match:
+In the previous code, you see that the names `raw` and `pos` have been arbitrary choosen to means respectively the surface form of a word and its part-of-speech.
+
+At this point you can use the regular expression methods available to explore the data. Let's say you want to search the advectives. By chance there is a property which specifies the part of speech of tokens, *pos*, the value of *pos* which stands for adjectives is *JJ*.
+To __search the first location__ where a given pattern (here `pos="JJ"`) produces a match:
 
     >>> pyrata_re.search('pos="JJ"', data)
     >>> <pyrata_re Match object; span=(2, 3), match="[{'pos': 'JJ', 'raw': 'fast'}]">
 
-To get the value of the match:
+To get the __value of the match__:
 
     >>> pyrata_re.search('pos="JJ"', data).group()
     >>> [{'raw': 'fast', 'pos': 'JJ'}]
     
-To get the value of the start and the end:
+To get the __value of the start and the end__:
 
     >>> pyrata_re.search('pos="JJ"', data).start()
     >>> 2
     >>> pyrata_re.search('pos="JJ"', data).end()
     >>> 3
 
-To *find all non-overlapping matches* of pattern in data, as a list of datas:
+To __find all non-overlapping matches__ of pattern in data, as a list of datas:
 
     >>> pyrata_re.findall('pos="JJ"', data)
     >>> [[{'pos': 'JJ', 'raw': 'fast'}], [{'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}], [{'pos': 'JJ', 'raw': 'regular'}]]]
 
-To *get an iterator yielding match objects* over all non-overlapping matches for the RE pattern in data:
+To __get an iterator yielding match objects__ over all non-overlapping matches for the RE pattern in data:
 
     >>> for m in pyrata_re.finditer('pos="JJ"', data): print (m)
     ... 
@@ -85,8 +89,8 @@ To *get an iterator yielding match objects* over all non-overlapping matches for
     <pyrata_re Match object; span=(5, 6), match="[{'pos': 'JJ', 'raw': 'funny'}]">
     <pyrata_re Match object; span=(8, 9), match="[{'pos': 'JJ', 'raw': 'regular'}]">
 
-What about the expressivity of the pyrata grammar? A pattern is made of *steps*, eachone specifying the form of the element to match. 
-You can search a *sequence of elements* (Here an adjective (tagged __JJ__) followed by a proper noun (tagged __NPP__):
+What about the expressivity of the pyrata grammar? A pattern is made of __steps__, eachone specifying the form of the element to match. 
+You can search a __sequence of elements__ (Here an adjective (tagged *JJ_) followed by a proper noun (tagged __NPP__):
 
     >>> pyrata_re.search('pos="JJ" pos="NNS"', data).group()
     [{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}]
@@ -176,10 +180,11 @@ si pas d'erreur et on arrive à la fin (de la grammaire/d'une règle):
 
 # Roadmap
 ---------
+
 ##  Done 
 * implementation of token sequence parsing/semantic analysis with token an atomicconstraint
 * implementation of class of tokens (parsing and semantic analysis with logical and/or/not operators and parenthesis)
-* implementation of quantifier +
+* implementation of quantifier AT_LEAST_ONE
 * lexer and parser as classes
 * regex operation match 
 * rename package, file, module, class, variable names
@@ -195,10 +200,11 @@ si pas d'erreur et on arrive à la fin (de la grammaire/d'une règle):
 * implement any in quantifiedstep
 * symbol ':' turned into '=' (since it had an equal meaning)
 * implement pyrata_re.findall
+* implement pyrata_re.finditer
+* README with a section part for the user
 
 ## TODO
 
-* implement pyrata_re.finditer
 * end location is stored several times with the expression rules ; have a look at len(l.lexer.groupstartindex): and len(l.lexer.groupendindex): after parsing in pyrata_re methods to compare 
 * revise the README and create a specific developer page
 * class atomic with non atomic contraint should be prefered to not step to adapt one single way of doing stuff: partofclassconstraint -> NOT classconstraint more than step -> NOT step ; but the latter is simpler so check if it is working as expected wi quantifier +!pos:"EX" = +[!pos:"EX"])
