@@ -285,6 +285,13 @@ class TestPyrata(object):
     expected = [[{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'NNP', 'raw': 'Pyrata'}]]
     self.test(description, method, pattern, data, expected, loglevel)      
 
+  def test_findall_match_atomic_class(self, loglevel):
+    description = 'findall_match_atomic_class'
+    method='findall'
+    pattern = 'pos~"NN.*"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [[{'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'NNP', 'raw': 'Pyrata'}]]
+    self.test(description, method, pattern, data, expected, loglevel)     
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # Declare here all the tests you want to run
@@ -322,7 +329,9 @@ class TestPyrata(object):
     self.test_search_quantifier_any_at_the_pattern_end_on_atomic_constraint(myloglevel)
     self.test_search_quantifier_any_inside_the_pattern_on_non_present_atomic_constraint(myloglevel)
     self.test_findall_at_multiple_locations_in_the_pattern_on_atomic_constraint(myloglevel)
-    self.test_findall_any_atomic_class(3)
+    self.test_findall_any_atomic_class(myloglevel)
+    self.test_findall_match_atomic_class(myloglevel)
+
 
     
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

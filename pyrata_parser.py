@@ -6,27 +6,8 @@
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import ply.yacc as yacc
 from pyrata_lexer import *
+
 import re
-
-# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-class Result(object):
-
-  value = ''
-  begin = -1
-  end = -1
-
-  def __init__(self, **kwargs):
-    if 'begin' in kwargs.keys(): # MANDATORY
-      self.begin = kwargs['begin']
-    if 'end' in kwargs.keys(): # MANDATORY
-      self.end = kwargs['end']
-    if 'value' in kwargs.keys(): # MANDATORY
-      self.value = kwargs['value']
-    if  self.value == '' or self.begin == -1 or self.end == -1:   
-      raise Exception('pyrata_re - attempt to create a Result object with incomplete informations')
-
-
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # loglevel (0 None 1 global 2 verbose) 
@@ -38,12 +19,12 @@ class Parser(object):
   loglevel = 0 # degree of verbosity
   
   precedence = (
-    ('left',  'LBRACKET','RBRACKET'),    
+    ('left', 'LBRACKET','RBRACKET'),    
     ('left',  'OR'),
-    ('left',  'AND'),
-    ('left',  'LPAREN','RPAREN'),
+    ('left', 'AND'),
+    ('left', 'LPAREN','RPAREN'),
     ('right', 'NOT'),
-    ('left',  'EQ', 'MATCH'),
+    ('left', 'EQ'),
 #  ('right', 'OPTION', 'ANY', 'ATLEASTONE')
   )
 
@@ -125,8 +106,6 @@ class Parser(object):
         if self.loglevel >2: print ("Context: dataPosition=",p.lexer.currentExploredDataPosition,"; dataToken=",p.lexer.data[p.lexer.currentExploredDataPosition], '; lexpos=',p.lexer.lexpos)
         if self.loglevel >2: print ('\tDebug: some data remains to explore and (not matched yet or re mode is "findall") we relaunch the grammar parser')
         p.lexer.patternStepPosition = 0
-#      #self.parser.restart()
-#      #self.parser = yacc.yacc(module=self) #start='expression',
         self.parser.parse(p.lexer.grammar, p.lexer, tracking=True)
       else:
         if self.loglevel >2: print ('\tDebug: some data remains to explore but already match something')
@@ -231,13 +210,7 @@ class Parser(object):
               #print ("\tDebug: len(p.lexer.data)=",len(p.lexer.data),"; inc(currentExploredDataPosition) ; currentExploredDataPosition=",localLexer.lexer.currentExploredDataPosition)
               print ("\tDebug: futuretoken=",p.lexer.data[localLexer.lexer.currentExploredDataPosition])
             localLexer.lexer.islocal = True
-  #          locallexer = lex.lex()
-  #          locallexer.islocal = True
-  #          locallexer.localresult = ''
             localLexer.lexer.localstep = p.lexer.localstep
-  #          locallexer.currentExploredDataPosition = p.lexer.currentExploredDataPosition
-            #localparser = yacc.yacc()
-            #localparser.parse(p.lexer.localstep,lexer=lexer, tracking=True) #,start='expression'
             
             localParser = Parser(tokens=localLexer.tokens, loglevel=self.loglevel, start='quantifiedstep') # Set Add True for debugging
             localParser.parser.parse(localLexer.lexer.localstep, localLexer.lexer) #, tracking=True)
@@ -284,7 +257,6 @@ class Parser(object):
         self.log(p, '(quantifiedstep-> ' + p[1] + 'step)')
         #if not(p.lexer.islocal): when processing local step we never go to the quantified step so, this should not be called here
         if p[0]:
-          #p.lexer.currentExploredDataPosition +=1
   
 #print ("p.lexer.grammar:",p.lexer.grammar)
           localLexer = Lexer(grammar=p.lexer.localstep, data=p.lexer.data)  # p.lexer.data)
@@ -309,10 +281,6 @@ class Parser(object):
   #          locallexer.islocal = True
   #          locallexer.localresult = ''
             localLexer.lexer.localstep = p.lexer.localstep
-  #          locallexer.currentExploredDataPosition = p.lexer.currentExploredDataPosition
-            #localparser = yacc.yacc()
-            #localparser.parse(p.lexer.localstep,lexer=lexer, tracking=True) #,start='expression'
-            
             localParser = Parser(tokens=localLexer.tokens, loglevel=self.loglevel, start='quantifiedstep') # Set Add True for debugging
             localParser.parser.parse(localLexer.lexer.localstep, localLexer.lexer) #, tracking=True)
             #localparser.parse(p.lexer.localstep,lexer=locallexer) #,start='expression'
@@ -382,8 +350,6 @@ class Parser(object):
   #       if not (p[0]) or p.lexer.re == 'findall': 
   #         if self.loglevel >2: print ("Context: dataPosition=",p.lexer.currentExploredDataPosition,"; dataToken=",p.lexer.data[p.lexer.currentExploredDataPosition], '; lexpos=',p.lexer.lexpos)
         if self.loglevel >2: print ('\tDebug: some data remains to explore and (not matched yet or re mode is "findall") we relaunch the grammar parser')
-     #   self.parser.restart()
-  # #      #self.parser = yacc.yacc(module=self) #start='expression',
         # consequently the following lines will make as many p_expression calls as relaunch...
         p.parser.parse(p.lexer.grammar, p.lexer, tracking=True)
 
@@ -504,10 +470,10 @@ class Parser(object):
     '''atomicconstraint : NAME EQ VALUE 
                           | NAME MATCH VALUE'''
     self.setPatternStep(p)
-    attName=p[1]
-    operator=p[2]
-    attValue=p[3][1:-1]
-    self.log(p, '(atomicconstraint->NAME=VALUE: ' + attName + ' '+operator+' ' +attValue +')')
+    attName = p[1]
+    operator = p[2]
+    attValue = p[3][1:-1]
+    self.log(p, '(atomicconstraint->NAME=VALUE: ' + attName + ' ' + operator + ' ' + attValue +')')
     if operator == '=':
       p[0] = (p.lexer.data[p.lexer.currentExploredDataPosition][attName] == attValue)
     else:
@@ -606,15 +572,16 @@ class Parser(object):
 
   def p_error(self,p):
     if not p:
-      print("Info: End of Grammar File.")
+      if self.loglevel >2: 
+        print("Info: End of Grammar File.")
       return
 
       # http://www.dabeaz.com/ply/ply.html#ply_nn26 6.8.2
       # Read ahead looking for a closing ';'
-    print ("Parsing error: found token type=",p.type, " with value=",p.value,"but not expected")
+    if self.loglevel >2: 
+      print ("Parsing error: found token type=",p.type, " with value=",p.value,"but not expected")
     while True:
       tok = self.parser.token()             # Get the next token
-  #      if not tok or tok.type == 'EOI': 
       if not tok: 
         break
     self.parser.restart()
@@ -655,7 +622,8 @@ class Parser(object):
     if 'start' in kwargs.keys(): # MANDATORY
       start = kwargs['start'] 
     kwargs.pop('start', None)      
-    self.parser = yacc.yacc(module=self,  start=start, **kwargs) #
+    # debugging and logging http://www.dabeaz.com/ply/ply.html#ply_nn44 
+    self.parser = yacc.yacc(module=self,  start=start, errorlog=yacc.NullLogger(), **kwargs) #
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 #  MAIN

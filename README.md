@@ -1,29 +1,31 @@
 # PyRATA
 -------------
 
-PyRATA is an acronym which stands for "Python Rule-based feAture sTructure Analysis" or "Python Rule-bAsed Text Analysis".
+PyRATA is an acronym which stands both for "Python Rule-based feAture sTructure Analysis" and "Python Rule-bAsed Text Analysis". Indeed, PyRATA is not onlyt dedicated to process textual data.
 
-# Description
+## Description
 -------------
 
-Traditional regular expression (RE) engines handle character strings; In other words lists of character tokens.
-re are used to define patterns which are used to recognized some phenomena in texts.
-In Natural Language Processing, they are the essence of the rule-based approach for analysing the texts.
+Traditional regular expression (RE) engines handle character strings; In other words, lists of character tokens.
+In Natural Language Processing, RE are used to define patterns which are used to recognized some phenomena in texts.
+They are the essence of the rule-based approach for analysing the texts.
 
-But character strings are a poor data structure. In the present work, we aim at offering both a language and engine implementation for working on lists of token, a token being defined as a feature structure (right now a feature feature is only made of a set of attribute name/value (i.e. a map/dict) with primitive type as allowed value; more precisely in the current implementation only the String).
+But character strings are a poor data structure. In the present work, we are dealing with lists of dict tokens. The dict python type is a data structure to represent a set of attribute name/value. Right now we only handle primitive types as allowed values.
+The objective is to offer a language and an engine to define patterns aiming at matching (parts of) lists of featureset. 
 
-The objective is to offer a language and an engine to define patterns aiming at matching (parts of) feature structure lists. In the first version, the interpretation of patterns will be integrated in python operations.
+In the most common use case, a featureset list is a data structure used to represent a sentence as sequence of words, each word token coming with a set of features. 
+But it is not limited to the representation of sentences. It can also be used to represent a text, with the sentence as token unit. Each sentence with its own set of features.
 
-In the most common use case, a token list is a data structure used to represent a sentence as sequence of words, each word token coming with a set of features. 
-The data structure is not limited to the representation of sentences. It can also be used to represent a text, with the sentence as token unit. Each sentence with its own set of features.
-
-The API is developed to be similar to the python re module API.
+The API is developed to be familiar for whom who develop with the python re module API.
 
 In comparison
   * [nltk.RegexpParser](https://gist.github.com/alexbowe/879414) ; http://www.nltk.org/_modules/nltk/chunk/regexp.html#RegexpChunkParser ; http://nbviewer.jupyter.org/github/lukewrites/NP_chunking_with_nltk/blob/master/NP_chunking_with_the_NLTK.ipynb
   * pattern
   * ruta
   * xpath from me over graph of objects
+
+### Limitations
+* cannot handle overlapping annotations  
 
 # Install and run
 -----------------
@@ -169,20 +171,6 @@ A data structure to parse too... on which the pattern is applied.
     Rule 15    partofclassconstraint -> NOT classconstraint
     Rule 16    atomicconstraint -> NAME EQ VALUE
 
-## parcours pour une règle note: des règles comme des items ordonnés d'une liste ?
-textInitialCursor=0
-textCursor=textInitialCursor
-on parse la grammaire
-si error de parsing: 
-  si text non fini
-    on inc textInitialCursor et set textCursor=textInitialCursor
-    on réinitialise la grammaire
-  sinon si texte fini
-    fin
-si pas d'erreur et on arrive à la fin (de la grammaire/d'une règle):
-  on trace id règle, textInitialCursor, textCursor
-  textInitialCursor=textCursor+1  et set textCursor=textInitialCursor
-  on réinitialise la grammaire
 
 
 # Roadmap
@@ -203,9 +191,10 @@ si pas d'erreur et on arrive à la fin (de la grammaire/d'une règle):
 * when a quantifier step is not valid, the parsing should be aborted wo waiting for expression parsing
 * solve the shift/reduce conflict with AND and OR  ; The parser does not know what to apply between Rule 10    classconstraint -> partofclassconstraint,  and   (Rule 11    classconstraint -> partofclassconstraint AND classconstraint and Rule 12  or  classconstraint -> partofclassconstraint OR classconstraint) ; sol1 : removing Rule 10 since classconstraint should only be used to combine atomic constraint (at least two); but consequently negation should be accepted wo class (i.e. bracket) and with quantifier if so ; the use of empty rule lead to Parsing error: found token type= RBRACKET  with value= ] but not expected ; sol2 : which solve the problem, inverse the order partofclassconstraint AND classconstraint  -> classconstraint AND partofclassconstraint
 * done nltk facilities to turn it into pyrata data structure
-* implement optional quantifier: 
-* implement any in quantifiedstep
+* implement optional quantifier in quantifiedstep 
+* implement any quantifier in quantifiedstep
 * symbol ':' turned into '=' (since it had an equal meaning)
+* implement pyrata_re.search
 * implement pyrata_re.findall
 * implement pyrata_re.finditer
 * README with a section part for the user
@@ -217,11 +206,7 @@ si pas d'erreur et on arrive à la fin (de la grammaire/d'une règle):
 * revise the README and create a specific developer page
 * class atomic with non atomic contraint should be prefered to not step to adapt one single way of doing stuff: partofclassconstraint -> NOT classconstraint more than step -> NOT step ; but the latter is simpler so check if it is working as expected wi quantifier +!pos:"EX" = +[!pos:"EX"])
 * separate lexer, parser and semantic implementation in distinct files
-* implement search * Si l'expression est trouvée, la fonction renvoie un objet symbolisant l'expression recherchée. Sinon, elle renvoie None.
-* implement regex operation findall(grammar,data) which return a list of recognized feature structure sequences
-* implement regex operation finditer : list of all the objects and their positions m.group(0) m.start() m.end()
 * parsing a whole text 
-* si error dans le parsing de la grammaire récupération en sautant les tokens jusqu'au prochain ; en relançant la grammaire (pas tout à fait parce qu'il faut prévoir la progression dans le texte à analyser)
 * handle errors wo fatal crash http://stackoverflow.com/questions/18046579/reporting-parse-errors-from-ply-to-caller-of-parser
 * declare list of possible values for atomic constraints from a direct enumeration or from a file
 * think about the context notion, and possibly about forcing the pattern to match from the begining ^ and/or to the end $

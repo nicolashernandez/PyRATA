@@ -222,7 +222,7 @@ class Lexer(object):
 
   def build(self, grammar, **kwargs):
     """Create a lexer."""
-    self.lexer = lex.lex(module=self, **kwargs)
+    self.lexer = lex.lex(module=self,  errorlog=lex.NullLogger(), **kwargs)
     self.lexer.input(grammar)
     self.storeLexTokenList()
 
