@@ -21,7 +21,9 @@ class Lexer(object):
   literals = [ '"']
 
   tokens = (
-    'NAME', 'VALUE', 'EQ',
+    'NAME', 
+    'VALUE', 
+    'EQ', 'MATCH',
     'AND', 'OR',
     'LBRACKET','RBRACKET',
     'LPAREN','RPAREN',
@@ -37,8 +39,14 @@ class Lexer(object):
 # Tokens
 
   t_NAME = r'[a-zA-Z_][a-zA-Z0-9_]*'
-  t_VALUE    = r'\"[a-zA-Z_][a-zA-Z0-9_]*\"' # FIXME whatever character except un excaped QUOTE 
+  #t_VALUE    = r'\"[a-zA-Z_][a-zA-Z0-9_]*\"' # FIXME whatever character except un excaped QUOTE 
+  #found at http://wordaligned.org/articles/string-literals-and-regular-expressions
+  #TODO: This does not work with the string "bla \" bla"
+  #t_STRING_LITERAL = r'"([^"\\]|\\.)*"'
+  t_VALUE = r'\"([^\\\n]|(\\.))*?\"'
+
   t_EQ  = r'='
+  t_MATCH  = r'\~'
   #t_QUOTE  = r'"'
   t_AND  = r'&'
   t_OR  = r'\|'

@@ -6,7 +6,7 @@
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import ply.yacc as yacc
 from pyrata_lexer import *
-
+import re
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -38,12 +38,12 @@ class Parser(object):
   loglevel = 0 # degree of verbosity
   
   precedence = (
-    ('left', 'LBRACKET','RBRACKET'),    
+    ('left',  'LBRACKET','RBRACKET'),    
     ('left',  'OR'),
-    ('left', 'AND'),
-    ('left', 'LPAREN','RPAREN'),
+    ('left',  'AND'),
+    ('left',  'LPAREN','RPAREN'),
     ('right', 'NOT'),
-    ('left', 'EQ'),
+    ('left',  'EQ', 'MATCH'),
 #  ('right', 'OPTION', 'ANY', 'ATLEASTONE')
   )
 
@@ -501,12 +501,17 @@ class Parser(object):
 
 # _______________________________________________________________
   def p_atomicconstraint(self,p):
-    '''atomicconstraint : NAME EQ VALUE '''
+    '''atomicconstraint : NAME EQ VALUE 
+                          | NAME MATCH VALUE'''
     self.setPatternStep(p)
     attName=p[1]
+    operator=p[2]
     attValue=p[3][1:-1]
-    p[0] = (p.lexer.data[p.lexer.currentExploredDataPosition][attName] == attValue)
-    self.log(p, '(atomicconstraint->NAME=VALUE: ' + attName + ' = ' +attValue +')')
+    self.log(p, '(atomicconstraint->NAME=VALUE: ' + attName + ' '+operator+' ' +attValue +')')
+    if operator == '=':
+      p[0] = (p.lexer.data[p.lexer.currentExploredDataPosition][attName] == attValue)
+    else:
+      p[0] = (re.search(attValue,p.lexer.data[p.lexer.currentExploredDataPosition][attName]) != None)
 
     if p.lexer.islocal:
       if self.loglevel >2: print ("\tDebug: processing a (local) step grammar")

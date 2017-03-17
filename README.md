@@ -102,8 +102,8 @@ You can specify a __class of elements__ by specifying constraints on the propert
 
 You can quantify the repetition of a step: in other words specifying a __quantifier to match one or more times__ the same form of an element:
 
-    >>> pyrata_re.findall('+pos="JJ" [(pos="NNS" | pos="NNP")]', data)
-    [{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}]
+    >>> pyrata_re.findall('+pos="JJ"', data)
+    [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}], [{'raw': 'funny', 'pos': 'JJ'}], [{'raw': 'regular', 'pos': 'JJ'}]
 
 Or specifying a __quantifier to match zero or more times__ a certain form of an element:
 
@@ -114,6 +114,13 @@ Or specifying a __quantifier to match once or not at all__ the given form of an 
 
     >>> pyrata_re.findall('?pos="JJ" [(pos="NNS" | pos="NNP")]', data)
     [[{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'NNP', 'raw': 'Pyrata'}]]
+
+At the atomic level, there is not only the equal operator to set a constraint. You can also specify *a regular expression as a value*. 
+In that case, the operator will not be `=` but `~` 
+
+    >>> pyrata_re.findall('pos~"NN."', data)
+    [[{'raw': 'expressions', 'pos': 'NNS'}], [{'raw': 'Pyrata', 'pos': 'NNP'}]]
+ 
 
 To understand the process of a method, specify a __verbosity degree__ to it:
 
@@ -202,6 +209,7 @@ si pas d'erreur et on arrive à la fin (de la grammaire/d'une règle):
 * implement pyrata_re.findall
 * implement pyrata_re.finditer
 * README with a section part for the user
+* declare a regex as a value of atomic constraint 
 
 ## TODO
 
@@ -220,7 +228,6 @@ si pas d'erreur et on arrive à la fin (de la grammaire/d'une règle):
 * regex operation in addition to match operation, offer the substitution sub/// and the annotation annotate/// ; the new feature is added to the current feature structure in a BIO style
 * handle sequence of tokens with a BIO value as a single token
 * extend the content of possible values of atomic constraints
-* declare a regex as a value of atomic constraint 
 * allow wildcards
 * capture index of groups (identifiers required)
 * reuse groups in regex
