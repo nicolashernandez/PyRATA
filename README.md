@@ -16,10 +16,12 @@ The objective is to offer a language and an engine to define patterns aiming at 
 In the most common use case, a featureset list is a data structure used to represent a sentence as sequence of words, each word token coming with a set of features. 
 But it is not limited to the representation of sentences. It can also be used to represent a text, with the sentence as token unit. Each sentence with its own set of features.
 
-The API is developed to be familiar for whom who develop with the python re module API.
+The API is developed to be familiar for whom who develop with the python re module API. Methods such as `search`, `findall`, or `finditer` are implemented. At a minimum, they take two arguments the pattern to recognize and the data to explore. More named arguments (`lexicons`, `verbosity`) allows to set lexicons which can be used to define set of accepted values for an attribute or the level of verbosity.
 
-In comparison
-  * [nltk.RegexpParser](https://gist.github.com/alexbowe/879414) ; http://www.nltk.org/_modules/nltk/chunk/regexp.html#RegexpChunkParser ; http://nbviewer.jupyter.org/github/lukewrites/NP_chunking_with_nltk/blob/master/NP_chunking_with_the_NLTK.ipynb
+A __pattern__ is made of one or several steps. A __step__ is, in its simplest form, the specification of a single constraint i.e. an attribute specification. A more complex step can be a __quantified step__ or a __class step__. The former allows to set *optional* step (__?__), steps which should occurs *at least one* (__+__), or *zero or more* (__ * __). The latter aims at specifing more than one constraints and conditions on them with *parenthesis* (__()__) and logical connectors such as *and* (__&__), *or* (__|__) and *not* (__!__ ).
+
+PyRATA alternatives
+  * [nltk.RegexpParser](https://gist.github.com/alexbowe/879414) ; http://www.nltk.org/_modules/nltk/chunk/regexp.html#RegexpChunkParser ; http://nbviewer.jupyter.org/github/lukewrites/NP_chunking_with_nltk/blob/master/NP_chunking_with_the_NLTK.ipynb ; https://gist.github.com/alexbowe/879414
   * pattern
   * ruta
   * xpath from me over graph of objects
@@ -139,9 +141,9 @@ Currently no __wildcard character__ is implemented but you can easily simulate i
     >>> pyrata_re.findall('pos~"VB." *[!raw="to"] raw="to"', data)
     FIXME
 
-To __understand the process of a pyrata_re method__, specify a __verbosity degree__ to it:
+To __understand the process of a pyrata_re method__, specify a __verbosity degree__ to it (*0 None, 1 +Parsing Warning and Error, 2 +Productions rules and current parsed pattern/data tokens, 3 +More parsing informations*):
 
-    >>> pyrata_re.findall('*pos="JJ" [(pos="NNS" | pos="NNP")]', data, loglevel=3)
+    >>> pyrata_re.findall('*pos="JJ" [(pos="NNS" | pos="NNP")]', data, verbosity=1)
     ....
 
 Example for generating more complex data:
@@ -149,39 +151,6 @@ Example for generating more complex data:
     >>> data =  [{'raw':word, 'pos':pos, 'stem':nltk.stem.SnowballStemmer('english').stem(word), 'lem':nltk.WordNetLemmatizer().lemmatize(word.lower()), 'sw':(word in nltk.corpus.stopwords.words('english'))} for (word, pos) in nltk.pos_tag(nltk.word_tokenize(sentence))]
     >>> data
     [{'lem': 'it', 'stem': 'it', 'raw': 'It', 'pos': 'PRP', 'sw': False}, {'lem': "'s", 'stem': "'s", 'raw': "'s", 'pos': 'VBZ', 'sw': False}, {'lem': 'fun', 'stem': 'fun', 'raw': 'fun', 'pos': 'JJ', 'sw': False}, {'lem': 'and', 'stem': 'and', 'raw': 'and', 'pos': 'CC', 'sw': True}, {'lem': 'easy', 'stem': 'easi', 'raw': 'easy', 'pos': 'JJ', 'sw': False}, {'lem': 'to', 'stem': 'to', 'raw': 'to', 'pos': 'TO', 'sw': True}, {'lem': 'play', 'stem': 'play', 'raw': 'play', 'pos': 'VB', 'sw': False}, {'lem': 'with', 'stem': 'with', 'raw': 'with', 'pos': 'IN', 'sw': True}, {'lem': 'pyrata', 'stem': 'pyrata', 'raw': 'Pyrata', 'pos': 'NNP', 'sw': False}]
-
-
-# How does it work?
--------------------
-
-## Concepts 
-
-A grammar to parse. Right now a pattern. Which is made of 1 or several steps. A step is in its simplest form the specification of a single constraint. A step can be a quantified step or a class step (the latter aims at specify more than one constraints and conditions on them with logical operators ('and', 'or' and 'not')).
-
-A data structure to parse too... on which the pattern is applied.
-
-## Grammar
-
-(as generated in parser.out)
-
-    Rule 0     S' -> expression
-    Rule 1     expression -> quantifiedstep
-    Rule 2     expression -> quantifiedstep expression
-    Rule 3     quantifiedstep -> step
-    Rule 4     quantifiedstep -> OPTION step
-    Rule 5     quantifiedstep -> ATLEASTONE step
-    Rule 6     quantifiedstep -> ANY step
-    Rule 7     step -> atomicconstraint
-    Rule 8     step -> NOT step
-    Rule 9     step -> LBRACKET classconstraint RBRACKET
-    Rule 10    classconstraint -> partofclassconstraint
-    Rule 11    classconstraint -> partofclassconstraint AND classconstraint
-    Rule 12    classconstraint -> partofclassconstraint OR classconstraint
-    Rule 13    partofclassconstraint -> atomicconstraint
-    Rule 14    partofclassconstraint -> LPAREN classconstraint RPAREN
-    Rule 15    partofclassconstraint -> NOT classconstraint
-    Rule 16    atomicconstraint -> NAME EQ VALUE
-
 
 
 # Roadmap
@@ -196,10 +165,13 @@ A data structure to parse too... on which the pattern is applied.
 * grammar implement quantifier AT_LEAST_ONE
 * code lexer and parser as classes
 * ihm improve the log experience by displaying parsed lextoken from the grammar, the grammar/pattern step, and the data token with length, Line Number and Position (based on http://www.dabeaz.com/ply/ply.html#ply_nn33)
+* ihm improve the debugging for users when writting patterns (e.g. using an attribute name not existing in the data) ; revise the verbosity/loglevel 
+* code handle errors wo fatal crash http://stackoverflow.com/questions/18046579/reporting-parse-errors-from-ply-to-caller-of-parser
 * rename global step grammar -> patternStep and local into localstep (quantifiedStep is ambiguous since it is the name of the production just before expression)
 * code move the code for testing the validity of a patternstep into the quantifier production rule and non in expression
 * code fix global step count based on works on split(' ') when class constraints with multiple constraints 
 * code fix use test_match_inside_sequence_at_least_one_including_negation_on_atomic_constraint and test_match_inside_sequence_at_least_one_including_negation_in_class_constraint
+* code revision to remove lexer.grammar since lexdata exists
 * grammar parsing when a quantifier step is not valid, the parsing should be aborted wo waiting for expression parsing
 * grammar parsing solve the shift/reduce conflict with AND and OR  ; The parser does not know what to apply between Rule 10    classconstraint -> partofclassconstraint,  and   (Rule 11    classconstraint -> partofclassconstraint AND classconstraint and Rule 12  or  classconstraint -> partofclassconstraint OR classconstraint) ; sol1 : removing Rule 10 since classconstraint should only be used to combine atomic constraint (at least two); but consequently negation should be accepted wo class (i.e. bracket) and with quantifier if so ; the use of empty rule lead to Parsing error: found token type= RBRACKET  with value= ] but not expected ; sol2 : which solve the problem, inverse the order partofclassconstraint AND classconstraint  -> classconstraint AND partofclassconstraint
 * module nltk done nltk facilities to turn it into pyrata data structure
@@ -209,26 +181,25 @@ A data structure to parse too... on which the pattern is applied.
 * ihm README with a section part for the user
 * grammar implement a regex as a value of atomic constraint 
 * grammar implement 'in' operator for specifying a list of possible values for atomic constraints 
+* rename loglevel into verbosity
+* Warning: code cannot rename tokens into lextokens in parser since it is Ply 
+* Warning: ihm when copying the grammar in the console, do not insert whitespace ahead
 
 ## TODO
-
+* fix parsing bug with pos~"VB." *[!raw="to"] raw="to", +[pos~"NN.*" | pos="JJ"] pos~"NN.*", *[pos~"NN.*" | pos="JJ"] pos~"NN.*", 
 * grammar change the grammar so that the quantifier are after the token
 * code end location is stored several times with the expression rules ; have a look at len(l.lexer.groupstartindex): and len(l.lexer.groupendindex): after parsing in pyrata_re methods to compare 
 * ihm revise the README and create a specific developer page
 * code separate lexer, parser and semantic implementation in distinct files
-* ihm improve the debugging par for users when writting patterns (e.g. using an attribute name not existing in the data) ; revise the loglevel 
-* code handle errors wo fatal crash http://stackoverflow.com/questions/18046579/reporting-parse-errors-from-ply-to-caller-of-parser
-* grammar think about the context notion, and possibly about forcing the pattern to match from the begining ^ and/or to the end $
 * module re regex implement substitution sub/// and the annotation annotate/// ; the new feature is added to the current feature structure in a BIO style
 * grammar implement handle sequence of tokens with a BIO value as a single token
 * grammar implement wildcards
+* grammar think about the context notion, and possibly about forcing the pattern to match from the begining ^ and/or to the end $
 * grammar implement capture index of groups (identifiers required)
 * grammar implement reuse groups in regex
 * grammar test complex regex as value
 * module nltk implement methods to turn nltk complex structures (chunking Tree and IOB) into the pyrata data structure 
 * grammar implement lex.lex(reflags=re.UNICODE)
-* Warning: when copying the grammar in the console, do not insert whitespace ahead
-* code revision attempt to remove lexer.grammar since lexdata exists
 * code quality review
 * evaluate performance comparing to pattern and python 3 chunking 
 * grammar does class atomic with non atomic contraint should be prefered to not step to adapt one single way of doing stuff: partofclassconstraint -> NOT classconstraint more than step -> NOT step ; but the latter is simpler so check if it is working as expected wi quantifier +!pos:"EX" = +[!pos:"EX"])

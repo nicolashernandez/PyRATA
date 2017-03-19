@@ -107,35 +107,42 @@ class Lexer(object):
 #  Constructor
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-  def __init__(self, **kwargs): # grammar, data, re):
-    # grammar is at least a pattern definition
-
+  def __init__(self, **kwargs): # pattern, data, re):
+    
     data = ''
     if 'data' in kwargs.keys():
       data = kwargs['data']
       kwargs.pop('data', None)
+    
     re = 'search'
     if 're' in kwargs.keys():
       re = kwargs['re']
       kwargs.pop('re', None)      
+
     lexicons = {}
     if 'lexicons' in kwargs.keys():
       lexicons = kwargs['lexicons']
       kwargs.pop('lexicons', None)
 
+    self.verbosity  = 0      
+    if 'verbosity' in kwargs.keys(): 
+      self.verbosity  = kwargs['verbosity']
+      kwargs.pop('verbosity', None)
 
-    if not ('grammar' in kwargs.keys()):
-      raise Exception('In',__file__,' grammar argument should be set in the constructor')
-    grammar = kwargs['grammar'] 
-    kwargs.pop('grammar', None)
+    if not ('pattern' in kwargs.keys()):
+      raise Exception('In',__file__,' pattern argument should be set in the constructor')
+    pattern = kwargs['pattern'] 
+    kwargs.pop('pattern', None)
 
-    self.build(grammar, **kwargs)
+    #print ("Debug: kwargs=", kwargs) 
+    self.build(pattern, **kwargs)
     
+
     # store dict of lists, a list being used to store a lexicon 
     self.lexer.lexicons = lexicons
     
 
-    # data structure (list of dicts) explored by the grammar  
+    # data structure (list of dicts) explored by the pattern  
     self.lexer.data = data
 
     # re method 
@@ -152,20 +159,15 @@ class Lexer(object):
     # variable used to distinguish the first step (and consequently the start position of the pattern) from the others
     self.lexer.matchongoing = False
 
-    # position in the data from where the grammar (set of rules) is applied 
-    # lastGrammarStartPositionInData
-    # lastFirstExploredTokenPosition
-    # lastFirstExploredDataPosition
+    # position in the data from where the pattern is applied 
     self.lexer.lastFirstExploredDataPosition = 0      
 
     # position in the data that is explored by the current rule
-    # currentExploredDataPosition
     self.lexer.currentExploredDataPosition = self.lexer.lastFirstExploredDataPosition 
 
-    # the whole grammar
-    # redundant with lexer.lexdata
-    self.lexer.grammar = grammar  
-
+    # the whole pattern
+    # self.lexer.lexdata
+  
 
     # list of LexToken (self.type, self.value, self.lineno, self.lexpos)
     self.lexTokenList = [] 
@@ -178,22 +180,15 @@ class Lexer(object):
     self.lexTokenEndDict = {} 
 
 
-    # the number of global grammar step
-    # TODO Fix since step made of class with multiple constraints will be wrongly split
-    # len(grammar.split()) 
-    self.lexer.grammarsize = None 
 
-    # the grammar part which is in focus when processing a quantifier ; 
+    # the pattern part which is in focus when processing a quantifier ; 
     self.lexer.localstep = '' 
 
-    # in the context of local step grammar the step is bare wo quantifier but globally it comes with so 
+    # in the context of local step pattern the step is bare wo quantifier but globally it comes with so 
     # (log use case) 
-    # TODO Fix since step made of class with multiple constraints will be wrongly split   
-    #grammar.split()[0]
-    # patternstep
     self.lexer.patternStep = None
 
-    # cursor to follow the parsing progress in the grammar (log use case) 
+    # cursor to follow the parsing progress in the pattern (log use case) 
     self.lexer.patternStepPosition = 0
 
     # to exchange information between global and local parser when dealing with quantifiers
@@ -203,7 +198,7 @@ class Lexer(object):
     # as a global one, get the result of the local one
     self.lexer.localresult = False # 
 
-    # store the result after parsing the grammar given a certain data (context)
+    # store the result after parsing the pattern given a certain data (context)
     self.lexer.expressionresult = False # 
 
 
@@ -215,12 +210,12 @@ class Lexer(object):
 
 
 
-  def build(self, grammar, **kwargs):
+  def build(self, pattern, **kwargs):
     """
     Create a lexer.
     """
     self.lexer = lex.lex(module=self, errorlog=lex.NullLogger(), **kwargs) #
-    self.lexer.input(grammar)
+    self.lexer.input(pattern)
     self.storeLexTokenList()
 
 
@@ -228,8 +223,15 @@ class Lexer(object):
 #  more
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
   def t_error(self, t):
-    raise Exception('Illegal character "{t}"'.format(t=t.value[0]))
 
+    #raise Exception('Illegal character "{t}"'.format(t=t.value[0]))
+    if self.verbosity>0:
+      print ('Lexer: Illegal character "{}" found at lineno "{}"" and lexpos "{}". We skip the character. It is probably due to unexpected characters which leads to a tokenization error. Search before this position. Current tokenization results in {}'.format(t.value[0], t.lexer.lineno, t.lexpos, t.lexer.lexTokenList))
+    t.lexer.skip(1)
+    #while True:
+    #  tok = self.lexer.token()
+    #  if not tok: 
+    #    break      # No more input
 
   def storeLexTokenList(self):
     """ store the the list of the LexToken
@@ -263,12 +265,10 @@ class Lexer(object):
 #  example of use
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 if __name__ == '__main__':
-  grammar='lem="the" +pos@"positiveLexicon" pos~"NN.?" [lem="be" & !(raw="is" | raw="are")]\n'
-  #print ("Grammar:",grammar)
-  #myLexer.lexer.input(grammar)
+  pattern = 'lem="the" +pos@"positiveLexicon" pos~"NN.?" [lem="be" & !(raw="is" | raw="are")]\n'
 
-  print ("Tokenize the given grammar:",grammar)
-  myLexer = Lexer(grammar=grammar, data=[], re='search')
+  print ("Tokenize the given pattern:", pattern)
+  myLexer = Lexer(pattern=pattern, data=[], re='search', verbosity=1)
   while True:
     tok = myLexer.lexer.token()
     if not tok: 

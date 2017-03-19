@@ -84,13 +84,25 @@ def search (pattern, data, **kwargs):
       and return a corresponding match object. 
       Return None if no position in the data matches the pattern."""
 
+  verbosity  = 0
+  if 'verbosity' in kwargs.keys(): 
+    verbosity  = kwargs['verbosity']
+
   lexicons = {}
   if 'lexicons' in kwargs.keys():
     lexicons = kwargs['lexicons']
     kwargs.pop('lexicons', None)
 
+  method = 'search'
+
+  if verbosity >1:
+      print ('Method:\t', method) 
+      print ('Lexicons:\t', lexicons)       
+      print ('Pattern:\t', pattern)
+      print ('Data:\t\t', data)  
+
    # Build the parser and  set the re method
-  l = Lexer(grammar=pattern, data=data, re='search', lexicons=lexicons)
+  l = Lexer(pattern=pattern, data=data, re=method, lexicons=lexicons)
 
   #debug = False
   #if 'debug' in kwargs.keys():
@@ -125,6 +137,10 @@ def findall (pattern, data, **kwargs):
       #this will be a list of tuples if the pattern has more than one group. 
       #Empty matches are included in the result unless they touch the beginning of another match.
   """
+  verbosity  = 0
+  if 'verbosity' in kwargs.keys(): 
+    verbosity  = kwargs['verbosity']
+
   # list of matched data
   matcheslist = []
 
@@ -133,9 +149,16 @@ def findall (pattern, data, **kwargs):
     lexicons = kwargs['lexicons']
     kwargs.pop('lexicons', None)
    
-  #
+  method = 'findall'
+
+  if verbosity >1:
+      print ('Method:\t', method) 
+      print ('Lexicons:\t', lexicons)       
+      print ('Pattern:\t', pattern)
+      print ('Data:\t\t', data)  
+
   # Build the parser and set the re method
-  l = Lexer(grammar=pattern, data=data, re='findall', lexicons=lexicons)
+  l = Lexer(pattern=pattern, data=data, re=method, lexicons=lexicons)
   m = Parser(tokens=l.tokens, **kwargs)
   
   # start the parsing
@@ -159,6 +182,10 @@ def finditer (pattern, data, **kwargs):
   The data is scanned left-to-right, and matches are returned in the order found. 
   #Empty matches are included in the result unless they touch the beginning of another match.
   """
+  verbosity  = 0
+  if 'verbosity' in kwargs.keys(): 
+    verbosity  = kwargs['verbosity']
+
   # list of matched data
   matcheslist = MatchesList()
 
@@ -167,8 +194,16 @@ def finditer (pattern, data, **kwargs):
     lexicons = kwargs['lexicons']
     kwargs.pop('lexicons', None)
 
+  method = 'findall'
+
+  if verbosity >1:
+      print ('Method:\t', method) 
+      print ('Lexicons:\t', lexicons)       
+      print ('Pattern:\t', pattern)
+      print ('Data:\t\t', data)  
+
   # Build the parser and set the re method
-  l = Lexer(grammar=pattern, data=data, re='findall', lexicons=lexicons)
+  l = Lexer(pattern=pattern, data=data, re=method, lexicons=lexicons)
   m = Parser(tokens=l.tokens, **kwargs)
   
   # start the parsing
@@ -179,7 +214,7 @@ def finditer (pattern, data, **kwargs):
 
   # build the structure to return
   if len(l.lexer.groupstartindex)>0 and len(l.lexer.groupendindex)>0:
-    for (start, end) in zip(l.lexer.groupstartindex,l.lexer.groupendindex):
+    for (start, end) in zip(l.lexer.groupstartindex, l.lexer.groupendindex):
       #print ('Debug: len(data):',len(data),'; start:', start,'; end:',end)
       match = Match (start=start, end=end, value=data[start:end])
       matcheslist.append(match)
