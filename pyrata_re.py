@@ -83,8 +83,14 @@ def search (pattern, data, **kwargs):
   """ Scan through data looking for the first location where the regular expression pattern produces a match, 
       and return a corresponding match object. 
       Return None if no position in the data matches the pattern."""
+
+  lexicons = {}
+  if 'lexicons' in kwargs.keys():
+    lexicons = kwargs['lexicons']
+    kwargs.pop('lexicons', None)
+
    # Build the parser and  set the re method
-  l = Lexer(grammar=pattern, data=data, re='search')
+  l = Lexer(grammar=pattern, data=data, re='search', lexicons=lexicons)
 
   #debug = False
   #if 'debug' in kwargs.keys():
@@ -119,11 +125,17 @@ def findall (pattern, data, **kwargs):
       #this will be a list of tuples if the pattern has more than one group. 
       #Empty matches are included in the result unless they touch the beginning of another match.
   """
- # list of matched data
+  # list of matched data
   matcheslist = []
 
+  lexicons = {}
+  if 'lexicons' in kwargs.keys():
+    lexicons = kwargs['lexicons']
+    kwargs.pop('lexicons', None)
+   
+  #
   # Build the parser and set the re method
-  l = Lexer(grammar=pattern, data=data, re='findall')
+  l = Lexer(grammar=pattern, data=data, re='findall', lexicons=lexicons)
   m = Parser(tokens=l.tokens, **kwargs)
   
   # start the parsing
@@ -150,8 +162,13 @@ def finditer (pattern, data, **kwargs):
   # list of matched data
   matcheslist = MatchesList()
 
+  lexicons = {}
+  if 'lexicons' in kwargs.keys():
+    lexicons = kwargs['lexicons']
+    kwargs.pop('lexicons', None)
+
   # Build the parser and set the re method
-  l = Lexer(grammar=pattern, data=data, re='findall')
+  l = Lexer(grammar=pattern, data=data, re='findall', lexicons=lexicons)
   m = Parser(tokens=l.tokens, **kwargs)
   
   # start the parsing

@@ -12,18 +12,27 @@ import ply.lex as lex
 
 #logger = logging.getLogger(__name__)
 
-
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+#  
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class Lexer(object):
-  """Init and build methods."""
+  """
+  Lexical Analysis: 
+  converting a sequence of characters into a sequence of tokens
+  Init and build methods.
+  """
 
 
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+#  Tokens Definitions
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-  literals = [ '"']
+  literals = ['"']
 
   tokens = (
     'NAME', 
     'VALUE', 
-    'EQ', 'MATCH',
+    'EQ', 'MATCH', 'IN',
     'AND', 'OR',
     'LBRACKET','RBRACKET',
     'LPAREN','RPAREN',
@@ -47,6 +56,7 @@ class Lexer(object):
 
   t_EQ  = r'='
   t_MATCH  = r'\~'
+  t_IN  = r'\@'
   #t_QUOTE  = r'"'
   t_AND  = r'&'
   t_OR  = r'\|'
@@ -92,21 +102,38 @@ class Lexer(object):
     column = (token.lexpos - last_cr) + 1
     return column
 
+
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+#  Constructor
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
   def __init__(self, **kwargs): # grammar, data, re):
     # grammar is at least a pattern definition
 
-    # print (kwargs)
     data = ''
     if 'data' in kwargs.keys():
       data = kwargs['data']
+      kwargs.pop('data', None)
     re = 'search'
     if 're' in kwargs.keys():
-      re = kwargs['re']      
+      re = kwargs['re']
+      kwargs.pop('re', None)      
+    lexicons = {}
+    if 'lexicons' in kwargs.keys():
+      lexicons = kwargs['lexicons']
+      kwargs.pop('lexicons', None)
+
+
     if not ('grammar' in kwargs.keys()):
       raise Exception('In',__file__,' grammar argument should be set in the constructor')
-    grammar= kwargs['grammar']     
+    grammar = kwargs['grammar'] 
+    kwargs.pop('grammar', None)
 
-    self.build(grammar)
+    self.build(grammar, **kwargs)
+    
+    # store dict of lists, a list being used to store a lexicon 
+    self.lexer.lexicons = lexicons
+    
 
     # data structure (list of dicts) explored by the grammar  
     self.lexer.data = data
@@ -179,7 +206,6 @@ class Lexer(object):
     # store the result after parsing the grammar given a certain data (context)
     self.lexer.expressionresult = False # 
 
-    #self.lexer.is
 
 #  def __init__(self, debug=False):
 #    self.tokens = (
@@ -188,6 +214,19 @@ class Lexer(object):
 #    self.build(debug=debug)
 
 
+
+  def build(self, grammar, **kwargs):
+    """
+    Create a lexer.
+    """
+    self.lexer = lex.lex(module=self, errorlog=lex.NullLogger(), **kwargs) #
+    self.lexer.input(grammar)
+    self.storeLexTokenList()
+
+
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+#  more
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
   def t_error(self, t):
     raise Exception('Illegal character "{t}"'.format(t=t.value[0]))
 
@@ -220,28 +259,16 @@ class Lexer(object):
     #     **kwargs)
 
 
-  def build(self, grammar, **kwargs):
-    """Create a lexer."""
-    self.lexer = lex.lex(module=self,  errorlog=lex.NullLogger(), **kwargs)
-    self.lexer.input(grammar)
-    self.storeLexTokenList()
-
-
-# example use:
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+#  example of use
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 if __name__ == '__main__':
-  grammar='?lem:"the" +pos:"JJ" [pos:"NN" & (lem:"car" | !lem:"bike" | !(lem:"bike"))] [raw:"is" | raw:"are"] ;\n'
-  #grammar='+pos:"JJ" pos:"NN"'
-  grammar = 'pos:"DT" +[pos:"JJ" & !pos:"EX"]  pos:"NN"'
-  
-  # 
-  myLexer = Lexer(grammar=grammar, data=[], re='search')
+  grammar='lem="the" +pos@"positiveLexicon" pos~"NN.?" [lem="be" & !(raw="is" | raw="are")]\n'
+  #print ("Grammar:",grammar)
   #myLexer.lexer.input(grammar)
 
-  # 
-
-
-
-  print ("tokenize the given grammar:",grammar)
+  print ("Tokenize the given grammar:",grammar)
+  myLexer = Lexer(grammar=grammar, data=[], re='search')
   while True:
     tok = myLexer.lexer.token()
     if not tok: 

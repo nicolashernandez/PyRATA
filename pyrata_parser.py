@@ -468,16 +468,48 @@ class Parser(object):
 # _______________________________________________________________
   def p_atomicconstraint(self,p):
     '''atomicconstraint : NAME EQ VALUE 
-                          | NAME MATCH VALUE'''
+                          | NAME MATCH VALUE
+                          | NAME IN VALUE'''
     self.setPatternStep(p)
     attName = p[1]
     operator = p[2]
     attValue = p[3][1:-1]
-    self.log(p, '(atomicconstraint->NAME=VALUE: ' + attName + ' ' + operator + ' ' + attValue +')')
-    if operator == '=':
-      p[0] = (p.lexer.data[p.lexer.currentExploredDataPosition][attName] == attValue)
+    
+
+    if attName in p.lexer.data[p.lexer.currentExploredDataPosition]:
+      # checking if the given value is equal to the current dict feature of the data
+      if operator == '=':
+        p[0] = (p.lexer.data[p.lexer.currentExploredDataPosition][attName] == attValue)
+      # checking if the given value, interpreted as regex, matches the current dict feature of the data 
+      elif operator == '~':
+        p[0] = (re.search(attValue,p.lexer.data[p.lexer.currentExploredDataPosition][attName]) != None)
+        # checking if the current dict feature of the data belongs to a list having the name of the given value
+      elif operator == '@':
+        # check if the named list is kwown
+ #       print('Debug: p.lexer.lexicons=',p.lexer.lexicons)
+ #       print('Debug: attValue=',attValue)
+ #       print('Debug: attValue in p.lexer.lexicons=',(attValue in p.lexer.lexicons))
+
+
+        if attValue in p.lexer.lexicons:
+          p[0] =  (p.lexer.data[p.lexer.currentExploredDataPosition][attName] in p.lexer.lexicons[attValue])
+  #        print('Debug: p.lexer.lexicons[attValue]=',p.lexer.lexicons[attValue])
+  #        print('Debug: p.lexer.data[p.lexer.currentExploredDataPosition][attName]=',p.lexer.data[p.lexer.currentExploredDataPosition][attName])
+  #        print('Debug: p.lexer.data[p.lexer.currentExploredDataPosition][attName] in p.lexer.lexicons[attValue]=',(p.lexer.data[p.lexer.currentExploredDataPosition][attName] in p.lexer.lexicons[attValue]))
+          
+        else:
+          p[0] = False  
+      # should not enter here, because it would mean that the parser encountered an unknown operator    
+      else:
+        p[0] = False
+      self.log(p, '(atomicconstraint->NAME=VALUE: ' + attName + ' ' + operator + ' ' + attValue +')')
+        
     else:
-      p[0] = (re.search(attValue,p.lexer.data[p.lexer.currentExploredDataPosition][attName]) != None)
+      p[0] = False
+      self.log(p, '(atomicconstraint->NAME=VALUE: ' + attName + ' ' + operator + ' ' + attValue +')')
+        
+      if self.loglevel >1: 
+        print ('Warning: unknown attribute name:', attName)
 
     if p.lexer.islocal:
       if self.loglevel >2: print ("\tDebug: processing a (local) step grammar")
@@ -559,11 +591,6 @@ class Parser(object):
       previouslextokenendposition = p.lexer.lexpos - len(p.lexer.lexTokenEndDict[p.lexer.lexpos].value)
     p.lexer.patternStep = p.lexer.lexdata[startpositionleftsymbol:previouslextokenendposition]
 
-  def moreAboutProduction(self,p):
-  # see doc/internal.html 3. productions
-    #print ('Debug: p.name=',p.name,'p.prod=',p.prod,'p.number=',p.number,'p.usyms=',p.usyms,,'p.lr_items=',p.lr_items
-    if self.loglevel >2: print('p.lineno=',p.lineno)
-
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -602,6 +629,7 @@ class Parser(object):
       self.loglevel = kwargs['loglevel']
     kwargs.pop('loglevel', None)
 
+    
     #print ('Debug: len(argv):',len(argv),'; argv:',*argv)
     #if len(argv) > 0:
     #  self.debug = argv[0]

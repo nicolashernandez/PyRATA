@@ -117,12 +117,21 @@ Or specifying a __quantifier to match once or not at all__ the given form of an 
     >>> pyrata_re.findall('?pos="JJ" [(pos="NNS" | pos="NNP")]', data)
     [[{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'NNP', 'raw': 'Pyrata'}]]
 
-At the atomic level, there is not only the equal operator to set a constraint. You can also specify *a regular expression as a value*. 
+At the atomic level, there is not only the equal operator to set a constraint. You can also *set a regular expression as a value*. 
 In that case, the operator will not be `=` but `~` 
 
     >>> pyrata_re.findall('pos~"NN."', data)
     [[{'raw': 'expressions', 'pos': 'NNS'}], [{'raw': 'Pyrata', 'pos': 'NNP'}]]
- 
+
+You can also *set a list of possible values (lexicon)*. In that case, the operator will be `@` in your pattern and the value will be the name of the lexicon. The lexicon is specified as a parameter of the pyrata_re methods (`lexicons` parameter). Indeed, multiple lexicons can be specified. The data structure for storing lexicons is a dict/map of lists. Each key of the dict is the name of a lexicon, and each corresponding value a list of elements making of the lexicon.
+
+    >>> pyrata_re.findall('lem@"positiveLexicon"', data, lexicons = {'positiveLexicon':['easy', 'funny']})
+    [[ {'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}]]
+
+Currently no wildcard character is implemented but you can easily simulate it with a non existing attribute or value:
+
+    >>> pyrata_re.findall('pos~"VB." *[!raw="to"] raw="to"', data)
+    FIXME
 
 To understand the process of a method, specify a __verbosity degree__ to it:
 
@@ -202,13 +211,15 @@ A data structure to parse too... on which the pattern is applied.
 
 ## TODO
 
+* declare list of possible values for atomic constraints from a direct enumeration or from a file
+* change the grammar so that the quantifier are after the token
 * end location is stored several times with the expression rules ; have a look at len(l.lexer.groupstartindex): and len(l.lexer.groupendindex): after parsing in pyrata_re methods to compare 
 * revise the README and create a specific developer page
 * class atomic with non atomic contraint should be prefered to not step to adapt one single way of doing stuff: partofclassconstraint -> NOT classconstraint more than step -> NOT step ; but the latter is simpler so check if it is working as expected wi quantifier +!pos:"EX" = +[!pos:"EX"])
 * separate lexer, parser and semantic implementation in distinct files
+* improve the debugging par for users when writting patterns (e.g. using an attribute name not existing in the data) ; revise the loglevel 
 * parsing a whole text 
 * handle errors wo fatal crash http://stackoverflow.com/questions/18046579/reporting-parse-errors-from-ply-to-caller-of-parser
-* declare list of possible values for atomic constraints from a direct enumeration or from a file
 * think about the context notion, and possibly about forcing the pattern to match from the begining ^ and/or to the end $
 * regex operation in addition to match operation, offer the substitution sub/// and the annotation annotate/// ; the new feature is added to the current feature structure in a BIO style
 * handle sequence of tokens with a BIO value as a single token
@@ -221,5 +232,6 @@ A data structure to parse too... on which the pattern is applied.
 * move the python methods as grammar components
 * allow grammar with multiple rules (each rule should have an identifier... and its own groupindex)
 * Warning: when copying the grammar in the console, do not insert whitespace ahead
-
+* attempt to remove lexer.grammar since lexdata exists
+* evaluate performance comparing to pattern and python 3 chunking 
 
