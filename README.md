@@ -16,11 +16,17 @@ The objective is to offer a language and an engine to define patterns aiming at 
 In the most common use case, a featureset list is a data structure used to represent a sentence as sequence of words, each word token coming with a set of features. 
 But it is not limited to the representation of sentences. It can also be used to represent a text, with the sentence as token unit. Each sentence with its own set of features.
 
-The API is developed to be familiar for whom who develop with the python re module API. Methods such as `search`, `findall`, or `finditer` are implemented. At a minimum, they take two arguments the pattern to recognize and the data to explore. More named arguments (`lexicons`, `verbosity`) allows to set lexicons which can be used to define set of accepted values for an attribute or the level of verbosity.
+### The API
 
-A __pattern__ is made of one or several steps. A __step__ is, in its simplest form, the specification of a single constraint i.e. an attribute specification. A more complex step can be a __quantified step__ or a __class step__. The former allows to set *optional* step (__?__), steps which should occurs *at least one* (__+__), or *zero or more* (__ * __). The latter aims at specifing more than one constraints and conditions on them with *parenthesis* (__()__) and logical connectors such as *and* (__&__), *or* (__|__) and *not* (__!__ ).
+The API is developed to be familiar for whom who develop with the python re module API. Methods such as `search`, `findall`, or `finditer` are implemented. At a minimum, they take two arguments the pattern to recognize and the data to explore. 
 
-PyRATA alternatives
+    pyrata_re.search(pattern, data)
+
+More named arguments (`lexicons`, `verbosity`) allows to set lexicons which can be used to define set of accepted values for an attribute or the level of verbosity.
+
+A __pattern__ is made of one or several steps. A __step__ is, in its simplest form, the specification of a single constraint (*NAME OPERATOR VALUE*). For a given attribute name, you can specify its required exact value (with `=` *OPERATOR*), a regex definition of its value (`~` *OPERATOR*) or a list of possible values (`@` *OPERATOR*). A more complex step can be a __quantified step__ or a __class step__. The former allows to set *optional* step (`?`), steps which should occurs *at least one* (`+`), or *zero or more* (`*`). The latter aims at specifing more than one constraints and conditions on them with *parenthesis* (`()`) and logical connectors such as *and* (`&`), *or* (`|`) and *not* (`!`).
+
+### PyRATA alternatives
   * [nltk.RegexpParser](https://gist.github.com/alexbowe/879414) ; http://www.nltk.org/_modules/nltk/chunk/regexp.html#RegexpChunkParser ; http://nbviewer.jupyter.org/github/lukewrites/NP_chunking_with_nltk/blob/master/NP_chunking_with_the_NLTK.ipynb ; https://gist.github.com/alexbowe/879414
   * pattern
   * ruta
@@ -38,13 +44,14 @@ One way to install it is:
 
     sudo pip3 install ply
 
-## Run tests
+## Run tests (optional)
 
     python3 test_pyrata.py
 
 
-# Quick overview
+# Quick overview (in console)
 -----------------
+
 First run python
 
     python3
