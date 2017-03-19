@@ -27,7 +27,7 @@ In comparison
 ### Limitations
 * cannot handle overlapping annotations  
 
-# Install and run
+# Installation
 -----------------
 
 ## Requirement
@@ -36,7 +36,13 @@ One way to install it is:
 
     sudo pip3 install ply
 
-## Use it (in console)
+## Run tests
+
+    python3 test_pyrata.py
+
+
+# Quick overview
+-----------------
 First run python
 
     python3
@@ -117,33 +123,28 @@ Or specifying a __quantifier to match once or not at all__ the given form of an 
     >>> pyrata_re.findall('?pos="JJ" [(pos="NNS" | pos="NNP")]', data)
     [[{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'NNP', 'raw': 'Pyrata'}]]
 
-At the atomic level, there is not only the equal operator to set a constraint. You can also *set a regular expression as a value*. 
+At the atomic level, there is not only the equal operator to set a constraint. You can also __set a regular expression as a value__. 
 In that case, the operator will not be `=` but `~` 
 
     >>> pyrata_re.findall('pos~"NN."', data)
     [[{'raw': 'expressions', 'pos': 'NNS'}], [{'raw': 'Pyrata', 'pos': 'NNP'}]]
 
-You can also *set a list of possible values (lexicon)*. In that case, the operator will be `@` in your pattern and the value will be the name of the lexicon. The lexicon is specified as a parameter of the pyrata_re methods (`lexicons` parameter). Indeed, multiple lexicons can be specified. The data structure for storing lexicons is a dict/map of lists. Each key of the dict is the name of a lexicon, and each corresponding value a list of elements making of the lexicon.
+You can also __set a list of possible values (lexicon)__. In that case, the operator will be `@` in your pattern and the value will be the name of the lexicon. The lexicon is specified as a parameter of the pyrata_re methods (`lexicons` parameter). Indeed, multiple lexicons can be specified. The data structure for storing lexicons is a dict/map of lists. Each key of the dict is the name of a lexicon, and each corresponding value a list of elements making of the lexicon.
 
     >>> pyrata_re.findall('lem@"positiveLexicon"', data, lexicons = {'positiveLexicon':['easy', 'funny']})
     [[ {'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}]]
 
-Currently no wildcard character is implemented but you can easily simulate it with a non existing attribute or value:
+Currently no __wildcard character__ is implemented but you can easily simulate it with a non existing attribute or value:
 
     >>> pyrata_re.findall('pos~"VB." *[!raw="to"] raw="to"', data)
     FIXME
 
-To understand the process of a method, specify a __verbosity degree__ to it:
+To __understand the process of a pyrata_re method__, specify a __verbosity degree__ to it:
 
     >>> pyrata_re.findall('*pos="JJ" [(pos="NNS" | pos="NNP")]', data, loglevel=3)
     ....
 
-## Run tests
-
-    python3 test_pyrata.py
-
-
-More complex data     
+Example for generating more complex data:
 
     >>> data =  [{'raw':word, 'pos':pos, 'stem':nltk.stem.SnowballStemmer('english').stem(word), 'lem':nltk.WordNetLemmatizer().lemmatize(word.lower()), 'sw':(word in nltk.corpus.stopwords.words('english'))} for (word, pos) in nltk.pos_tag(nltk.word_tokenize(sentence))]
     >>> data
@@ -152,6 +153,7 @@ More complex data
 
 # How does it work?
 -------------------
+
 ## Concepts 
 
 A grammar to parse. Right now a pattern. Which is made of 1 or several steps. A step is in its simplest form the specification of a single constraint. A step can be a quantified step or a class step (the latter aims at specify more than one constraints and conditions on them with logical operators ('and', 'or' and 'not')).
@@ -186,52 +188,50 @@ A data structure to parse too... on which the pattern is applied.
 ---------
 
 ##  Done 
-* implementation of token sequence parsing/semantic analysis with token an atomicconstraint
-* implementation of class of tokens (parsing and semantic analysis with logical and/or/not operators and parenthesis)
-* implementation of quantifier AT_LEAST_ONE
-* lexer and parser as classes
-* regex operation match 
-* rename package, file, module, class, variable names
-* improve the log experience by displaying parsed lextoken from the grammar, the grammar/pattern step, and the data token with length, Line Number and Position (based on http://www.dabeaz.com/ply/ply.html#ply_nn33)
+* module re implement pyrata_re.search
+* module re implement pyrata_re.findall
+* module re implement pyrata_re.finditer
+* grammar implement sequence parsing/semantic analysis with token an atomicconstraint
+* grammar implement class of tokens (parsing and semantic analysis with logical and/or/not operators and parenthesis)
+* grammar implement quantifier AT_LEAST_ONE
+* code lexer and parser as classes
+* ihm improve the log experience by displaying parsed lextoken from the grammar, the grammar/pattern step, and the data token with length, Line Number and Position (based on http://www.dabeaz.com/ply/ply.html#ply_nn33)
 * rename global step grammar -> patternStep and local into localstep (quantifiedStep is ambiguous since it is the name of the production just before expression)
-* move the code for testing the validity of a patternstep into the quantifier production rule and non in expression
-* fix global step count based on works on split(' ') when class constraints with multiple constraints 
-* fix use test_match_inside_sequence_at_least_one_including_negation_on_atomic_constraint and test_match_inside_sequence_at_least_one_including_negation_in_class_constraint
-* when a quantifier step is not valid, the parsing should be aborted wo waiting for expression parsing
-* solve the shift/reduce conflict with AND and OR  ; The parser does not know what to apply between Rule 10    classconstraint -> partofclassconstraint,  and   (Rule 11    classconstraint -> partofclassconstraint AND classconstraint and Rule 12  or  classconstraint -> partofclassconstraint OR classconstraint) ; sol1 : removing Rule 10 since classconstraint should only be used to combine atomic constraint (at least two); but consequently negation should be accepted wo class (i.e. bracket) and with quantifier if so ; the use of empty rule lead to Parsing error: found token type= RBRACKET  with value= ] but not expected ; sol2 : which solve the problem, inverse the order partofclassconstraint AND classconstraint  -> classconstraint AND partofclassconstraint
-* done nltk facilities to turn it into pyrata data structure
-* implement optional quantifier in quantifiedstep 
-* implement any quantifier in quantifiedstep
-* symbol ':' turned into '=' (since it had an equal meaning)
-* implement pyrata_re.search
-* implement pyrata_re.findall
-* implement pyrata_re.finditer
-* README with a section part for the user
-* declare a regex as a value of atomic constraint 
+* code move the code for testing the validity of a patternstep into the quantifier production rule and non in expression
+* code fix global step count based on works on split(' ') when class constraints with multiple constraints 
+* code fix use test_match_inside_sequence_at_least_one_including_negation_on_atomic_constraint and test_match_inside_sequence_at_least_one_including_negation_in_class_constraint
+* grammar parsing when a quantifier step is not valid, the parsing should be aborted wo waiting for expression parsing
+* grammar parsing solve the shift/reduce conflict with AND and OR  ; The parser does not know what to apply between Rule 10    classconstraint -> partofclassconstraint,  and   (Rule 11    classconstraint -> partofclassconstraint AND classconstraint and Rule 12  or  classconstraint -> partofclassconstraint OR classconstraint) ; sol1 : removing Rule 10 since classconstraint should only be used to combine atomic constraint (at least two); but consequently negation should be accepted wo class (i.e. bracket) and with quantifier if so ; the use of empty rule lead to Parsing error: found token type= RBRACKET  with value= ] but not expected ; sol2 : which solve the problem, inverse the order partofclassconstraint AND classconstraint  -> classconstraint AND partofclassconstraint
+* module nltk done nltk facilities to turn it into pyrata data structure
+* implement grammar optional quantifier in quantifiedstep 
+* implement grammar any quantifier in quantifiedstep
+* grammar modify symbol ':' turned into '=' (since it had an equal meaning)
+* ihm README with a section part for the user
+* grammar implement a regex as a value of atomic constraint 
+* grammar implement 'in' operator for specifying a list of possible values for atomic constraints 
 
 ## TODO
 
-* declare list of possible values for atomic constraints from a direct enumeration or from a file
-* change the grammar so that the quantifier are after the token
-* end location is stored several times with the expression rules ; have a look at len(l.lexer.groupstartindex): and len(l.lexer.groupendindex): after parsing in pyrata_re methods to compare 
-* revise the README and create a specific developer page
-* class atomic with non atomic contraint should be prefered to not step to adapt one single way of doing stuff: partofclassconstraint -> NOT classconstraint more than step -> NOT step ; but the latter is simpler so check if it is working as expected wi quantifier +!pos:"EX" = +[!pos:"EX"])
-* separate lexer, parser and semantic implementation in distinct files
-* improve the debugging par for users when writting patterns (e.g. using an attribute name not existing in the data) ; revise the loglevel 
-* parsing a whole text 
-* handle errors wo fatal crash http://stackoverflow.com/questions/18046579/reporting-parse-errors-from-ply-to-caller-of-parser
-* think about the context notion, and possibly about forcing the pattern to match from the begining ^ and/or to the end $
-* regex operation in addition to match operation, offer the substitution sub/// and the annotation annotate/// ; the new feature is added to the current feature structure in a BIO style
-* handle sequence of tokens with a BIO value as a single token
-* extend the content of possible values of atomic constraints
-* allow wildcards
-* capture index of groups (identifiers required)
-* reuse groups in regex
-* make methods to turn nltk results into the input data structure (chunking Tree and IOB)
-* lex.lex(reflags=re.UNICODE)
-* move the python methods as grammar components
-* allow grammar with multiple rules (each rule should have an identifier... and its own groupindex)
+* grammar change the grammar so that the quantifier are after the token
+* code end location is stored several times with the expression rules ; have a look at len(l.lexer.groupstartindex): and len(l.lexer.groupendindex): after parsing in pyrata_re methods to compare 
+* ihm revise the README and create a specific developer page
+* code separate lexer, parser and semantic implementation in distinct files
+* ihm improve the debugging par for users when writting patterns (e.g. using an attribute name not existing in the data) ; revise the loglevel 
+* code handle errors wo fatal crash http://stackoverflow.com/questions/18046579/reporting-parse-errors-from-ply-to-caller-of-parser
+* grammar think about the context notion, and possibly about forcing the pattern to match from the begining ^ and/or to the end $
+* module re regex implement substitution sub/// and the annotation annotate/// ; the new feature is added to the current feature structure in a BIO style
+* grammar implement handle sequence of tokens with a BIO value as a single token
+* grammar implement wildcards
+* grammar implement capture index of groups (identifiers required)
+* grammar implement reuse groups in regex
+* grammar test complex regex as value
+* module nltk implement methods to turn nltk complex structures (chunking Tree and IOB) into the pyrata data structure 
+* grammar implement lex.lex(reflags=re.UNICODE)
 * Warning: when copying the grammar in the console, do not insert whitespace ahead
-* attempt to remove lexer.grammar since lexdata exists
+* code revision attempt to remove lexer.grammar since lexdata exists
+* code quality review
 * evaluate performance comparing to pattern and python 3 chunking 
+* grammar does class atomic with non atomic contraint should be prefered to not step to adapt one single way of doing stuff: partofclassconstraint -> NOT classconstraint more than step -> NOT step ; but the latter is simpler so check if it is working as expected wi quantifier +!pos:"EX" = +[!pos:"EX"])
+* grammar allow grammar with multiple rules (each rule should have an identifier... and its own groupindex)
+* gramamr move the python methods as grammar components
 
