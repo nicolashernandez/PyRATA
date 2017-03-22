@@ -107,7 +107,7 @@ class Lexer(object):
 #  Constructor
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-  def __init__(self, **kwargs): # pattern, data, re):
+  def __init__(self, **kwargs): 
     
     data = ''
     if 'data' in kwargs.keys():
@@ -134,43 +134,10 @@ class Lexer(object):
     pattern = kwargs['pattern'] 
     kwargs.pop('pattern', None)
 
-    #print ("Debug: kwargs=", kwargs) 
     self.build(pattern, **kwargs)
     
-
-    # store dict of lists, a list being used to store a lexicon 
-    self.lexer.lexicons = lexicons
-    
-
-    # data structure (list of dicts) explored by the pattern  
-    self.lexer.data = data
-
-    # re method 
-    # search: Scan through data looking for the first location where the regular expression pattern produces a match, and return a corresponding match object. 
-    # findall: Return all non-overlapping matches of pattern in data, as a list of datas. 
-    # finditer: Return an iterator yielding match objects over all non-overlapping matches for the RE pattern in data.
-    self.lexer.re = re
-
-    # list of start/end index of each recognized group 
-    # TODO how to handle multiple rules in a single grammar... each rule should have an identifier... and its own groupindex
-    self.lexer.groupstartindex = [] # (the first one is the whole match)  
-    self.lexer.groupendindex = []  # (the last one is the whole match)  
-
-    # variable used to distinguish the first step (and consequently the start position of the pattern) from the others
-    self.lexer.matchongoing = False
-
-    # position in the data from where the pattern is applied 
-    self.lexer.lastFirstExploredDataPosition = 0      
-
-    # position in the data that is explored by the current rule
-    self.lexer.currentExploredDataPosition = self.lexer.lastFirstExploredDataPosition 
-
-    # the whole pattern
-    # self.lexer.lexdata
-  
-
-    # list of LexToken (self.type, self.value, self.lineno, self.lexpos)
-    self.lexTokenList = [] 
+    # the whole pattern 
+    # self.lexer.lexdata    # (reserved name) 
 
     # map endposition to lextoken (by getting the len(.value of the element), 
     # you can then get the endposition of the previous element, useful to delimit quantified steps 
@@ -179,35 +146,27 @@ class Lexer(object):
     # and the matched text includes the next lextToken (not only reduced to a single char).
     self.lexTokenEndDict = {} 
 
+    self.lexTokenList = []  # list of LexToken (self.type, self.value, self.lineno, self.lexpos)
 
+    # re method 
+    # search: Scan through data looking for the first location where the regular expression pattern produces a match, and return a corresponding match object. 
+    # findall: Return all non-overlapping matches of pattern in data, as a list of datas. 
+    # finditer: Return an iterator yielding match objects over all non-overlapping matches for the RE pattern in data.
+    self.lexer.re = re
 
-    # the pattern part which is in focus when processing a quantifier ; 
-    self.lexer.localstep = '' 
+    self.lexer.pattern_data_start = 0      # position in the data from where the pattern is applied 
 
-    # in the context of local step pattern the step is bare wo quantifier but globally it comes with so 
-    # (log use case) 
-    self.lexer.patternStep = None
+    self.lexer.pattern_cursor = 0          # cursor to follow the parsing progress in the pattern
 
-    # cursor to follow the parsing progress in the pattern (log use case) 
-    self.lexer.patternStepPosition = 0
+    self.lexer.pattern_steps = []          # compiled pattern: list of (quantifier, step) 
 
-    # to exchange information between global and local parser when dealing with quantifiers
-    # indicate the local parser that it is a local one
-    self.lexer.islocal = 0 
+    self.lexer.data = data                 # data explored by the pattern  
 
-    # as a global one, get the result of the local one
-    self.lexer.localresult = False # 
+    self.lexer.data_cursor = self.lexer.pattern_data_start     # position in the data that is explored by the current pattern
 
-    # store the result after parsing the pattern given a certain data (context)
-    self.lexer.expressionresult = False # 
-
-
-#  def __init__(self, debug=False):
-#    self.tokens = (
-#      self.delimiters + self.operators +
-#      self.misc + list(set(self.reserved.values())))
-#    self.build(debug=debug)
-
+    self.lexer.lexicons = lexicons     # store dict of lists, a list being used to store a lexicon 
+    
+    self.lexer.truth_value = False  # parsing result of a given pattern over a certain data 
 
 
   def build(self, pattern, **kwargs):

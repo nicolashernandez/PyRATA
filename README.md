@@ -18,13 +18,13 @@ But it is not limited to the representation of sentences. It can also be used to
 
 ### The API
 
-The API is developed to be familiar for whom who develop with the python re module API. Methods such as `search`, `findall`, or `finditer` are implemented. At a minimum, they take two arguments the pattern to recognize and the data to explore. 
-
-    pyrata_re.search(pattern, data)
+The API is developed to be familiar for whom who develop with the python re module API. Methods such as `search`, `findall`, or `finditer` are implemented. At a minimum, they take two arguments the pattern to recognize and the data to explore (e.g. `search(pattern, data)`).
 
 More named arguments (`lexicons`, `verbosity`) allows to set lexicons which can be used to define set of accepted values for an attribute or the level of verbosity.
 
 A __pattern__ is made of one or several steps. A __step__ is, in its simplest form, the specification of a single constraint (*NAME OPERATOR VALUE*). For a given attribute name, you can specify its required exact value (with `=` *OPERATOR*), a regex definition of its value (`~` *OPERATOR*) or a list of possible values (`@` *OPERATOR*). A more complex step can be a __quantified step__ or a __class step__. The former allows to set *optional* step (`?`), steps which should occurs *at least one* (`+`), or *zero or more* (`*`). The latter aims at specifing more than one constraints and conditions on them with *parenthesis* (`()`) and logical connectors such as *and* (`&`), *or* (`|`) and *not* (`!`).
+
+See the *Quick overview* section for more details and examples.
 
 ### PyRATA alternatives
   * [nltk.RegexpParser](https://gist.github.com/alexbowe/879414) ; http://www.nltk.org/_modules/nltk/chunk/regexp.html#RegexpChunkParser ; http://nbviewer.jupyter.org/github/lukewrites/NP_chunking_with_nltk/blob/master/NP_chunking_with_the_NLTK.ipynb ; https://gist.github.com/alexbowe/879414
@@ -119,17 +119,17 @@ You can specify a __class of elements__ by specifying constraints on the propert
 
 You can quantify the repetition of a step: in other words specifying a __quantifier to match one or more times__ the same form of an element:
 
-    >>> pyrata_re.findall('+pos="JJ"', data)
+    >>> pyrata_re.findall('pos="JJ"+', data)
     [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}], [{'raw': 'funny', 'pos': 'JJ'}], [{'raw': 'regular', 'pos': 'JJ'}]
 
 Or specifying a __quantifier to match zero or more times__ a certain form of an element:
 
-    >>> pyrata_re.findall('*pos="JJ" [(pos="NNS" | pos="NNP")]', data)
+    >>> pyrata_re.findall('pos="JJ"* [(pos="NNS" | pos="NNP")]', data)
     [[[{'raw': 'regular', 'pos': 'JJ'}, {'raw': 'expressions', 'pos': 'NNS'}], [{'raw': 'Pyrata', 'pos': 'NNP'}]]
 
 Or specifying a __quantifier to match once or not at all__ the given form of an element:
 
-    >>> pyrata_re.findall('?pos="JJ" [(pos="NNS" | pos="NNP")]', data)
+    >>> pyrata_re.findall('pos="JJ"? [(pos="NNS" | pos="NNP")]', data)
     [[{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'NNP', 'raw': 'Pyrata'}]]
 
 At the atomic level, there is not only the equal operator to set a constraint. You can also __set a regular expression as a value__. 
@@ -145,13 +145,19 @@ You can also __set a list of possible values (lexicon)__. In that case, the oper
 
 Currently no __wildcard character__ is implemented but you can easily simulate it with a non existing attribute or value:
 
-    >>> pyrata_re.findall('pos~"VB." *[!raw="to"] raw="to"', data)
-    FIXME
+    >>> pyrata_re.findall('pos~"VB." [!raw="to"]* raw="to"', data)
+    [[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}]]
 
-To __understand the process of a pyrata_re method__, specify a __verbosity degree__ to it (*0 None, 1 +Parsing Warning and Error, 2 +Productions rules and current parsed pattern/data tokens, 3 +More parsing informations*):
+To __understand the process of a pyrata_re method__, specify a __verbosity degree__ to it (*0 None, 1 +Parsing Warning and Error, 2 +syntactic and semantic parsing logs, 3 +More parsing informations*):
+
+Here some syntactic problems: 
 
     >>> pyrata_re.findall('*pos="JJ" [(pos="NNS" | pos="NNP")]', data, verbosity=1)
-    ....
+    Error: syntactic parsing error - unexpected token type="ANY" with value="*" at position 1. Search an error before this point.
+
+    >>> pyrata_re.findall('pos="JJ"* bla bla [(pos="NNS" | pos="NNP")]', data, verbosity=1)
+    Error: syntactic parsing error - unexpected token type="NAME" with value="bla" at position 17. Search an error before this point.
+
 
 Example for generating more complex data:
 
@@ -162,6 +168,30 @@ Example for generating more complex data:
 
 # Roadmap
 ---------
+
+
+## TODO
+
+* revise README (add compile, wildcard)
+* code handle the test case of error in the patterns
+* module re implement pyrata_re.match
+* code end location is stored several times with the expression rules ; have a look at len(l.lexer.groupstartindex): and len(l.lexer.groupendindex): after parsing in pyrata_re methods to compare 
+* ihm revise the README and create a specific developer page
+* module re regex implement substitution sub/// and the annotation annotate/// ; the new feature is added to the current feature structure in a BIO style
+* grammar implement handle sequence of tokens with a BIO value as a single token
+* grammar implement wildcards
+* grammar think about the context notion, and possibly about forcing the pattern to match from the begining ^ and/or to the end $
+* grammar implement capture index of groups (identifiers required)
+* grammar implement reuse groups in regex
+* grammar test complex regex as value
+* module nltk implement methods to turn nltk complex structures (chunking Tree and IOB) into the pyrata data structure 
+* grammar implement lex.lex(reflags=re.UNICODE)
+* code quality review
+* evaluate performance comparing to pattern and python 3 chunking 
+* grammar does class atomic with non atomic contraint should be prefered to not step to adapt one single way of doing stuff: partofclassconstraint -> NOT classconstraint more than step -> NOT step ; but the latter is simpler so check if it is working as expected wi quantifier +!pos:"EX" = +[!pos:"EX"])
+* grammar allow grammar with multiple rules (each rule should have an identifier... and its own groupindex)
+* gramamr move the python methods as grammar components
+
 
 ##  Done 
 * module re implement pyrata_re.search
@@ -191,25 +221,8 @@ Example for generating more complex data:
 * rename loglevel into verbosity
 * Warning: code cannot rename tokens into lextokens in parser since it is Ply 
 * Warning: ihm when copying the grammar in the console, do not insert whitespace ahead
-
-## TODO
+* code separate lexer, syntactic parser and semantic parser in distinct files http://www.dabeaz.com/ply/ply.html#ply_nn34 
+* module re implement pyrata_re.compile and revise dependant methods such as search... from it
+* code revise test 
 * fix parsing bug with pos~"VB." *[!raw="to"] raw="to", +[pos~"NN.*" | pos="JJ"] pos~"NN.*", *[pos~"NN.*" | pos="JJ"] pos~"NN.*", 
-* grammar change the grammar so that the quantifier are after the token
-* code end location is stored several times with the expression rules ; have a look at len(l.lexer.groupstartindex): and len(l.lexer.groupendindex): after parsing in pyrata_re methods to compare 
-* ihm revise the README and create a specific developer page
-* code separate lexer, parser and semantic implementation in distinct files
-* module re regex implement substitution sub/// and the annotation annotate/// ; the new feature is added to the current feature structure in a BIO style
-* grammar implement handle sequence of tokens with a BIO value as a single token
-* grammar implement wildcards
-* grammar think about the context notion, and possibly about forcing the pattern to match from the begining ^ and/or to the end $
-* grammar implement capture index of groups (identifiers required)
-* grammar implement reuse groups in regex
-* grammar test complex regex as value
-* module nltk implement methods to turn nltk complex structures (chunking Tree and IOB) into the pyrata data structure 
-* grammar implement lex.lex(reflags=re.UNICODE)
-* code quality review
-* evaluate performance comparing to pattern and python 3 chunking 
-* grammar does class atomic with non atomic contraint should be prefered to not step to adapt one single way of doing stuff: partofclassconstraint -> NOT classconstraint more than step -> NOT step ; but the latter is simpler so check if it is working as expected wi quantifier +!pos:"EX" = +[!pos:"EX"])
-* grammar allow grammar with multiple rules (each rule should have an identifier... and its own groupindex)
-* gramamr move the python methods as grammar components
-
+* grammar change the grammar so that the quantifiers are after the token
