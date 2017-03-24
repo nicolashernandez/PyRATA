@@ -1,504 +1,259 @@
 Created by PLY version 3.10 (http://www.dabeaz.com/ply)
 
+Unused terminals:
+
+    ANY
+    ATLEASTONE
+    OPTION
+
 Grammar
 
-Rule 0     S' -> expression
-Rule 1     expression -> <empty>
-Rule 2     expression -> quantified_step_list
-Rule 3     quantified_step_list -> quantified_step_list quantifiedstep
-Rule 4     quantified_step_list -> quantifiedstep
-Rule 5     quantifiedstep -> step
-Rule 6     quantifiedstep -> step OPTION
-Rule 7     quantifiedstep -> step ATLEASTONE
-Rule 8     quantifiedstep -> step ANY
-Rule 9     step -> atomicconstraint
-Rule 10    step -> NOT step
-Rule 11    step -> LBRACKET classconstraint RBRACKET
-Rule 12    classconstraint -> classconstraint AND partofclassconstraint
-Rule 13    classconstraint -> classconstraint OR partofclassconstraint
-Rule 14    classconstraint -> partofclassconstraint
-Rule 15    partofclassconstraint -> atomicconstraint
-Rule 16    partofclassconstraint -> LPAREN classconstraint RPAREN
-Rule 17    partofclassconstraint -> NOT classconstraint
-Rule 18    atomicconstraint -> NAME EQ VALUE
-Rule 19    atomicconstraint -> NAME MATCH VALUE
-Rule 20    atomicconstraint -> NAME IN VALUE
+Rule 0     S' -> step
+Rule 1     step -> atomicconstraint
+Rule 2     step -> NOT step
+Rule 3     step -> LBRACKET classconstraint RBRACKET
+Rule 4     classconstraint -> classconstraint AND partofclassconstraint
+Rule 5     classconstraint -> classconstraint OR partofclassconstraint
+Rule 6     classconstraint -> partofclassconstraint
+Rule 7     partofclassconstraint -> atomicconstraint
+Rule 8     partofclassconstraint -> LPAREN classconstraint RPAREN
+Rule 9     partofclassconstraint -> NOT classconstraint
+Rule 10    atomicconstraint -> NAME EQ VALUE
+Rule 11    atomicconstraint -> NAME MATCH VALUE
+Rule 12    atomicconstraint -> NAME IN VALUE
 
 Terminals, with rules where they appear
 
-AND                  : 12
-ANY                  : 8
-ATLEASTONE           : 7
-EQ                   : 18
-IN                   : 20
-LBRACKET             : 11
-LPAREN               : 16
-MATCH                : 19
-NAME                 : 18 19 20
-NOT                  : 10 17
-OPTION               : 6
-OR                   : 13
-RBRACKET             : 11
-RPAREN               : 16
-VALUE                : 18 19 20
+AND                  : 4
+ANY                  : 
+ATLEASTONE           : 
+EQ                   : 10
+IN                   : 12
+LBRACKET             : 3
+LPAREN               : 8
+MATCH                : 11
+NAME                 : 10 11 12
+NOT                  : 2 9
+OPTION               : 
+OR                   : 5
+RBRACKET             : 3
+RPAREN               : 8
+VALUE                : 10 11 12
 error                : 
 
 Nonterminals, with rules where they appear
 
-atomicconstraint     : 9 15
-classconstraint      : 11 12 13 16 17
-expression           : 0
-partofclassconstraint : 12 13 14
-quantified_step_list : 2 3
-quantifiedstep       : 3 4
-step                 : 5 6 7 8 10
+atomicconstraint     : 1 7
+classconstraint      : 3 4 5 8 9
+partofclassconstraint : 4 5 6
+step                 : 2 0
 
 Parsing method: LALR
 
 state 0
 
-    (0) S' -> . expression
-    (1) expression -> .
-    (2) expression -> . quantified_step_list
-    (3) quantified_step_list -> . quantified_step_list quantifiedstep
-    (4) quantified_step_list -> . quantifiedstep
-    (5) quantifiedstep -> . step
-    (6) quantifiedstep -> . step OPTION
-    (7) quantifiedstep -> . step ATLEASTONE
-    (8) quantifiedstep -> . step ANY
-    (9) step -> . atomicconstraint
-    (10) step -> . NOT step
-    (11) step -> . LBRACKET classconstraint RBRACKET
-    (18) atomicconstraint -> . NAME EQ VALUE
-    (19) atomicconstraint -> . NAME MATCH VALUE
-    (20) atomicconstraint -> . NAME IN VALUE
+    (0) S' -> . step
+    (1) step -> . atomicconstraint
+    (2) step -> . NOT step
+    (3) step -> . LBRACKET classconstraint RBRACKET
+    (10) atomicconstraint -> . NAME EQ VALUE
+    (11) atomicconstraint -> . NAME MATCH VALUE
+    (12) atomicconstraint -> . NAME IN VALUE
 
-    $end            reduce using rule 1 (expression -> .)
-    NOT             shift and go to state 7
-    LBRACKET        shift and go to state 6
-    NAME            shift and go to state 8
+    NOT             shift and go to state 4
+    LBRACKET        shift and go to state 5
+    NAME            shift and go to state 1
 
-    expression                     shift and go to state 1
     step                           shift and go to state 2
-    quantifiedstep                 shift and go to state 3
-    atomicconstraint               shift and go to state 4
-    quantified_step_list           shift and go to state 5
+    atomicconstraint               shift and go to state 3
 
 state 1
 
-    (0) S' -> expression .
+    (10) atomicconstraint -> NAME . EQ VALUE
+    (11) atomicconstraint -> NAME . MATCH VALUE
+    (12) atomicconstraint -> NAME . IN VALUE
 
+    EQ              shift and go to state 8
+    MATCH           shift and go to state 6
+    IN              shift and go to state 7
 
 
 state 2
 
-    (5) quantifiedstep -> step .
-    (6) quantifiedstep -> step . OPTION
-    (7) quantifiedstep -> step . ATLEASTONE
-    (8) quantifiedstep -> step . ANY
+    (0) S' -> step .
 
-    NOT             reduce using rule 5 (quantifiedstep -> step .)
-    LBRACKET        reduce using rule 5 (quantifiedstep -> step .)
-    NAME            reduce using rule 5 (quantifiedstep -> step .)
-    $end            reduce using rule 5 (quantifiedstep -> step .)
-    OPTION          shift and go to state 9
-    ATLEASTONE      shift and go to state 11
-    ANY             shift and go to state 10
 
 
 state 3
 
-    (4) quantified_step_list -> quantifiedstep .
+    (1) step -> atomicconstraint .
 
-    NOT             reduce using rule 4 (quantified_step_list -> quantifiedstep .)
-    LBRACKET        reduce using rule 4 (quantified_step_list -> quantifiedstep .)
-    NAME            reduce using rule 4 (quantified_step_list -> quantifiedstep .)
-    $end            reduce using rule 4 (quantified_step_list -> quantifiedstep .)
+    $end            reduce using rule 1 (step -> atomicconstraint .)
 
 
 state 4
 
-    (9) step -> atomicconstraint .
+    (2) step -> NOT . step
+    (1) step -> . atomicconstraint
+    (2) step -> . NOT step
+    (3) step -> . LBRACKET classconstraint RBRACKET
+    (10) atomicconstraint -> . NAME EQ VALUE
+    (11) atomicconstraint -> . NAME MATCH VALUE
+    (12) atomicconstraint -> . NAME IN VALUE
 
-    OPTION          reduce using rule 9 (step -> atomicconstraint .)
-    ATLEASTONE      reduce using rule 9 (step -> atomicconstraint .)
-    ANY             reduce using rule 9 (step -> atomicconstraint .)
-    NOT             reduce using rule 9 (step -> atomicconstraint .)
-    LBRACKET        reduce using rule 9 (step -> atomicconstraint .)
-    NAME            reduce using rule 9 (step -> atomicconstraint .)
-    $end            reduce using rule 9 (step -> atomicconstraint .)
+    NOT             shift and go to state 4
+    LBRACKET        shift and go to state 5
+    NAME            shift and go to state 1
 
+    step                           shift and go to state 9
+    atomicconstraint               shift and go to state 3
 
 state 5
 
-    (2) expression -> quantified_step_list .
-    (3) quantified_step_list -> quantified_step_list . quantifiedstep
-    (5) quantifiedstep -> . step
-    (6) quantifiedstep -> . step OPTION
-    (7) quantifiedstep -> . step ATLEASTONE
-    (8) quantifiedstep -> . step ANY
-    (9) step -> . atomicconstraint
-    (10) step -> . NOT step
-    (11) step -> . LBRACKET classconstraint RBRACKET
-    (18) atomicconstraint -> . NAME EQ VALUE
-    (19) atomicconstraint -> . NAME MATCH VALUE
-    (20) atomicconstraint -> . NAME IN VALUE
+    (3) step -> LBRACKET . classconstraint RBRACKET
+    (4) classconstraint -> . classconstraint AND partofclassconstraint
+    (5) classconstraint -> . classconstraint OR partofclassconstraint
+    (6) classconstraint -> . partofclassconstraint
+    (7) partofclassconstraint -> . atomicconstraint
+    (8) partofclassconstraint -> . LPAREN classconstraint RPAREN
+    (9) partofclassconstraint -> . NOT classconstraint
+    (10) atomicconstraint -> . NAME EQ VALUE
+    (11) atomicconstraint -> . NAME MATCH VALUE
+    (12) atomicconstraint -> . NAME IN VALUE
 
-    $end            reduce using rule 2 (expression -> quantified_step_list .)
-    NOT             shift and go to state 7
-    LBRACKET        shift and go to state 6
-    NAME            shift and go to state 8
+    LPAREN          shift and go to state 13
+    NOT             shift and go to state 10
+    NAME            shift and go to state 1
 
-    step                           shift and go to state 2
-    atomicconstraint               shift and go to state 4
-    quantifiedstep                 shift and go to state 12
+    atomicconstraint               shift and go to state 14
+    classconstraint                shift and go to state 11
+    partofclassconstraint          shift and go to state 12
 
 state 6
 
-    (11) step -> LBRACKET . classconstraint RBRACKET
-    (12) classconstraint -> . classconstraint AND partofclassconstraint
-    (13) classconstraint -> . classconstraint OR partofclassconstraint
-    (14) classconstraint -> . partofclassconstraint
-    (15) partofclassconstraint -> . atomicconstraint
-    (16) partofclassconstraint -> . LPAREN classconstraint RPAREN
-    (17) partofclassconstraint -> . NOT classconstraint
-    (18) atomicconstraint -> . NAME EQ VALUE
-    (19) atomicconstraint -> . NAME MATCH VALUE
-    (20) atomicconstraint -> . NAME IN VALUE
+    (11) atomicconstraint -> NAME MATCH . VALUE
 
-    LPAREN          shift and go to state 15
-    NOT             shift and go to state 16
-    NAME            shift and go to state 8
+    VALUE           shift and go to state 15
 
-    atomicconstraint               shift and go to state 13
-    partofclassconstraint          shift and go to state 14
-    classconstraint                shift and go to state 17
 
 state 7
 
-    (10) step -> NOT . step
-    (9) step -> . atomicconstraint
-    (10) step -> . NOT step
-    (11) step -> . LBRACKET classconstraint RBRACKET
-    (18) atomicconstraint -> . NAME EQ VALUE
-    (19) atomicconstraint -> . NAME MATCH VALUE
-    (20) atomicconstraint -> . NAME IN VALUE
+    (12) atomicconstraint -> NAME IN . VALUE
 
-    NOT             shift and go to state 7
-    LBRACKET        shift and go to state 6
-    NAME            shift and go to state 8
+    VALUE           shift and go to state 16
 
-    step                           shift and go to state 18
-    atomicconstraint               shift and go to state 4
 
 state 8
 
-    (18) atomicconstraint -> NAME . EQ VALUE
-    (19) atomicconstraint -> NAME . MATCH VALUE
-    (20) atomicconstraint -> NAME . IN VALUE
+    (10) atomicconstraint -> NAME EQ . VALUE
 
-    EQ              shift and go to state 21
-    MATCH           shift and go to state 19
-    IN              shift and go to state 20
+    VALUE           shift and go to state 17
 
 
 state 9
 
-    (6) quantifiedstep -> step OPTION .
+    (2) step -> NOT step .
 
-    NOT             reduce using rule 6 (quantifiedstep -> step OPTION .)
-    LBRACKET        reduce using rule 6 (quantifiedstep -> step OPTION .)
-    NAME            reduce using rule 6 (quantifiedstep -> step OPTION .)
-    $end            reduce using rule 6 (quantifiedstep -> step OPTION .)
+    $end            reduce using rule 2 (step -> NOT step .)
 
 
 state 10
 
-    (8) quantifiedstep -> step ANY .
+    (9) partofclassconstraint -> NOT . classconstraint
+    (4) classconstraint -> . classconstraint AND partofclassconstraint
+    (5) classconstraint -> . classconstraint OR partofclassconstraint
+    (6) classconstraint -> . partofclassconstraint
+    (7) partofclassconstraint -> . atomicconstraint
+    (8) partofclassconstraint -> . LPAREN classconstraint RPAREN
+    (9) partofclassconstraint -> . NOT classconstraint
+    (10) atomicconstraint -> . NAME EQ VALUE
+    (11) atomicconstraint -> . NAME MATCH VALUE
+    (12) atomicconstraint -> . NAME IN VALUE
 
-    NOT             reduce using rule 8 (quantifiedstep -> step ANY .)
-    LBRACKET        reduce using rule 8 (quantifiedstep -> step ANY .)
-    NAME            reduce using rule 8 (quantifiedstep -> step ANY .)
-    $end            reduce using rule 8 (quantifiedstep -> step ANY .)
+    LPAREN          shift and go to state 13
+    NOT             shift and go to state 10
+    NAME            shift and go to state 1
 
+    atomicconstraint               shift and go to state 14
+    classconstraint                shift and go to state 18
+    partofclassconstraint          shift and go to state 12
 
 state 11
 
-    (7) quantifiedstep -> step ATLEASTONE .
+    (3) step -> LBRACKET classconstraint . RBRACKET
+    (4) classconstraint -> classconstraint . AND partofclassconstraint
+    (5) classconstraint -> classconstraint . OR partofclassconstraint
 
-    NOT             reduce using rule 7 (quantifiedstep -> step ATLEASTONE .)
-    LBRACKET        reduce using rule 7 (quantifiedstep -> step ATLEASTONE .)
-    NAME            reduce using rule 7 (quantifiedstep -> step ATLEASTONE .)
-    $end            reduce using rule 7 (quantifiedstep -> step ATLEASTONE .)
+    RBRACKET        shift and go to state 21
+    AND             shift and go to state 20
+    OR              shift and go to state 19
 
 
 state 12
 
-    (3) quantified_step_list -> quantified_step_list quantifiedstep .
+    (6) classconstraint -> partofclassconstraint .
 
-    NOT             reduce using rule 3 (quantified_step_list -> quantified_step_list quantifiedstep .)
-    LBRACKET        reduce using rule 3 (quantified_step_list -> quantified_step_list quantifiedstep .)
-    NAME            reduce using rule 3 (quantified_step_list -> quantified_step_list quantifiedstep .)
-    $end            reduce using rule 3 (quantified_step_list -> quantified_step_list quantifiedstep .)
+    RPAREN          reduce using rule 6 (classconstraint -> partofclassconstraint .)
+    AND             reduce using rule 6 (classconstraint -> partofclassconstraint .)
+    OR              reduce using rule 6 (classconstraint -> partofclassconstraint .)
+    RBRACKET        reduce using rule 6 (classconstraint -> partofclassconstraint .)
 
 
 state 13
 
-    (15) partofclassconstraint -> atomicconstraint .
+    (8) partofclassconstraint -> LPAREN . classconstraint RPAREN
+    (4) classconstraint -> . classconstraint AND partofclassconstraint
+    (5) classconstraint -> . classconstraint OR partofclassconstraint
+    (6) classconstraint -> . partofclassconstraint
+    (7) partofclassconstraint -> . atomicconstraint
+    (8) partofclassconstraint -> . LPAREN classconstraint RPAREN
+    (9) partofclassconstraint -> . NOT classconstraint
+    (10) atomicconstraint -> . NAME EQ VALUE
+    (11) atomicconstraint -> . NAME MATCH VALUE
+    (12) atomicconstraint -> . NAME IN VALUE
 
-    AND             reduce using rule 15 (partofclassconstraint -> atomicconstraint .)
-    OR              reduce using rule 15 (partofclassconstraint -> atomicconstraint .)
-    RBRACKET        reduce using rule 15 (partofclassconstraint -> atomicconstraint .)
-    RPAREN          reduce using rule 15 (partofclassconstraint -> atomicconstraint .)
+    LPAREN          shift and go to state 13
+    NOT             shift and go to state 10
+    NAME            shift and go to state 1
 
+    atomicconstraint               shift and go to state 14
+    classconstraint                shift and go to state 22
+    partofclassconstraint          shift and go to state 12
 
 state 14
 
-    (14) classconstraint -> partofclassconstraint .
+    (7) partofclassconstraint -> atomicconstraint .
 
-    RPAREN          reduce using rule 14 (classconstraint -> partofclassconstraint .)
-    AND             reduce using rule 14 (classconstraint -> partofclassconstraint .)
-    OR              reduce using rule 14 (classconstraint -> partofclassconstraint .)
-    RBRACKET        reduce using rule 14 (classconstraint -> partofclassconstraint .)
+    AND             reduce using rule 7 (partofclassconstraint -> atomicconstraint .)
+    OR              reduce using rule 7 (partofclassconstraint -> atomicconstraint .)
+    RBRACKET        reduce using rule 7 (partofclassconstraint -> atomicconstraint .)
+    RPAREN          reduce using rule 7 (partofclassconstraint -> atomicconstraint .)
 
 
 state 15
 
-    (16) partofclassconstraint -> LPAREN . classconstraint RPAREN
-    (12) classconstraint -> . classconstraint AND partofclassconstraint
-    (13) classconstraint -> . classconstraint OR partofclassconstraint
-    (14) classconstraint -> . partofclassconstraint
-    (15) partofclassconstraint -> . atomicconstraint
-    (16) partofclassconstraint -> . LPAREN classconstraint RPAREN
-    (17) partofclassconstraint -> . NOT classconstraint
-    (18) atomicconstraint -> . NAME EQ VALUE
-    (19) atomicconstraint -> . NAME MATCH VALUE
-    (20) atomicconstraint -> . NAME IN VALUE
+    (11) atomicconstraint -> NAME MATCH VALUE .
 
-    LPAREN          shift and go to state 15
-    NOT             shift and go to state 16
-    NAME            shift and go to state 8
+    AND             reduce using rule 11 (atomicconstraint -> NAME MATCH VALUE .)
+    OR              reduce using rule 11 (atomicconstraint -> NAME MATCH VALUE .)
+    RBRACKET        reduce using rule 11 (atomicconstraint -> NAME MATCH VALUE .)
+    RPAREN          reduce using rule 11 (atomicconstraint -> NAME MATCH VALUE .)
+    $end            reduce using rule 11 (atomicconstraint -> NAME MATCH VALUE .)
 
-    atomicconstraint               shift and go to state 13
-    partofclassconstraint          shift and go to state 14
-    classconstraint                shift and go to state 22
 
 state 16
 
-    (17) partofclassconstraint -> NOT . classconstraint
-    (12) classconstraint -> . classconstraint AND partofclassconstraint
-    (13) classconstraint -> . classconstraint OR partofclassconstraint
-    (14) classconstraint -> . partofclassconstraint
-    (15) partofclassconstraint -> . atomicconstraint
-    (16) partofclassconstraint -> . LPAREN classconstraint RPAREN
-    (17) partofclassconstraint -> . NOT classconstraint
-    (18) atomicconstraint -> . NAME EQ VALUE
-    (19) atomicconstraint -> . NAME MATCH VALUE
-    (20) atomicconstraint -> . NAME IN VALUE
+    (12) atomicconstraint -> NAME IN VALUE .
 
-    LPAREN          shift and go to state 15
-    NOT             shift and go to state 16
-    NAME            shift and go to state 8
+    AND             reduce using rule 12 (atomicconstraint -> NAME IN VALUE .)
+    OR              reduce using rule 12 (atomicconstraint -> NAME IN VALUE .)
+    RBRACKET        reduce using rule 12 (atomicconstraint -> NAME IN VALUE .)
+    RPAREN          reduce using rule 12 (atomicconstraint -> NAME IN VALUE .)
+    $end            reduce using rule 12 (atomicconstraint -> NAME IN VALUE .)
 
-    atomicconstraint               shift and go to state 13
-    partofclassconstraint          shift and go to state 14
-    classconstraint                shift and go to state 23
 
 state 17
 
-    (11) step -> LBRACKET classconstraint . RBRACKET
-    (12) classconstraint -> classconstraint . AND partofclassconstraint
-    (13) classconstraint -> classconstraint . OR partofclassconstraint
+    (10) atomicconstraint -> NAME EQ VALUE .
 
-    RBRACKET        shift and go to state 25
-    AND             shift and go to state 24
-    OR              shift and go to state 26
-
-
-state 18
-
-    (10) step -> NOT step .
-
-    OPTION          reduce using rule 10 (step -> NOT step .)
-    ATLEASTONE      reduce using rule 10 (step -> NOT step .)
-    ANY             reduce using rule 10 (step -> NOT step .)
-    NOT             reduce using rule 10 (step -> NOT step .)
-    LBRACKET        reduce using rule 10 (step -> NOT step .)
-    NAME            reduce using rule 10 (step -> NOT step .)
-    $end            reduce using rule 10 (step -> NOT step .)
-
-
-state 19
-
-    (19) atomicconstraint -> NAME MATCH . VALUE
-
-    VALUE           shift and go to state 27
-
-
-state 20
-
-    (20) atomicconstraint -> NAME IN . VALUE
-
-    VALUE           shift and go to state 28
-
-
-state 21
-
-    (18) atomicconstraint -> NAME EQ . VALUE
-
-    VALUE           shift and go to state 29
-
-
-state 22
-
-    (16) partofclassconstraint -> LPAREN classconstraint . RPAREN
-    (12) classconstraint -> classconstraint . AND partofclassconstraint
-    (13) classconstraint -> classconstraint . OR partofclassconstraint
-
-    RPAREN          shift and go to state 30
-    AND             shift and go to state 24
-    OR              shift and go to state 26
-
-
-state 23
-
-    (17) partofclassconstraint -> NOT classconstraint .
-    (12) classconstraint -> classconstraint . AND partofclassconstraint
-    (13) classconstraint -> classconstraint . OR partofclassconstraint
-
-    AND             reduce using rule 17 (partofclassconstraint -> NOT classconstraint .)
-    OR              reduce using rule 17 (partofclassconstraint -> NOT classconstraint .)
-    RBRACKET        reduce using rule 17 (partofclassconstraint -> NOT classconstraint .)
-    RPAREN          reduce using rule 17 (partofclassconstraint -> NOT classconstraint .)
-
-  ! AND             [ shift and go to state 24 ]
-  ! OR              [ shift and go to state 26 ]
-
-
-state 24
-
-    (12) classconstraint -> classconstraint AND . partofclassconstraint
-    (15) partofclassconstraint -> . atomicconstraint
-    (16) partofclassconstraint -> . LPAREN classconstraint RPAREN
-    (17) partofclassconstraint -> . NOT classconstraint
-    (18) atomicconstraint -> . NAME EQ VALUE
-    (19) atomicconstraint -> . NAME MATCH VALUE
-    (20) atomicconstraint -> . NAME IN VALUE
-
-    LPAREN          shift and go to state 15
-    NOT             shift and go to state 16
-    NAME            shift and go to state 8
-
-    atomicconstraint               shift and go to state 13
-    partofclassconstraint          shift and go to state 31
-
-state 25
-
-    (11) step -> LBRACKET classconstraint RBRACKET .
-
-    OPTION          reduce using rule 11 (step -> LBRACKET classconstraint RBRACKET .)
-    ATLEASTONE      reduce using rule 11 (step -> LBRACKET classconstraint RBRACKET .)
-    ANY             reduce using rule 11 (step -> LBRACKET classconstraint RBRACKET .)
-    NOT             reduce using rule 11 (step -> LBRACKET classconstraint RBRACKET .)
-    LBRACKET        reduce using rule 11 (step -> LBRACKET classconstraint RBRACKET .)
-    NAME            reduce using rule 11 (step -> LBRACKET classconstraint RBRACKET .)
-    $end            reduce using rule 11 (step -> LBRACKET classconstraint RBRACKET .)
-
-
-state 26
-
-    (13) classconstraint -> classconstraint OR . partofclassconstraint
-    (15) partofclassconstraint -> . atomicconstraint
-    (16) partofclassconstraint -> . LPAREN classconstraint RPAREN
-    (17) partofclassconstraint -> . NOT classconstraint
-    (18) atomicconstraint -> . NAME EQ VALUE
-    (19) atomicconstraint -> . NAME MATCH VALUE
-    (20) atomicconstraint -> . NAME IN VALUE
-
-    LPAREN          shift and go to state 15
-    NOT             shift and go to state 16
-    NAME            shift and go to state 8
-
-    atomicconstraint               shift and go to state 13
-    partofclassconstraint          shift and go to state 32
-
-state 27
-
-    (19) atomicconstraint -> NAME MATCH VALUE .
-
-    OPTION          reduce using rule 19 (atomicconstraint -> NAME MATCH VALUE .)
-    ATLEASTONE      reduce using rule 19 (atomicconstraint -> NAME MATCH VALUE .)
-    ANY             reduce using rule 19 (atomicconstraint -> NAME MATCH VALUE .)
-    NOT             reduce using rule 19 (atomicconstraint -> NAME MATCH VALUE .)
-    LBRACKET        reduce using rule 19 (atomicconstraint -> NAME MATCH VALUE .)
-    NAME            reduce using rule 19 (atomicconstraint -> NAME MATCH VALUE .)
-    $end            reduce using rule 19 (atomicconstraint -> NAME MATCH VALUE .)
-    RPAREN          reduce using rule 19 (atomicconstraint -> NAME MATCH VALUE .)
-    AND             reduce using rule 19 (atomicconstraint -> NAME MATCH VALUE .)
-    OR              reduce using rule 19 (atomicconstraint -> NAME MATCH VALUE .)
-    RBRACKET        reduce using rule 19 (atomicconstraint -> NAME MATCH VALUE .)
-
-
-state 28
-
-    (20) atomicconstraint -> NAME IN VALUE .
-
-    OPTION          reduce using rule 20 (atomicconstraint -> NAME IN VALUE .)
-    ATLEASTONE      reduce using rule 20 (atomicconstraint -> NAME IN VALUE .)
-    ANY             reduce using rule 20 (atomicconstraint -> NAME IN VALUE .)
-    NOT             reduce using rule 20 (atomicconstraint -> NAME IN VALUE .)
-    LBRACKET        reduce using rule 20 (atomicconstraint -> NAME IN VALUE .)
-    NAME            reduce using rule 20 (atomicconstraint -> NAME IN VALUE .)
-    $end            reduce using rule 20 (atomicconstraint -> NAME IN VALUE .)
-    RPAREN          reduce using rule 20 (atomicconstraint -> NAME IN VALUE .)
-    AND             reduce using rule 20 (atomicconstraint -> NAME IN VALUE .)
-    OR              reduce using rule 20 (atomicconstraint -> NAME IN VALUE .)
-    RBRACKET        reduce using rule 20 (atomicconstraint -> NAME IN VALUE .)
-
-
-state 29
-
-    (18) atomicconstraint -> NAME EQ VALUE .
-
-    OPTION          reduce using rule 18 (atomicconstraint -> NAME EQ VALUE .)
-    ATLEASTONE      reduce using rule 18 (atomicconstraint -> NAME EQ VALUE .)
-    ANY             reduce using rule 18 (atomicconstraint -> NAME EQ VALUE .)
-    NOT             reduce using rule 18 (atomicconstraint -> NAME EQ VALUE .)
-    LBRACKET        reduce using rule 18 (atomicconstraint -> NAME EQ VALUE .)
-    NAME            reduce using rule 18 (atomicconstraint -> NAME EQ VALUE .)
-    $end            reduce using rule 18 (atomicconstraint -> NAME EQ VALUE .)
-    RPAREN          reduce using rule 18 (atomicconstraint -> NAME EQ VALUE .)
-    AND             reduce using rule 18 (atomicconstraint -> NAME EQ VALUE .)
-    OR              reduce using rule 18 (atomicconstraint -> NAME EQ VALUE .)
-    RBRACKET        reduce using rule 18 (atomicconstraint -> NAME EQ VALUE .)
-
-
-state 30
-
-    (16) partofclassconstraint -> LPAREN classconstraint RPAREN .
-
-    AND             reduce using rule 16 (partofclassconstraint -> LPAREN classconstraint RPAREN .)
-    OR              reduce using rule 16 (partofclassconstraint -> LPAREN classconstraint RPAREN .)
-    RBRACKET        reduce using rule 16 (partofclassconstraint -> LPAREN classconstraint RPAREN .)
-    RPAREN          reduce using rule 16 (partofclassconstraint -> LPAREN classconstraint RPAREN .)
-
-
-state 31
-
-    (12) classconstraint -> classconstraint AND partofclassconstraint .
-
-    RPAREN          reduce using rule 12 (classconstraint -> classconstraint AND partofclassconstraint .)
-    AND             reduce using rule 12 (classconstraint -> classconstraint AND partofclassconstraint .)
-    OR              reduce using rule 12 (classconstraint -> classconstraint AND partofclassconstraint .)
-    RBRACKET        reduce using rule 12 (classconstraint -> classconstraint AND partofclassconstraint .)
-
-
-state 32
-
-    (13) classconstraint -> classconstraint OR partofclassconstraint .
-
-    RPAREN          reduce using rule 13 (classconstraint -> classconstraint OR partofclassconstraint .)
-    AND             reduce using rule 13 (classconstraint -> classconstraint OR partofclassconstraint .)
-    OR              reduce using rule 13 (classconstraint -> classconstraint OR partofclassconstraint .)
-    RBRACKET        reduce using rule 13 (classconstraint -> classconstraint OR partofclassconstraint .)
-
+    AND             reduce using rule 10 (atomicconstraint -> NAME EQ VALUE .)

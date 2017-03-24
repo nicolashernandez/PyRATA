@@ -11,7 +11,7 @@ import re
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-class SemanticParser(object):
+class SemanticStepParser(object):
 
   #self.tokens = self.lex.tokens
   #tokens = ()

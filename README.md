@@ -1,7 +1,16 @@
 # PyRATA
 -------------
 
-PyRATA is an acronym which stands both for "Python Rule-based feAture sTructure Analysis" and "Python Rule-bAsed Text Analysis". Indeed, PyRATA is not onlyt dedicated to process textual data.
+PyRATA is an acronym which stands both for "Python Rule-based feAture sTructure Analysis" and "Python Rule-bAsed Text Analysis". Indeed, PyRATA is not only dedicated to process textual data.
+
+In short, PyRATA 
+* provides regular expression matching operations over more complex structures than list of characters (string), namely the list of dict/map.
+* offers the same API as the python re module,
+* follows the Perl regexes de facto standard in terms of language syntax,
+* is implemented in python 3,
+* can be used for processing textual data but is not limited to (the only restriction is the respect of the data structure to explore)
+* is released under the MIT Licence which is *a short and simple permissive license*
+* fun and easy to use
 
 ## Description
 -------------
@@ -26,7 +35,8 @@ A __pattern__ is made of one or several steps. A __step__ is, in its simplest fo
 
 See the *Quick overview* section for more details and examples.
 
-### PyRATA alternatives
+### References
+  * https://docs.python.org/3/library/re.html
   * [nltk.RegexpParser](https://gist.github.com/alexbowe/879414) ; http://www.nltk.org/_modules/nltk/chunk/regexp.html#RegexpChunkParser ; http://nbviewer.jupyter.org/github/lukewrites/NP_chunking_with_nltk/blob/master/NP_chunking_with_the_NLTK.ipynb ; https://gist.github.com/alexbowe/879414
   * pattern
   * ruta
@@ -35,21 +45,21 @@ See the *Quick overview* section for more details and examples.
 ### Limitations
 * cannot handle overlapping annotations  
 
-# Installation
+## Installation
 -----------------
 
-## Requirement
+### Requirement
 PyRATA use the [PLY](http://www.dabeaz.com/ply/ply.html "PLY") implementation of lex and yacc parsing tools for Python (version 3.10).
 One way to install it is:
 
     sudo pip3 install ply
 
-## Run tests (optional)
+### Run tests (optional)
 
     python3 test_pyrata.py
 
 
-# Quick overview (in console)
+## Quick overview (in console)
 -----------------
 
 First run python
@@ -166,34 +176,38 @@ Example for generating more complex data:
     [{'lem': 'it', 'stem': 'it', 'raw': 'It', 'pos': 'PRP', 'sw': False}, {'lem': "'s", 'stem': "'s", 'raw': "'s", 'pos': 'VBZ', 'sw': False}, {'lem': 'fun', 'stem': 'fun', 'raw': 'fun', 'pos': 'JJ', 'sw': False}, {'lem': 'and', 'stem': 'and', 'raw': 'and', 'pos': 'CC', 'sw': True}, {'lem': 'easy', 'stem': 'easi', 'raw': 'easy', 'pos': 'JJ', 'sw': False}, {'lem': 'to', 'stem': 'to', 'raw': 'to', 'pos': 'TO', 'sw': True}, {'lem': 'play', 'stem': 'play', 'raw': 'play', 'pos': 'VB', 'sw': False}, {'lem': 'with', 'stem': 'with', 'raw': 'with', 'pos': 'IN', 'sw': True}, {'lem': 'pyrata', 'stem': 'pyrata', 'raw': 'Pyrata', 'pos': 'NNP', 'sw': False}]
 
 
-# Roadmap
+## Roadmap
 ---------
 
 
-## TODO
+### TODO
 
-* revise README (add compile, wildcard)
-* code handle the test case of error in the patterns
+* ihm revise README (add compile)
 * module re implement pyrata_re.match
+* module re regex implement substitution sub/// and the annotation annotate/// ; the new feature is added to the current feature structure in a BIO style
+* grammar implement capture index of groups (identifiers required)
+* grammar implement handle sequence of tokens with a BIO value as a single token
+* evaluate performance http://www.marinamele.com/7-tips-to-time-python-scripts-and-control-memory-and-cpu-usage
+* evaluate performance comparing to pattern and python 3 chunking 
+* code check how the lexicons are handled during the compilation and how they are passed to the semantic analysis
+* code handle the test case of error in the patterns
 * code end location is stored several times with the expression rules ; have a look at len(l.lexer.groupstartindex): and len(l.lexer.groupendindex): after parsing in pyrata_re methods to compare 
 * ihm revise the README and create a specific developer page
-* module re regex implement substitution sub/// and the annotation annotate/// ; the new feature is added to the current feature structure in a BIO style
-* grammar implement handle sequence of tokens with a BIO value as a single token
 * grammar implement wildcards
 * grammar think about the context notion, and possibly about forcing the pattern to match from the begining ^ and/or to the end $
-* grammar implement capture index of groups (identifiers required)
 * grammar implement reuse groups in regex
 * grammar test complex regex as value
 * module nltk implement methods to turn nltk complex structures (chunking Tree and IOB) into the pyrata data structure 
 * grammar implement lex.lex(reflags=re.UNICODE)
 * code quality review
-* evaluate performance comparing to pattern and python 3 chunking 
+* code depending on performance evaluate the possibility of doing the ply way to handle the debug/tracking mode
 * grammar does class atomic with non atomic contraint should be prefered to not step to adapt one single way of doing stuff: partofclassconstraint -> NOT classconstraint more than step -> NOT step ; but the latter is simpler so check if it is working as expected wi quantifier +!pos:"EX" = +[!pos:"EX"])
 * grammar allow grammar with multiple rules (each rule should have an identifier... and its own groupindex)
 * gramamr move the python methods as grammar components
+* developer make diagrams to explain relations
+* see the pattern search module and its facilities
 
-
-##  Done 
+###  Done 
 * module re implement pyrata_re.search
 * module re implement pyrata_re.findall
 * module re implement pyrata_re.finditer
@@ -226,3 +240,5 @@ Example for generating more complex data:
 * code revise test 
 * fix parsing bug with pos~"VB." *[!raw="to"] raw="to", +[pos~"NN.*" | pos="JJ"] pos~"NN.*", *[pos~"NN.*" | pos="JJ"] pos~"NN.*", 
 * grammar change the grammar so that the quantifiers are after the token
+* license add copyright notice
+* code make modular pyrata_re _syntactic_parser and semantic_parser : creation of syntactic_analysis, syntactic_pattern_parser, semantic_analysis, semantic_step_parser, 
