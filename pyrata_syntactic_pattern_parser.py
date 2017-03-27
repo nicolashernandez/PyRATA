@@ -47,8 +47,9 @@ class SyntacticPatternParser(object):
 # _______________________________________________________________
   def p_quantified_step_list(self, p): 
     ''' quantified_step_list : quantified_step_list quantifiedstep
-                             | quantifiedstep
-    '''
+                             | quantifiedstep'''
+#                             | LPAREN quantifiedstep RPAREN  
+#    '''
     if self.verbosity >1:
       self.setPatternStep(p)
       self.log(p, '(p_quantified_step_list->...)')
