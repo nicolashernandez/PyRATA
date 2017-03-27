@@ -168,9 +168,25 @@ Here some syntactic problems:
     >>> pyrata_re.findall('pos="JJ"* bla bla [(pos="NNS" | pos="NNP")]', data, verbosity=1)
     Error: syntactic parsing error - unexpected token type="NAME" with value="bla" at position 17. Search an error before this point.
 
-### Generating the pyrata data structure
+Working with __chunks in IOB tagged format__. As mentioned in [nltk book](http://www.nltk.org/book/ch07.html), _The most widespread file representation of chunks uses IOB tags. In this scheme, each token is tagged with one of three special chunk tags, I (inside), O (outside), or B (begin). A token is tagged as B if it marks the beginning of a chunk. Subsequent tokens within the chunk are tagged I. All other tokens are tagged O. The B and I tags are suffixed with the chunk type, e.g. B-NP, I-NP. Of course, it is not necessary to specify a chunk type for tokens that appear outside a chunk, so these are just labeled O. An example of this scheme is shown below_  
 
-[{'pos': 'NNP', 'chunk': 'B-PERSON', 'raw': 'Mark'}, {'pos': 'VBZ', 'chunk': 'O', 'raw': 'is'}, {'pos': 'VBG', 'chunk': 'O', 'raw': 'working'}, {'pos': 'IN', 'chunk': 'O', 'raw': 'at'}, {'pos': 'NNP', 'chunk': 'B-ORGANIZATION', 'raw': 'Facebook'}, {'pos': 'NNP', 'chunk': 'I-ORGANIZATION', 'raw': 'Corp'}, {'pos': '.', 'chunk': 'O', 'raw': '.'}] 
+    >>> data = [{'pos': 'NNP', 'chunk': 'B-PERSON', 'raw': 'Mark'}, {'pos': 'NNP', 'chunk': 'I-PERSON', 'raw': 'Zuckerberg'}, {'pos': 'VBZ', 'chunk': 'O', 'raw': 'is'}, {'pos': 'VBG', 'chunk': 'O', 'raw': 'working'}, {'pos': 'IN', 'chunk': 'O', 'raw': 'at'}, {'pos': 'NNP', 'chunk': 'B-ORGANIZATION', 'raw': 'Facebook'}, {'pos': 'NNP', 'chunk': 'I-ORGANIZATION', 'raw': 'Corp'}, {'pos': '.', 'chunk': 'O', 'raw': '.'}] 
+
+    chunk."PERSON" [pos~"VB"]* FIXME
+    pos="IN" chunk."ORGANIZATION" FIXME
+
+    Before introducing the chunk operator: introduce the annotate methods
+
+What can do the annotate method:
+- each feature set of the matched sequences are updated with a given feature set
+- each feature set of the matched sequences are updated with a given feature set ; some of them should follow the iob scheme.
+- by default group 0 is updated or the given groups of the matched squences
+
+    annotation = {'chunk':'PERSON'}
+    new_data = annotate (pattern, data, annotation, iob=['chunk'], groups = ['1'])
+
+
+### Generating the pyrata data structure
 
 Have a look at the `pyrata_nltk.py` script (run it). It shows how to turn various nltk analysis results into the pyrata data structure.
 In practice two approaches are available: either by building the dict list of fly or by using the dedicated pyrata_nltk methods: `list2pyrata (**kwargs)` and `listList2pyrata (**kwargs)`. 
