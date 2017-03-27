@@ -191,7 +191,10 @@ Example for generating complex data on fly:
 
 Example of uses of pyrata dedicated conversion methods: See the `pyrata_nltk.py` scripts
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 0d593fc08b33f6b635f5315778ecc1f61859f3fd
 ## Roadmap
 ---------
 
@@ -199,21 +202,28 @@ Example of uses of pyrata dedicated conversion methods: See the `pyrata_nltk.py`
 ### TODO
 
 * ihm revise README (add compile)
+<<<<<<< HEAD
 * code check how the lexicons are handled during the compilation and how they are passed to the semantic analysis
 * code handle the test case of error in the patterns
+=======
+>>>>>>> 0d593fc08b33f6b635f5315778ecc1f61859f3fd
 * module re implement pyrata_re.match
+* module re regex implement substitution sub/// and the annotation annotate/// ; the new feature is added to the current feature structure in a BIO style
+* grammar implement capture index of groups (identifiers required)
+* grammar implement handle sequence of tokens with a BIO value as a single token
+* evaluate performance http://www.marinamele.com/7-tips-to-time-python-scripts-and-control-memory-and-cpu-usage
+* evaluate performance comparing to pattern and python 3 chunking 
+* code check how the lexicons are handled during the compilation and how they are passed to the semantic analysis
+* code handle the test case of error in the patterns
 * code end location is stored several times with the expression rules ; have a look at len(l.lexer.groupstartindex): and len(l.lexer.groupendindex): after parsing in pyrata_re methods to compare 
 * ihm revise the README and create a specific developer page
-* module re regex implement substitution sub/// and the annotation annotate/// ; the new feature is added to the current feature structure in a BIO style
-* grammar implement handle sequence of tokens with a BIO value as a single token
 * grammar implement wildcards
 * grammar think about the context notion, and possibly about forcing the pattern to match from the begining ^ and/or to the end $
-* grammar implement capture index of groups (identifiers required)
 * grammar implement reuse groups in regex
 * grammar test complex regex as value
 * module nltk implement methods to turn nltk complex structures (chunking Tree and IOB) into the pyrata data structure 
 * grammar implement lex.lex(reflags=re.UNICODE)
-* code quality review
+* code quality review http://www.marinamele.com/7-tips-to-time-python-scripts-and-control-memory-and-cpu-usage
 * evaluate performance comparing to pattern and python 3 chunking 
 * code depending on performance evaluate the possibility of doing the ply way to handle the debug/tracking mode
 * grammar does class atomic with non atomic contraint should be prefered to not step to adapt one single way of doing stuff: partofclassconstraint -> NOT classconstraint more than step -> NOT step ; but the latter is simpler so check if it is working as expected wi quantifier +!pos:"EX" = +[!pos:"EX"])
