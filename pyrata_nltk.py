@@ -9,19 +9,24 @@ rawFeatureName = 'raw'
 posFeatureName = 'pos'
 
 def list2pyrata (**kwargs):
-  """ turn a list 'list' into a list of dict 
+  """ 
+  turn a list into a list of dict 
   e.g. a list of words into a list of dict 
-  with a feature to represent the surface form of the word"""
+  with a feature to represent the surface form of the word 
+  if parameter name is given then the dict feature name will be the one set ; 
+  if parameter dictList is given then the list of dict will be extented with the value of the list (named or not) 
+  """
+ 
   alist = []
   if 'list' in kwargs.keys(): # MANDATORY
     alist = kwargs['list']
   #kwargs.pop('list', None)
   name = 'f0'
-  if 'name' in kwargs.keys(): # MANDATORY
+  if 'name' in kwargs.keys(): 
     name = kwargs['name']
 
   dictList = []
-  if 'dictList' in kwargs.keys(): # MANDATORY
+  if 'dictList' in kwargs.keys():
     dictList = kwargs['dictList']
 
   if len(dictList) != 0:
@@ -39,10 +44,14 @@ def list2pyrata (**kwargs):
   return dictList
 
 def listList2pyrata (**kwargs):
-  """ turn a list of list 'listList' into a list of dict
+  """ 
+  turn a list of list 'listList' into a list of dict
   with values being the elements of the second list ; 
   the value names are arbitrary choosen. 
+  if parameter names is given then the dict feature names will be the ones set (the order matters) ; 
+  if parameter dictList is given then the list of dict will be extented with the values of the list (named or not) 
   """
+
   alistList = []
   if 'listList' in kwargs.keys(): # MANDATORY
     alistList = kwargs['listList']
@@ -130,14 +139,40 @@ if __name__ == '__main__':
 
   pyrata = [{'raw':word, 'pos':pos, 'stem':stemmer.stem(word), 'lem':lemmatizer.lemmatize(word.lower()), 'sw':(word in stopwords)} for (word, pos) in nltk.pos_tag(nltk.word_tokenize(sentence))]
   print ('pyrata in one single line:',pyrata,'\n')
+  
+    # working with chunks 
+    # http://nlpforhackers.io/named-entity-extraction/
+  from nltk import word_tokenize, pos_tag, ne_chunk
+  
+  sentence = "Mark is working at Facebook Corp." 
+  from nltk.chunk import conlltags2tree, tree2conlltags
+  ne_tree = ne_chunk(pos_tag(word_tokenize(sentence)))   
+  iob_tagged = tree2conlltags(ne_tree)
+  print (iob_tagged)
+  """
+  [('Mark', 'NNP', 'B-PERSON'), ('is', 'VBZ', 'O'), ('working', 'VBG', 'O'), ('at', 'IN', 'O'), ('Facebook', 'NNP', 'B-ORGANIZATION'), ('Corp', 'NNP', 'I-ORGANIZATION'), ('.', '.', 'O')]
+  """   
+  ne_tree = conlltags2tree(iob_tagged)
+  print (ne_tree)
+  """
+  (S
+  (PERSON Mark/NNP)
+  is/VBZ
+  working/VBG
+  at/IN
+  (ORGANIZATION Facebook/NNP Corp/NNP)
+  ./.)
+  """
+  print ('pyrata wi names no dictList from iob_tagged ne chunks:',listList2pyrata(listList=iob_tagged,names=['raw', 'pos', 'chunk']),'\n')
+  """
+  [{'raw': 'Mark', 'pos': 'NNP', 'chunk': 'B-PERSON'}, {'raw': 'is', 'pos': 'VBZ', 'chunk': 'O'}, {'raw': 'working', 'pos': 'VBG', 'chunk': 'O'}, {'raw': 'at', 'pos': 'IN', 'chunk': 'O'}, {'raw': 'Facebook', 'pos': 'NNP', 'chunk': 'B-ORGANIZATION'}, {'raw': 'Corp', 'pos': 'NNP', 'chunk': 'I-ORGANIZATION'}, {'raw': '.', 'pos': '.', 'chunk': 'O'}] 
+  """
+  pyrata = [{'raw':raw, 'chunk':chunk} for raw, pos, chunk in iob_tagged]
+  print ('pyrata in one single line (from iob_tagged ne chunks):',pyrata,'\n')
 
-  ne_chunk_tree = nltk.chunk.ne_chunk(tagged_sent)  
-  # TODO 
-  #Tree('S', [('Today', 'NN'), ('you', 'PRP'), ("'ll", 'MD'), ('be', 'VB'), ('learning', 'VBG'), Tree('ORGANIZATION', [('NLTK', 'NNP')]), ('.', '.')])
-  # tree.draw()
 
   # TODO http://stackoverflow.com/questions/30664677/extract-list-of-persons-and-organizations-using-stanford-ner-tagger-in-nltk
   # https://github.com/nltk/nltk/wiki/Installing-Third-Party-Software
 
-#    http://www.ling.helsinki.fi/kit/2009s/clt231/NLTK/book/ch07-ExtractingInformationFromText.html
-# https://github.com/nltk/nltk.github.com/blob/master/book/pylisting/code_classifier_chunker.py
+  # http://www.ling.helsinki.fi/kit/2009s/clt231/NLTK/book/ch07-ExtractingInformationFromText.html
+  # https://github.com/nltk/nltk.github.com/blob/master/book/pylisting/code_classifier_chunker.py

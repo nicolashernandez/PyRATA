@@ -1,7 +1,16 @@
 # PyRATA
 -------------
 
-PyRATA is an acronym which stands both for "Python Rule-based feAture sTructure Analysis" and "Python Rule-bAsed Text Analysis". Indeed, PyRATA is not onlyt dedicated to process textual data.
+PyRATA is an acronym which stands both for "Python Rule-based feAture sTructure Analysis" and "Python Rule-bAsed Text Analysis". Indeed, PyRATA is not only dedicated to process textual data.
+
+In short, PyRATA 
+* provides regular expression matching operations over more complex structures than list of characters (string), namely the list of dict/map.
+* offers the same API as the python re module,
+* follows the Perl regexes de facto standard in terms of language syntax,
+* is implemented in python 3,
+* can be used for processing textual data but is not limited to (the only restriction is the respect of the data structure to explore)
+* is released under the MIT Licence which is *a short and simple permissive license*
+* fun and easy to use
 
 ## Description
 -------------
@@ -26,7 +35,8 @@ A __pattern__ is made of one or several steps. A __step__ is, in its simplest fo
 
 See the *Quick overview* section for more details and examples.
 
-### PyRATA alternatives
+### References
+  * https://docs.python.org/3/library/re.html
   * [nltk.RegexpParser](https://gist.github.com/alexbowe/879414) ; http://www.nltk.org/_modules/nltk/chunk/regexp.html#RegexpChunkParser ; http://nbviewer.jupyter.org/github/lukewrites/NP_chunking_with_nltk/blob/master/NP_chunking_with_the_NLTK.ipynb ; https://gist.github.com/alexbowe/879414
   * pattern
   * ruta
@@ -35,21 +45,21 @@ See the *Quick overview* section for more details and examples.
 ### Limitations
 * cannot handle overlapping annotations  
 
-# Installation
+## Installation
 -----------------
 
-## Requirement
+### Requirement
 PyRATA use the [PLY](http://www.dabeaz.com/ply/ply.html "PLY") implementation of lex and yacc parsing tools for Python (version 3.10).
 One way to install it is:
 
     sudo pip3 install ply
 
-## Run tests (optional)
+### Run tests (optional)
 
     python3 test_pyrata.py
 
 
-# Quick overview (in console)
+## Quick overview (in console)
 -----------------
 
 First run python
@@ -158,21 +168,38 @@ Here some syntactic problems:
     >>> pyrata_re.findall('pos="JJ"* bla bla [(pos="NNS" | pos="NNP")]', data, verbosity=1)
     Error: syntactic parsing error - unexpected token type="NAME" with value="bla" at position 17. Search an error before this point.
 
+### Generating the pyrata data structure
 
-Example for generating more complex data:
+[{'pos': 'NNP', 'chunk': 'B-PERSON', 'raw': 'Mark'}, {'pos': 'VBZ', 'chunk': 'O', 'raw': 'is'}, {'pos': 'VBG', 'chunk': 'O', 'raw': 'working'}, {'pos': 'IN', 'chunk': 'O', 'raw': 'at'}, {'pos': 'NNP', 'chunk': 'B-ORGANIZATION', 'raw': 'Facebook'}, {'pos': 'NNP', 'chunk': 'I-ORGANIZATION', 'raw': 'Corp'}, {'pos': '.', 'chunk': 'O', 'raw': '.'}] 
 
-    >>> data =  [{'raw':word, 'pos':pos, 'stem':nltk.stem.SnowballStemmer('english').stem(word), 'lem':nltk.WordNetLemmatizer().lemmatize(word.lower()), 'sw':(word in nltk.corpus.stopwords.words('english'))} for (word, pos) in nltk.pos_tag(nltk.word_tokenize(sentence))]
-    >>> data
-    [{'lem': 'it', 'stem': 'it', 'raw': 'It', 'pos': 'PRP', 'sw': False}, {'lem': "'s", 'stem': "'s", 'raw': "'s", 'pos': 'VBZ', 'sw': False}, {'lem': 'fun', 'stem': 'fun', 'raw': 'fun', 'pos': 'JJ', 'sw': False}, {'lem': 'and', 'stem': 'and', 'raw': 'and', 'pos': 'CC', 'sw': True}, {'lem': 'easy', 'stem': 'easi', 'raw': 'easy', 'pos': 'JJ', 'sw': False}, {'lem': 'to', 'stem': 'to', 'raw': 'to', 'pos': 'TO', 'sw': True}, {'lem': 'play', 'stem': 'play', 'raw': 'play', 'pos': 'VB', 'sw': False}, {'lem': 'with', 'stem': 'with', 'raw': 'with', 'pos': 'IN', 'sw': True}, {'lem': 'pyrata', 'stem': 'pyrata', 'raw': 'Pyrata', 'pos': 'NNP', 'sw': False}]
+Have a look at the `pyrata_nltk.py` script (run it). It shows how to turn various nltk analysis results into the pyrata data structure.
+In practice two approaches are available: either by building the dict list of fly or by using the dedicated pyrata_nltk methods: `list2pyrata (**kwargs)` and `listList2pyrata (**kwargs)`. 
+
+The former turns a list into a list of dict (e.g. a list of words into a list of dict) with a feature to represent the surface form of the word (default is `raw`). If parameter `name` is given then the dict feature name will be the one set by the first value of the passed list as parameter value of name. If parameter `dictList` is given then this list of dict will be extented with the value of the list (named or not). 
+
+The latter turns a list of list `listList` into a list of dict with values being the elements of the second list; the value names are arbitrary choosen. If the parameter `names` is given then the dict feature names will be the ones set (the order matters) in the list passed as `names` parameter value. If parameter `dictList` is given then the list of dict will be extented with the values of the list (named or not).
+
+Example for generating complex data on fly:
+
+    >>> import nltk
+    >>> from nltk import word_tokenize, pos_tag, ne_chunk
+    >>> from nltk.chunk import tree2conlltags
+    >>> sentence = "Mark is working at Facebook Corp." 
+    >>> pyrata_data =  [{'raw':word, 'pos':pos, 'stem':nltk.stem.SnowballStemmer('english').stem(word), 'lem':nltk.WordNetLemmatizer().lemmatize(word.lower()), 'sw':(word in nltk.corpus.stopwords.words('english')), 'chunk':chunk} for (word, pos, chunk) in tree2conlltags(ne_chunk(pos_tag(word_tokenize(sentence))))]
+    >>> pyrata_data
+    [{'lem': 'mark', 'raw': 'Mark', 'sw': False, 'stem': 'mark', 'pos': 'NNP', 'chunk': 'B-PERSON'}, {'lem': 'is', 'raw': 'is', 'sw': True, 'stem': 'is', 'pos': 'VBZ', 'chunk': 'O'}, {'lem': 'working', 'raw': 'working', 'sw': False, 'stem': 'work', 'pos': 'VBG', 'chunk': 'O'}, {'lem': 'at', 'raw': 'at', 'sw': True, 'stem': 'at', 'pos': 'IN', 'chunk': 'O'}, {'lem': 'facebook', 'raw': 'Facebook', 'sw': False, 'stem': 'facebook', 'pos': 'NNP', 'chunk': 'B-ORGANIZATION'}, {'lem': 'corp', 'raw': 'Corp', 'sw': False, 'stem': 'corp', 'pos': 'NNP', 'chunk': 'I-ORGANIZATION'}, {'lem': '.', 'raw': '.', 'sw': False, 'stem': '.', 'pos': '.', 'chunk': 'O'}]
+
+Example of uses of pyrata dedicated conversion methods: See the `pyrata_nltk.py` scripts
 
 
-# Roadmap
+## Roadmap
 ---------
 
 
-## TODO
+### TODO
 
-* revise README (add compile, wildcard)
+* ihm revise README (add compile)
+* code check how the lexicons are handled during the compilation and how they are passed to the semantic analysis
 * code handle the test case of error in the patterns
 * module re implement pyrata_re.match
 * code end location is stored several times with the expression rules ; have a look at len(l.lexer.groupstartindex): and len(l.lexer.groupendindex): after parsing in pyrata_re methods to compare 
@@ -188,12 +215,14 @@ Example for generating more complex data:
 * grammar implement lex.lex(reflags=re.UNICODE)
 * code quality review
 * evaluate performance comparing to pattern and python 3 chunking 
+* code depending on performance evaluate the possibility of doing the ply way to handle the debug/tracking mode
 * grammar does class atomic with non atomic contraint should be prefered to not step to adapt one single way of doing stuff: partofclassconstraint -> NOT classconstraint more than step -> NOT step ; but the latter is simpler so check if it is working as expected wi quantifier +!pos:"EX" = +[!pos:"EX"])
 * grammar allow grammar with multiple rules (each rule should have an identifier... and its own groupindex)
 * gramamr move the python methods as grammar components
+* developer make diagrams to explain relations
+* see the pattern search module and its facilities
 
-
-##  Done 
+###  Done 
 * module re implement pyrata_re.search
 * module re implement pyrata_re.findall
 * module re implement pyrata_re.finditer
@@ -226,3 +255,6 @@ Example for generating more complex data:
 * code revise test 
 * fix parsing bug with pos~"VB." *[!raw="to"] raw="to", +[pos~"NN.*" | pos="JJ"] pos~"NN.*", *[pos~"NN.*" | pos="JJ"] pos~"NN.*", 
 * grammar change the grammar so that the quantifiers are after the token
+* license add copyright notice
+* code make modular pyrata_re _syntactic_parser and semantic_parser : creation of syntactic_analysis, syntactic_pattern_parser, semantic_analysis, semantic_step_parser, 
+* code pyrata_nltk demonstration how to turn iob tags (chunks tags) into pyrata data structure
