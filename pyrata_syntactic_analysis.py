@@ -3,10 +3,14 @@
 # 
 # The current parser is used to evaluate the semantic of a given pattern step
 # 
+# Follows the https://docs.python.org/3/library/re.html#re-objects API
+# 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import ply.yacc as yacc
 from pyrata_lexer import *
 from pyrata_syntactic_pattern_parser import *
+import sys # for the function name
+import pyrata_semantic_analysis
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -19,6 +23,89 @@ class CompiledPattern(object):
 
   def getLexer(self):
     return self.lexer
+
+
+  # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  def re_method(self, data, **kwargs):
+    """
+    """
+
+    if 'method' in kwargs.keys(): 
+      method  = kwargs['method']
+    else:
+      raise Exception ('Error: in ', sys._getframe().f_code.co_name,': no re method defined')
+    kwargs.pop('method', None)
+
+    self.getLexer().lexer.re = method
+
+    return pyrata_semantic_analysis.parse_semantic (self, data, **kwargs)
+
+
+  # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  def search(self, data, **kwargs):
+    """
+    """
+
+    method = 'search'
+    matcheslist = self.re_method (data, method=method, **kwargs)
+
+    if len(matcheslist) > 0 :
+      return matcheslist.group(0)
+    return None
+
+
+
+
+  # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  def match(self, data, **kwargs):
+    """
+    """
+    raise Exception ('Not implemented yet')
+
+
+  # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  def findall(self, data, **kwargs):
+    """
+    """
+    method = 'findall'
+    matcheslist = self.re_method (data, method=method, **kwargs)
+    matches = []
+    if len(matcheslist)>0 :
+      for i in range(len(matcheslist)):
+        #print ('Debug: len(data):',len(data),'; start:', start,'; end:',end)
+        matches.append(matcheslist.group(i).group())
+      return matches
+    return None
+
+
+
+  # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  def finditer(self, data, **kwargs):
+    """
+    """
+
+    method = 'finditer'
+    matcheslist = self.re_method (data, method=method, **kwargs)
+
+    # build the structure to return
+    if len(matcheslist)>0 :
+      return matcheslist    
+    return None 
+
+
+  # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  def split(self, data, **kwargs):
+    """
+    """
+    raise Exception ('Not implemented yet')
+
+
+  # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  def sub(self, data, **kwargs):
+    """
+    """
+    raise Exception ('Not implemented yet')
+
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def parse_syntactic(pattern, **kwargs):

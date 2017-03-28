@@ -33,33 +33,28 @@ def search (pattern, data, **kwargs):
       and return a corresponding match object. 
       Return None if no position in the data matches the pattern."""
 
+  ''' -.- log -.- '''
   verbosity  = 0
   if 'verbosity' in kwargs.keys(): 
     verbosity  = kwargs['verbosity']
   
-  method = 'search'
-
   lexicons = {}
   if 'lexicons' in kwargs.keys():
     lexicons = kwargs['lexicons']
+    kwargs.pop('lexicons', None)
 
+  method = 'search'
   if verbosity >1:
       print (1*'  ','Method:\t', method) 
       print (1*'  ','Lexicons:\t', lexicons)       
       print (1*'  ','Pattern:\t', pattern)
       print (1*'  ','Data:\t\t', data)  
+  ''' -.- /log -.- '''
 
-  compiledPattern = compile(pattern, **kwargs)
+  # lexicons are passed by parameters via kwargs
+  compiledPattern = compile(pattern, lexicons=lexicons, **kwargs)
 
-  compiledPattern.getLexer().lexer.re = method
-
-  kwargs.pop('lexicons', None)
-  matcheslist = pyrata_semantic_analysis.parse_semantic (compiledPattern, data, **kwargs)
-
-  if len(matcheslist) > 0 :
-    return matcheslist.group(0)
-  return None
-
+  return compiledPattern.search(data, **kwargs)
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -70,6 +65,8 @@ def findall (pattern, data, **kwargs):
       #this will be a list of tuples if the pattern has more than one group. 
       #Empty matches are included in the result unless they touch the beginning of another match.
   """
+
+  ''' -.- log -.- '''
   verbosity  = 0
   if 'verbosity' in kwargs.keys(): 
     verbosity  = kwargs['verbosity']
@@ -77,8 +74,8 @@ def findall (pattern, data, **kwargs):
   lexicons = {}
   if 'lexicons' in kwargs.keys():
     lexicons = kwargs['lexicons']
+    kwargs.pop('lexicons', None)
 
-  
   method = 'findall' 
   
   if verbosity >1:
@@ -86,22 +83,14 @@ def findall (pattern, data, **kwargs):
     print ('Lexicons:\t', lexicons)       
     print ('Pattern:\t', pattern)
     print ('Data:\t\t', data)  
+  ''' -.- /log -.- '''
  
-  compiledPattern = compile(pattern, lexicons=lexicons, verbosity=verbosity)
+  # lexicons are passed by parameters via kwargs
+  compiledPattern = compile(pattern, lexicons=lexicons,  **kwargs)
 
-  compiledPattern.getLexer().lexer.re = method
+  return compiledPattern.findall(data, **kwargs)
 
-  kwargs.pop('lexicons', None)
-  matcheslist = pyrata_semantic_analysis.parse_semantic (compiledPattern, data, **kwargs)
 
-  # build the structure to return
-  matches = []
-  if len(matcheslist)>0 :
-    for i in range(len(matcheslist)):
-      #print ('Debug: len(data):',len(data),'; start:', start,'; end:',end)
-      matches.append(matcheslist.group(i).group())
-    return matches
-  return None
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
 def finditer (pattern, data, **kwargs):
@@ -110,6 +99,8 @@ def finditer (pattern, data, **kwargs):
   The data is scanned left-to-right, and matches are returned in the order found. 
   #Empty matches are included in the result unless they touch the beginning of another match.
   """
+
+  ''' -.- log -.- '''
   verbosity  = 0
   if 'verbosity' in kwargs.keys(): 
     verbosity  = kwargs['verbosity']
@@ -126,20 +117,13 @@ def finditer (pattern, data, **kwargs):
     print (1*'  ','Lexicons:\t', lexicons)       
     print (1*'  ','Pattern:\t', pattern)
     print (1*'  ','Data:\t\t', data)  
+  ''' -.- /log -.- '''
 
-  compiledPattern = compile(pattern, lexicons=lexicons, verbosity=verbosity)
+  # lexicons are passed by parameters via kwargs
+  compiledPattern = compile(pattern, lexicons=lexicons,  **kwargs)
 
-  compiledPattern.getLexer().lexer.re = method
-
-  kwargs.pop('lexicons', None)
-  matcheslist = pyrata_semantic_analysis.parse_semantic (compiledPattern, data, **kwargs)
-
-  # build the structure to return
-  if len(matcheslist)>0 :
-    return matcheslist    
-  return None 
-
-
+  return compiledPattern.finditer(data, **kwargs)
+ 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # Run all the tests

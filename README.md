@@ -186,9 +186,21 @@ What can do the annotate method:
     new_data = annotate (pattern, data, annotation, iob=['chunk'], groups = ['1'])
 
 
+### Compiled regular expression
+
+__Compiled regular expression objects__ support the following methods `search`, `findall` and `finditer`. It follows the same API as [Python re](https://docs.python.org/3/library/re.html#re.regex.search) but uses a sequence of features set instead of a string.
+
+Below an example of use for `findall`
+
+    >>> data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    >>> compiled_re = pyrata_re.compile('pos~"JJ"* pos~"NN."')
+    >>> compiled_re.findall(data)
+    [[{'raw': 'regular', 'pos': 'JJ'}, {'raw': 'expressions', 'pos': 'NNS'}], [{'raw': 'Pyrata', 'pos': 'NNP'}]]
+
+
 ### Generating the pyrata data structure
 
-Have a look at the `pyrata_nltk.py` script (run it). It shows how to turn various nltk analysis results into the pyrata data structure.
+Have a look at the `pyrata_nltk.py` script (run it). It shows __how to turn various nltk analysis results into the pyrata data structure__.
 In practice two approaches are available: either by building the dict list of fly or by using the dedicated pyrata_nltk methods: `list2pyrata (**kwargs)` and `listList2pyrata (**kwargs)`. 
 
 The former turns a list into a list of dict (e.g. a list of words into a list of dict) with a feature to represent the surface form of the word (default is `raw`). If parameter `name` is given then the dict feature name will be the one set by the first value of the passed list as parameter value of name. If parameter `dictList` is given then this list of dict will be extented with the value of the list (named or not). 
@@ -207,28 +219,21 @@ Example for generating complex data on fly:
 
 Example of uses of pyrata dedicated conversion methods: See the `pyrata_nltk.py` scripts
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 0d593fc08b33f6b635f5315778ecc1f61859f3fd
 ## Roadmap
 ---------
 
 
 ### TODO
 
-* ihm revise README (add compile)
-<<<<<<< HEAD
 * code check how the lexicons are handled during the compilation and how they are passed to the semantic analysis
 * code handle the test case of error in the patterns
-=======
->>>>>>> 0d593fc08b33f6b635f5315778ecc1f61859f3fd
 * module re implement pyrata_re.match
 * module re regex implement substitution sub/// and the annotation annotate/// ; the new feature is added to the current feature structure in a BIO style
 * grammar implement capture index of groups (identifiers required)
 * grammar implement handle sequence of tokens with a BIO value as a single token
 * evaluate performance http://www.marinamele.com/7-tips-to-time-python-scripts-and-control-memory-and-cpu-usage
-* evaluate performance comparing to pattern and python 3 chunking 
+* evaluate performance comparing to pattern and python 3 chunking (see the use example and show how to do similar)
 * code check how the lexicons are handled during the compilation and how they are passed to the semantic analysis
 * code handle the test case of error in the patterns
 * code end location is stored several times with the expression rules ; have a look at len(l.lexer.groupstartindex): and len(l.lexer.groupendindex): after parsing in pyrata_re methods to compare 
@@ -248,7 +253,7 @@ Example of uses of pyrata dedicated conversion methods: See the `pyrata_nltk.py`
 * developer make diagrams to explain relations
 * see the pattern search module and its facilities
 
-###  Done 
+###  Done (see below for reading the latest improvements)
 * module re implement pyrata_re.search
 * module re implement pyrata_re.findall
 * module re implement pyrata_re.finditer
@@ -284,3 +289,5 @@ Example of uses of pyrata dedicated conversion methods: See the `pyrata_nltk.py`
 * license add copyright notice
 * code make modular pyrata_re _syntactic_parser and semantic_parser : creation of syntactic_analysis, syntactic_pattern_parser, semantic_analysis, semantic_step_parser, 
 * code pyrata_nltk demonstration how to turn iob tags (chunks tags) into pyrata data structure
+* code implement re methods on Compiled regular expression objects  
+* ihm revise README add description about compile and re methods on Compiled regular expression objects  
