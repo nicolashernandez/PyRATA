@@ -6,8 +6,8 @@
 # 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-import pyrata_re
-import pyrata_semantic_analysis
+import pyrata.re
+import pyrata.semantic_analysis
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # 
@@ -38,13 +38,13 @@ class TestPyrata(object):
 
 
     if method == 'search':
-      result = pyrata_re.search(pattern, data, lexicons=lexicons, verbosity = verbosity)
+      result = pyrata.re.search(pattern, data, lexicons=lexicons, verbosity = verbosity)
       if result != None:
         result = result.group()
     elif method == 'findall':
-      result = pyrata_re.findall(pattern, data, lexicons=lexicons, verbosity = verbosity)
+      result = pyrata.re.findall(pattern, data, lexicons=lexicons, verbosity = verbosity)
     elif method == 'finditer':
-      result = pyrata_re.finditer(pattern, data, lexicons=lexicons, verbosity = verbosity)   
+      result = pyrata.re.finditer(pattern, data, lexicons=lexicons, verbosity = verbosity)   
     else:
       raise Exception('wrong method to test')
     #print('Result:',l.lexer.finalresult,'; start:',l.lexer.groupstartindex,'; end:',l.lexer.groupendindex)
@@ -103,11 +103,11 @@ class TestPyrata(object):
     lexicons = {}
     pattern = 'pos="JJ"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
-    matcheslist = pyrata_semantic_analysis.MatchesList()  
-    matcheslist.append(pyrata_semantic_analysis.Match (start=2, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}]))
-    matcheslist.append(pyrata_semantic_analysis.Match (start=3, end=4, value=[{'pos': 'JJ', 'raw': 'easy'}]))
-    matcheslist.append(pyrata_semantic_analysis.Match (start=5, end=6, value=[{'pos': 'JJ', 'raw': 'funny'}]))
-    matcheslist.append(pyrata_semantic_analysis.Match (start=8, end=9, value=[{'pos': 'JJ', 'raw': 'regular'}]))
+    matcheslist = pyrata.semantic_analysis.MatchesList()  
+    matcheslist.append(pyrata.semantic_analysis.Match (start=2, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}]))
+    matcheslist.append(pyrata.semantic_analysis.Match (start=3, end=4, value=[{'pos': 'JJ', 'raw': 'easy'}]))
+    matcheslist.append(pyrata.semantic_analysis.Match (start=5, end=6, value=[{'pos': 'JJ', 'raw': 'funny'}]))
+    matcheslist.append(pyrata.semantic_analysis.Match (start=8, end=9, value=[{'pos': 'JJ', 'raw': 'regular'}]))
     expected = matcheslist
     self.test(description, method, lexicons, pattern, data, expected, verbosity)
 

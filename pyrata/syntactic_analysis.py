@@ -7,10 +7,10 @@
 # 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import ply.yacc as yacc
-from pyrata_lexer import *
-from pyrata_syntactic_pattern_parser import *
+from pyrata.lexer import *
+from pyrata.syntactic_pattern_parser import *
 import sys # for the function name
-import pyrata_semantic_analysis
+import pyrata.semantic_analysis
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -38,7 +38,7 @@ class CompiledPattern(object):
 
     self.getLexer().lexer.re = method
 
-    return pyrata_semantic_analysis.parse_semantic (self, data, **kwargs)
+    return pyrata.semantic_analysis.parse_semantic (self, data, **kwargs)
 
 
   # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

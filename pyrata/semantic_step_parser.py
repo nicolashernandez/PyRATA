@@ -5,7 +5,7 @@
 # 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import ply.yacc as yacc
-from pyrata_lexer import *
+from pyrata.lexer import *
 
 import re
 

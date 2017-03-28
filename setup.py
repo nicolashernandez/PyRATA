@@ -12,4 +12,5 @@ setup(name='PyRATA',
   license='MIT',
   keywords='NLP rule-based text mining',
   install_requires=['ply'],
+  packages=['pyrata'],
 )

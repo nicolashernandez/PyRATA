@@ -5,8 +5,8 @@
 # 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import ply.yacc as yacc
-from pyrata_lexer import *
-from pyrata_semantic_step_parser import *
+from pyrata.lexer import *
+from pyrata.semantic_step_parser import *
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -24,10 +24,10 @@ class Match(object):
     if 'value' in kwargs.keys(): # MANDATORY
       self.value = kwargs['value']
     if  self.value == '' or self.startPosition == -1 or self.endPosition == -1:   
-      raise Exception('pyrata_re - attempt to create a Match object with incomplete informations')
+      raise Exception('pyrata.re - attempt to create a Match object with incomplete informations')
 
   def __repr__(self):
-    return '<pyrata_re Match object; span=('+str(self.start())+', '+str(self.end())+'), match="'+str(self.group())+'">'
+    return '<pyrata.re Match object; span=('+str(self.start())+', '+str(self.end())+'), match="'+str(self.group())+'">'
 
   def group(self):
     return self.value
@@ -96,7 +96,7 @@ class MatchesList(object):
   def __repr__(self):
     ml = ''
     for m in self.matcheslist:
-      ml = ml + '<pyrata_re Match object; span=('+str(m.start())+', '+str(m.end())+'), match="'+str(m.group())+'">\n'
+      ml = ml + '<pyrata.re Match object; span=('+str(m.start())+', '+str(m.end())+'), match="'+str(m.group())+'">\n'
     return ml
 
   def __eq__(self, other):

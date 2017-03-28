@@ -5,9 +5,9 @@
 # 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-from pyrata_lexer import *
-import pyrata_syntactic_analysis
-import pyrata_semantic_analysis
+from pyrata.lexer import *
+import pyrata.syntactic_analysis
+import pyrata.semantic_analysis
 
 
     
@@ -22,9 +22,9 @@ def compile (pattern, **kwargs):
   if 'verbosity' in kwargs.keys():
     verbosity = kwargs['verbosity']
 
-  l = pyrata_syntactic_analysis.parse_syntactic(pattern, **kwargs)
+  l = pyrata.syntactic_analysis.parse_syntactic(pattern, **kwargs)
 
-  return pyrata_syntactic_analysis.CompiledPattern(lexer=l, **kwargs)
+  return pyrata.syntactic_analysis.CompiledPattern(lexer=l, **kwargs)
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -134,4 +134,4 @@ if __name__ == '__main__':
   pattern = 'pos="JJ" pos="NN"'
   data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'},  {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
 
-  pyrata_re.search(pattern,data)    
+  pyrata.re.search(pattern,data)    

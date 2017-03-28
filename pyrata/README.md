@@ -4,8 +4,8 @@
 PyRATA is an acronym which stands both for "Python Rule-based feAture sTructure Analysis" and "Python Rule-bAsed Text Analysis". Indeed, PyRATA is not only dedicated to process textual data.
 
 In short, PyRATA 
-* provides regular expression matching operations over more complex structures than list of characters (string), namely the list of dict/map.
-* offers the same API as the python re module,
+* provides regular expression matching operations over more complex structures than a list of characters (string), namely a sequence of features set (i.e. list of dict in python jargon).
+* offers a similar API to the python re module,
 * follows the Perl regexes de facto standard in terms of language syntax,
 * is implemented in python 3,
 * can be used for processing textual data but is not limited to (the only restriction is the respect of the data structure to explore)
@@ -48,9 +48,34 @@ See the *Quick overview* section for more details and examples.
 ## Installation
 -----------------
 
+Right now pyrata is not published on PyPI, so the procedure to use it is the following:
+
+### Download or clone pyrata
+Download the latest PyRATA release
+    
+    wget https://github.com/nicolashernandez/PyRATA/archive/master.zip
+    unzip master.zip -d .
+    cd PyRATA-master/
+
+or clone it 
+
+    git clone https://github.com/nicolashernandez/PyRATA.git
+    cd pyrata/
+
+### Installation
+Then install pyrata 
+
+    sudo pip3 install . 
+
+Of course, as any python module you can barely copy the pyrata sub dir in your project to make it available. This solution can be an alternative if you do not have root privileges or do not want to use a virtualenv.
+
 ### Requirement
+
 PyRATA use the [PLY](http://www.dabeaz.com/ply/ply.html "PLY") implementation of lex and yacc parsing tools for Python (version 3.10).
-One way to install it is:
+
+You do not need to care about this stage if you performed the install procedure above.
+
+If you do not properly install pyrata, you will have to manually install ply.
 
     sudo pip3 install ply
 
@@ -68,13 +93,13 @@ First run python
 
 Then import the main pyrata regular expression module:
 
-    >>> import pyrata_re
+    >>> import pyrata.re as pyrata_re
 
-Let's say you have a sentence in the pyrata data structure format, __a list of dict__. A dict is a map i.e. a set of features, eachone with a name and value (in our case a primitive value).
+Let's say you have a sentence in the pyrata data structure format, __a list of dict__. A dict is a map i.e. a set of features, eachone with a name and value (in our case with primitive types).
 
     >>> data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
 
-There is no requirement on the names of the features.
+There is __no requirement on the names of the features__.
 
 By the way, you can also easily turn a sentence into the pyrata data structure, for example by doing:
 
@@ -236,6 +261,7 @@ Example of uses of pyrata dedicated conversion methods: See the `pyrata_nltk.py`
 * evaluate performance comparing to pattern and python 3 chunking (see the use example and show how to do similar)
 * code check how the lexicons are handled during the compilation and how they are passed to the semantic analysis
 * code handle the test case of error in the patterns
+* code test re methods on Compiled regular expression objects 
 * code end location is stored several times with the expression rules ; have a look at len(l.lexer.groupstartindex): and len(l.lexer.groupendindex): after parsing in pyrata_re methods to compare 
 * ihm revise the README and create a specific developer page
 * grammar implement wildcards
@@ -252,6 +278,7 @@ Example of uses of pyrata dedicated conversion methods: See the `pyrata_nltk.py`
 * gramamr move the python methods as grammar components
 * developer make diagrams to explain relations
 * see the pattern search module and its facilities
+
 
 ###  Done (see below for reading the latest improvements)
 * module re implement pyrata_re.search
@@ -291,3 +318,4 @@ Example of uses of pyrata dedicated conversion methods: See the `pyrata_nltk.py`
 * code pyrata_nltk demonstration how to turn iob tags (chunks tags) into pyrata data structure
 * code implement re methods on Compiled regular expression objects  
 * ihm revise README add description about compile and re methods on Compiled regular expression objects  
+* project make pyrata a python module and revise installation procedure in readme
