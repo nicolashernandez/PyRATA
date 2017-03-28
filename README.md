@@ -249,14 +249,22 @@ Example of uses of pyrata dedicated conversion methods: See the `pyrata_nltk.py`
 
 Under development TODO
 
-    pyrata_re.search('(raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")', [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}], verbosity=2)
+    import pyrata.re as pyrata_re
+    pyrata_re.search('(raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")', [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}], verbosity=3)
 
+[[0, 1], [2, 4], [4, 5], [1, 5], [1, 5], [5, 6], [0, 6]]
+group 0 = [[None, 'raw="is"']]
+group 1 = [[None, 'pos="JJ" '], [None, 'raw="and"']]
+group 2 = [[None, 'pos="JJ"']]
+group 3 = [['*', 'pos="JJ"'], [None, 'pos="JJ" '], [None, 'raw="and"'], [None, 'pos="JJ"']]
+group 4 = [['*', 'pos="JJ"'], [None, 'pos="JJ" '], [None, 'raw="and"'], [None, 'pos="JJ"']]
+group 5 = [[None, 'raw="to"']]
 ## Roadmap
 ---------
 
 
 ### TODO
-* grammar implement capture index of groups (identifiers required)
+* grammar implement capture index of groups : in semantic_analysis, see re api to understand how groups are referenced and modify Match consequently to accept a list of groups ; use pattern_cursor_to_data_cursor to set the correct data offsets matched 
 * grammar implement handle sequence of tokens with a BIO value as a single token
 * module re implement pyrata_re.match
 * module re regex implement substitution sub/// and the annotation annotate/// ; the new feature is added to the current feature structure in a BIO style
@@ -322,3 +330,4 @@ Under development TODO
 * code implement re methods on Compiled regular expression objects  
 * ihm revise README add description about compile and re methods on Compiled regular expression objects  
 * project make pyrata a python module and revise installation procedure in readme
+* code modify syntactic pattern parser + lexer to capture groups ; revise README ; extend gitignore to ignore ply temporary files

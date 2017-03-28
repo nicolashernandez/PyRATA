@@ -42,12 +42,35 @@ class SyntacticPatternParser(object):
     '''expression : 
        expression : quantified_step_group_list'''
 
+    p.lexer.group_offsets_list.append([0, len(p.lexer.pattern_steps)])  
+    
     if self.verbosity >1:
       self.log(p, '(expression->...)')
+
+    if self.verbosity >2:  
       print ('  ','Syntactic structure parsed: {}'.format(p.lexer.pattern_steps))
-    print ('Debug: group_offsets_list=',p.lexer.group_offsets_list)
-    for i, (a, b) in enumerate(p.lexer.group_offsets_list):
-      print ('group {} = {}'.format(i, p.lexer.pattern_steps[a:b]))
+      print ('Debug: group_offsets_list=',p.lexer.group_offsets_list)
+    ordered_list = []
+    list_to_order = p.lexer.group_offsets_list
+    while len(list_to_order) != 0:
+      min_a = len(p.lexer.pattern_steps)
+      max_b = 0
+      for i, (m, n) in enumerate(list_to_order):
+        if (m <= min_a):
+          min_a = m
+      for i, (m, n) in enumerate(list_to_order) :
+        if m == min_a and n >= max_b:
+          max_b = n 
+          i_to_del = i
+
+      ordered_list.append(list_to_order[i_to_del])
+      list_to_order.pop(i_to_del)
+    p.lexer.group_offsets_list =  ordered_list
+
+    if self.verbosity >1:
+      print ('Ordered group_offsets_list=',p.lexer.group_offsets_list)
+      for i, (a, b) in enumerate(p.lexer.group_offsets_list):
+        print ('group {} = {}'.format(i, p.lexer.pattern_steps[a:b]))
 
 # _______________________________________________________________
   def p_quantified_step_group_list(self, p): 
@@ -68,9 +91,11 @@ class SyntacticPatternParser(object):
     if startpositionleftsymbol in p.lexer.quantified_step_start: # and previouslextokenendposition in p.lexer.quantified_step_end:
       #p.lexer.last_group_offsets_candidate = [p.lexer.quantified_step_start[startpositionleftsymbol],p.lexer.quantified_step_end[previouslextokenendposition]]    
       p.lexer.last_group_offsets_candidate = [p.lexer.quantified_step_start[startpositionleftsymbol],p.lexer.quantified_step_index]    
-      print ('   Debug: p_quantified_step_group_list - set last_group_offsets_candidate wi lexdata from {} to {}'.format(startpositionleftsymbol, previouslextokenendposition))    
+      if self.verbosity >2:
+        print ('   Debug: p_quantified_step_group_list - set last_group_offsets_candidate wi lexdata from {} to {}'.format(startpositionleftsymbol, previouslextokenendposition))    
     else:
-      print ('   Debug: p_quantified_step_group_list - do not set last_group_offsets_candidate wi lexdata from {} to {}'.format(startpositionleftsymbol, previouslextokenendposition))    
+      if self.verbosity >2:
+        print ('   Debug: p_quantified_step_group_list - do not set last_group_offsets_candidate wi lexdata from {} to {}'.format(startpositionleftsymbol, previouslextokenendposition))    
 
 # _______________________________________________________________
   def p_quantified_step_group(self, p): 
@@ -84,8 +109,8 @@ class SyntacticPatternParser(object):
         self.log(p, '(quantified_step_group->LPAREN p_quantified_step_group_list RPAREN)')
         #p.lexer.group_offsets_list.append([p.lexer.last_group_offsets_candidate[0],p.lexer.last_group_offsets_candidate[1]])
         p.lexer.group_offsets_list.append([p.lexer.last_group_offsets_candidate[0],p.lexer.quantified_step_index])
-
-        print ('      group detected from {} to {}'.format(p.lexer.last_group_offsets_candidate[0],p.lexer.last_group_offsets_candidate[1]))
+        if self.verbosity >2:
+          print ('      group detected from {} to {}'.format(p.lexer.last_group_offsets_candidate[0],p.lexer.last_group_offsets_candidate[1]))
         
 
 # _______________________________________________________________
@@ -124,7 +149,8 @@ class SyntacticPatternParser(object):
     p.lexer.quantified_step_start[startpositionleftsymbol] = p.lexer.quantified_step_index
     p.lexer.quantified_step_end[previouslextokenendposition] = p.lexer.quantified_step_index +1
     p.lexer.quantified_step_index += 1
-    print ('   Debug: p_quantified_step - lexdata from {} to {}'.format(startpositionleftsymbol, previouslextokenendposition))
+    if self.verbosity >2:
+      print ('   Debug: p_quantified_step - lexdata from {} to {}'.format(startpositionleftsymbol, previouslextokenendposition))
 
   
 # _______________________________________________________________
@@ -214,11 +240,11 @@ class SyntacticPatternParser(object):
       #print('p.lexdata[startpositionleftsymbol:previouslextokenendposition]=>',p.lexer.lexdata[startpositionleftsymbol:previouslextokenendposition],'<')
 
     if self.verbosity >1:
-      print (1*'  ','Production=', production, p.lexer.patternStep)
+      print ('  Production=', production, p.lexer.patternStep)
 
     if self.verbosity >3:
-      print (3*'  ','Whole pattern/lexdata=', p.lexer.lexdata, '; len(lexdata)=', len(p.lexer.lexdata))
-      print (3*'  ','# of lexical tokens in the current production rule=', len(p))
+      print ('      Whole pattern/lexdata=', p.lexer.lexdata, '; len(lexdata)=', len(p.lexer.lexdata))
+      print ('      # of lexical tokens in the current production rule=', len(p))
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
   def setPatternStep(self,p):
