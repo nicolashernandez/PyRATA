@@ -245,18 +245,21 @@ Example for generating complex data on fly:
 Example of uses of pyrata dedicated conversion methods: See the `pyrata_nltk.py` scripts
 
 
+### Groups
+
+Under development TODO
+
+    pyrata_re.search('(raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")', [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}], verbosity=2)
+
 ## Roadmap
 ---------
 
 
 ### TODO
-
-* code check how the lexicons are handled during the compilation and how they are passed to the semantic analysis
-* code handle the test case of error in the patterns
-* module re implement pyrata_re.match
-* module re regex implement substitution sub/// and the annotation annotate/// ; the new feature is added to the current feature structure in a BIO style
 * grammar implement capture index of groups (identifiers required)
 * grammar implement handle sequence of tokens with a BIO value as a single token
+* module re implement pyrata_re.match
+* module re regex implement substitution sub/// and the annotation annotate/// ; the new feature is added to the current feature structure in a BIO style
 * evaluate performance http://www.marinamele.com/7-tips-to-time-python-scripts-and-control-memory-and-cpu-usage
 * evaluate performance comparing to pattern and python 3 chunking (see the use example and show how to do similar)
 * code check how the lexicons are handled during the compilation and how they are passed to the semantic analysis

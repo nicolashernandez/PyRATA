@@ -18,6 +18,9 @@ class SyntacticPatternParser(object):
 
   verbosity  = 0 # degree of verbosity
   
+  #quantified_step_list_counter = 0
+  #quantified_step_counter = 0
+
   precedence = (
     ('left', 'LBRACKET','RBRACKET'),    
     ('left',  'OR'),
@@ -37,30 +40,62 @@ class SyntacticPatternParser(object):
 # _______________________________________________________________
   def p_expression(self, p):
     '''expression : 
-       expression : quantified_step_list'''
+       expression : quantified_step_group_list'''
 
     if self.verbosity >1:
-      self.log(p, '(p_quantified_step_list->...)')
-      print (1*'  ','Syntactic structure parsed: {}'.format(p.lexer.pattern_steps))
-
+      self.log(p, '(expression->...)')
+      print ('  ','Syntactic structure parsed: {}'.format(p.lexer.pattern_steps))
+    print ('Debug: group_offsets_list=',p.lexer.group_offsets_list)
+    for i, (a, b) in enumerate(p.lexer.group_offsets_list):
+      print ('group {} = {}'.format(i, p.lexer.pattern_steps[a:b]))
 
 # _______________________________________________________________
-  def p_quantified_step_list(self, p): 
-    ''' quantified_step_list : quantified_step_list quantifiedstep
-                             | quantifiedstep'''
-#                             | LPAREN quantifiedstep RPAREN  
-#    '''
+  def p_quantified_step_group_list(self, p): 
+    ''' quantified_step_group_list : quantified_step_group_list quantified_step_group
+                             | quantified_step_group   '''
     if self.verbosity >1:
       self.setPatternStep(p)
-      self.log(p, '(p_quantified_step_list->...)')
+      if len(p) == 2:
+        self.log(p, '(p_quantified_step_group_list->quantified_step_group)')
+      elif len(p) == 3:
+        self.log(p, '(p_quantified_step_group_list->p_quantified_step_group_list quantified_step_group)')
+    startpositionleftsymbol, endpositionleftsymbol = p.lexspan(1)
+    if p.lexer.lexpos > len(p.lexer.lexdata):
+      previouslextokenendposition = len(p.lexer.lexdata)
+    else:
+      previouslextokenendposition = p.lexer.lexpos - len(p.lexer.lexTokenEndDict[p.lexer.lexpos].value)
+    #print ('   Debug: p_quantified_step_group_list - lexdata from {} to {}'.format(startpositionleftsymbol, previouslextokenendposition))    
+    if startpositionleftsymbol in p.lexer.quantified_step_start: # and previouslextokenendposition in p.lexer.quantified_step_end:
+      #p.lexer.last_group_offsets_candidate = [p.lexer.quantified_step_start[startpositionleftsymbol],p.lexer.quantified_step_end[previouslextokenendposition]]    
+      p.lexer.last_group_offsets_candidate = [p.lexer.quantified_step_start[startpositionleftsymbol],p.lexer.quantified_step_index]    
+      print ('   Debug: p_quantified_step_group_list - set last_group_offsets_candidate wi lexdata from {} to {}'.format(startpositionleftsymbol, previouslextokenendposition))    
+    else:
+      print ('   Debug: p_quantified_step_group_list - do not set last_group_offsets_candidate wi lexdata from {} to {}'.format(startpositionleftsymbol, previouslextokenendposition))    
 
 # _______________________________________________________________
-  def p_quantifiedstep(self, p):
-    '''quantifiedstep : step 
+  def p_quantified_step_group(self, p): 
+    ''' quantified_step_group : quantified_step
+                    | LPAREN quantified_step_group_list RPAREN   '''
+    if self.verbosity >1:
+      self.setPatternStep(p)
+      if len(p) == 2:
+        self.log(p, '(quantified_step_group->quantified_step)')
+      else:
+        self.log(p, '(quantified_step_group->LPAREN p_quantified_step_group_list RPAREN)')
+        #p.lexer.group_offsets_list.append([p.lexer.last_group_offsets_candidate[0],p.lexer.last_group_offsets_candidate[1]])
+        p.lexer.group_offsets_list.append([p.lexer.last_group_offsets_candidate[0],p.lexer.quantified_step_index])
+
+        print ('      group detected from {} to {}'.format(p.lexer.last_group_offsets_candidate[0],p.lexer.last_group_offsets_candidate[1]))
+        
+
+# _______________________________________________________________
+  def p_quantified_step(self, p):
+    '''quantified_step : step 
             | step OPTION
             | step ATLEASTONE 
-            | step ANY ''' 
-    
+            | step ANY 
+            ''' 
+
     if len(p) == 2:
       p.lexer.pattern_steps.append([None, p[1]])
     elif p[2] == '*':
@@ -69,10 +104,28 @@ class SyntacticPatternParser(object):
       p.lexer.pattern_steps.append(['+', p[1]])
     elif p[2] == '?':  
       p.lexer.pattern_steps.append(['?', p[1]])
-    
+#    else:
+#      print ('Debug: LPAREN quantified_step_list RPAREN from {} to {}'.format())
+
     if self.verbosity >1:
       self.setPatternStep(p)  
-      self.log(p, '(p_quantifiedstep->...)')
+      if len(p) == 2:
+        self.log(p, '(p_quantified_step->step)')
+      elif len(p) == 3:
+        self.log(p, '(p_quantified_step->step QUANTIFIER)')
+
+     
+    startpositionleftsymbol, endpositionleftsymbol = p.lexspan(1)
+    if p.lexer.lexpos > len(p.lexer.lexdata):
+      previouslextokenendposition = len(p.lexer.lexdata)
+    else:
+      previouslextokenendposition = p.lexer.lexpos - len(p.lexer.lexTokenEndDict[p.lexer.lexpos].value)
+
+    p.lexer.quantified_step_start[startpositionleftsymbol] = p.lexer.quantified_step_index
+    p.lexer.quantified_step_end[previouslextokenendposition] = p.lexer.quantified_step_index +1
+    p.lexer.quantified_step_index += 1
+    print ('   Debug: p_quantified_step - lexdata from {} to {}'.format(startpositionleftsymbol, previouslextokenendposition))
+
   
 # _______________________________________________________________
   def p_step(self,p):
@@ -178,6 +231,7 @@ class SyntacticPatternParser(object):
       previouslextokenendposition = len(p.lexer.lexdata)
     else:
       previouslextokenendposition = p.lexer.lexpos - len(p.lexer.lexTokenEndDict[p.lexer.lexpos].value)
+    #print ('Debug: lexdata from {} to {}'.format(startpositionleftsymbol, previouslextokenendposition))
     p.lexer.patternStep = p.lexer.lexdata[startpositionleftsymbol:previouslextokenendposition]
 
 
@@ -249,28 +303,28 @@ class SyntacticPatternParser(object):
 
 # example use:
 if __name__ == '__main__':
-  pattern='?lem:"the" +pos:"JJ" [pos:"NN" & (lem:"car" | !lem:"bike" | !(lem:"bike"))] [raw:"is" | raw:"are"]'
+  pattern='?lem="the" ( pos="JJ"* [pos="NN" & (lem="car" | !lem="bike" | !(lem="bike"))] ) [raw="is" | raw="are"]'
   print ('Pattern:', pattern)
 
-  data = [{'raw':'The', 'lem':'the', 'pos':'DET'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'blue', 'lem':'blue', 'pos':'JJ'}]     
-  data = [{'raw':'The', 'lem':'the', 'pos':'DET'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
-  print ('Data:', data)
-
+  #data = [{'raw':'The', 'lem':'the', 'pos':'DET'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'blue', 'lem':'blue', 'pos':'JJ'}]     
+  #data = [{'raw':'The', 'lem':'the', 'pos':'DET'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
+  
   #pattern = 'pos:"NN"'
   data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'beautiful', 'lem':'beautiful', 'pos':'JJ'}]
+  print ('Data:', data)
 
   # Build the parser and 
   l = Lexer(pattern=pattern, data=data) 
   m = SyntacticPatternParser(tokens=l.tokens, verbosity =2, start='expression')
 
   # try it out
-  print ("Copy the grammar line without 'Grammar: ' (whitespace should not been included); The semi-colon ';' will lead to a parsing error")
-  while True:
-    try:
-      #text2parse
-      s = input('cl > ')   # Use raw_input on Python 2
-    except EOFError:
-      break
-    m.parser.parse(s, l.lexer, tracking=True)
+  # print ("Copy the grammar line without 'Grammar: ' (whitespace should not been included); The semi-colon ';' will lead to a parsing error")
+  # while True:
+  #   try:
+  #     #text2parse
+  #     s = input('cl > ')   # Use raw_input on Python 2
+  #   except EOFError:
+  #     break
+  #   m.parser.parse(s, l.lexer, tracking=True)
 
 

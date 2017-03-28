@@ -168,6 +168,16 @@ class Lexer(object):
     
     self.lexer.truth_value = False  # parsing result of a given pattern over a certain data 
 
+    # syntactic pattern parser
+    # quantified step index 
+    self.lexer.quantified_step_index = 0
+    # at a given position returns the quantified step index
+    self.lexer.quantified_step_start = {}
+    self.lexer.quantified_step_end = {}
+    # last couple of index position of the current group
+    self.lexer.last_group_offsets_candidate = []
+    # list of group offsets
+    self.lexer.group_offsets_list = []
 
   def build(self, pattern, **kwargs):
     """
