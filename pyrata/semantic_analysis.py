@@ -12,43 +12,60 @@ from pyrata.semantic_step_parser import *
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class Match(object):
 
-  value = ''
-  startPosition = -1
-  endPosition = -1
+  groups = []          # list of triplet (value, start, end) e.g. [[0, 1, [{'pos': 'JJ', 'raw': 'fast'}]]]
+  DEFAULT_GROUP_ID = 0
+  (VALUE, START, END) = (0,1,2)
 
   def __init__(self, **kwargs):
+    value = ''
+    startPosition = -1
+    endPosition = -1
     if 'start' in kwargs.keys(): # MANDATORY
-      self.startPosition = kwargs['start']
+      startPosition = kwargs['start']
     if 'end' in kwargs.keys(): # MANDATORY
-      self.endPosition = kwargs['end']
+      endPosition = kwargs['end']
     if 'value' in kwargs.keys(): # MANDATORY
-      self.value = kwargs['value']
-    if  self.value == '' or self.startPosition == -1 or self.endPosition == -1:   
+      value = kwargs['value']
+
+    if  value == '' or startPosition == -1 or endPosition == -1:   
       raise Exception('pyrata.re - attempt to create a Match object with incomplete informations')
+
+    self.groups.append([value, startPosition, endPosition])
+
 
   def __repr__(self):
     return '<pyrata.re Match object; span=('+str(self.start())+', '+str(self.end())+'), match="'+str(self.group())+'">'
 
-  def group(self):
-    return self.value
+  def get_group_id(self, *argv):
+    if len(argv) > 0:
+      group_id = argv[0]
+      if group_id > len(self.groups):
+        raise IndexError ('In Match - group() function - wrong index required')
+    else:
+      group_id = Match.DEFAULT_GROUP_ID
+    return group_id
 
-  def start(self):
-    return self.startPosition
+  def group(self, *argv):
+    return self.groups[self.get_group_id(*argv)][Match.VALUE]
 
-  def end(self):
-    return self.endPosition
+  def start(self, *argv):
+    return self.groups[self.get_group_id(*argv)][Match.START]
+
+  def end(self, *argv):
+    return self.groups[self.get_group_id(*argv)][Match.END]
 
   def __eq__(self, other):
     if other == None: 
       return False
-    if self.value == other.value and self.startPosition == other.startPosition and self.endPosition == other.endPosition:
+    if self.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] == other.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] and self.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] == other.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] and self.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END] == other.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END]:
+      return True
       return True
     return False  
    
   def __ne__(self, other):
     if other == None: 
       return True   
-    if self.value == other.value and self.startPosition == other.startPosition and self.endPosition == other.endPosition:
+    if self.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] == other.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] and self.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] == other.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] and self.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END] == other.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END]:
       return False
     return True  
 
