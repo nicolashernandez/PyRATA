@@ -19,21 +19,23 @@ class Match(object):
   def __init__(self, **kwargs):
     self.groups = []
     value = ''
-    startPosition = -1
-    endPosition = -1
+    start = -1
+    end = -1
     if 'start' in kwargs.keys(): # MANDATORY
-      startPosition = kwargs['start']
+      start = kwargs['start']
     if 'end' in kwargs.keys(): # MANDATORY
-      endPosition = kwargs['end']
+      end = kwargs['end']
     if 'value' in kwargs.keys(): # MANDATORY
       value = kwargs['value']
+    if 'groups' in kwargs.keys(): # MANDATORY
+      self.groups = kwargs['groups']  
+      #print ('Debug: groups=', self.groups)
       #print ('Debug: Match__init__:(start={}, end={}, value={})'.format(startPosition, endPosition, value))
-
-    if  value == '' or startPosition == -1 or endPosition == -1:   
-      raise Exception('pyrata.re - attempt to create a Match object with incomplete informations')
+    else:  
+      self.groups.append([value, start, end])
+    #if  self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] == '' or self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] == -1 or self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END] == -1:   
+    #  raise Exception('pyrata.re - attempt to create a Match object with incomplete informations')
     #print ('Debug: groups=', self.groups)
-    self.groups.append([value, startPosition, endPosition])
-    
 
   def __repr__(self):
     return '<pyrata.re Match object; span=('+str(self.start())+', '+str(self.end())+'), match="'+str(self.group())+'">'
@@ -48,13 +50,33 @@ class Match(object):
     return group_id
 
   def group(self, *argv):
-
+    ''' 
+    Returns the corresponding value of one subgroup of the match. 
+    Default is 0. The whole match value.
+    '''
     return self.groups[self.get_group_id(*argv)][Match.VALUE]
 
+  def groups (self):
+    '''Return a tuple containing all the subgroups of the match, from 0. 
+    In python re it is from 1 up to however many groups are in the pattern. '''
+    return self.groups
+    # if len(self.groups) > 0:
+    #   return self.groups[1:len(self.groups)]   
+    # else:
+    #   return [] 
+
   def start(self, *argv):
+    '''
+    Return the indices of the start of the subdata matched by group; 
+    group default to zero (meaning the whole matched data).
+    '''
     return self.groups[self.get_group_id(*argv)][Match.START]
 
   def end(self, *argv):
+    '''
+    Return the indices of the end of the subdata matched by group; 
+    group default to zero (meaning the whole matched data).
+    '''
     return self.groups[self.get_group_id(*argv)][Match.END]
 
   def __eq__(self, other):
@@ -180,6 +202,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
   data_cursor = 0
   pattern_cursor = 0
   pattern_steps = l.lexer.pattern_steps
+  group_pattern_offsets_group_list = l.lexer.group_pattern_offsets_group_list
 
   match_on_going = False    # a pattern is being recognized
 
@@ -225,6 +248,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
 
     # optional step
     elif quantifier == '?':
+      pattern_cursor_to_data_cursor[pattern_cursor] = data_cursor   
       if evaluate (l, step, data[data_cursor], **kwargs):
         if verbosity >1: print ('  match optional pattern_step')
         # first pattern step matched
@@ -232,7 +256,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
           if verbosity >1: print ('  start recognition and store the data_cursor as a start position')
           match_on_going = True
           group_start_index.append(data_cursor)  
-        pattern_cursor_to_data_cursor[pattern_cursor] = data_cursor   
+        #pattern_cursor_to_data_cursor[pattern_cursor] = data_cursor   
         data_cursor += 1  
       else:
         if verbosity >1: print ('  unmatch optional pattern_step')
@@ -240,6 +264,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
 
     elif quantifier == '*':
       any_iter  = 0
+      pattern_cursor_to_data_cursor[pattern_cursor] = data_cursor   
       if verbosity >1: print ('  evaluate any pattern_step')
       while evaluate (l, step, data[data_cursor], **kwargs):
         if verbosity >1: print ('  in any pattern_step "{}" iteration, match_on_going="{}", data_cursor="{}", data_token="{}"'
@@ -250,7 +275,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
             if verbosity >1: print ('  start recognition and store the data_cursor as a start position')
             match_on_going = True
             group_start_index.append(data_cursor)   
-          pattern_cursor_to_data_cursor[pattern_cursor] = data_cursor
+          #pattern_cursor_to_data_cursor[pattern_cursor] = data_cursor
         data_cursor += 1 
         any_iter += 1
         # case where a complex pattern has one first part being recognized while the data ends
@@ -326,12 +351,28 @@ def parse_semantic (compiledPattern, data, **kwargs):
         group_end_index.append(data_cursor)           
         start = group_start_index[len(group_start_index)-1]
         end = group_end_index[len(group_start_index)-1]
+        pattern_cursor_to_data_cursor[pattern_cursor] = data_cursor 
+        current_groups = []
+        if verbosity >2: 
+          print ('    group_pattern_offsets_group_list=', group_pattern_offsets_group_list)
+          print ('    pattern_cursor_to_data_cursor=', pattern_cursor_to_data_cursor)
+        for s, e in group_pattern_offsets_group_list:
+          #current_groups.append([data[start:end], s, e])
+          current_groups.append([data[pattern_cursor_to_data_cursor[s]:pattern_cursor_to_data_cursor[e]], pattern_cursor_to_data_cursor[s], pattern_cursor_to_data_cursor[e]])
+          #print ('Debug: pattern_cursor_to_data_cursor[{}]={} pattern_cursor_to_data_cursor[{}]={}'.format(s, pattern_cursor_to_data_cursor[s], e, pattern_cursor_to_data_cursor[e]))  
+
         if verbosity >1: 
           print ('  recognize a whole pattern ; store the data_cursor as a end position')
-          print ('  create the Match(start={}, end={}, value={})'.format(start, end, data[start:end]))
-        match = Match (start=start, end=end, value=data[start:end])
+          #print ('  create the Match(start={}, end={}, value={})'.format(start, end, data[start:end]))
+          print ('  create the Match(groups={})'.format(current_groups))
+        #print ('Debug: l.lexer.group_pattern_offsets_group_list=', l.lexer.group_pattern_offsets_group_list)
+
+        #match = Match (start=start, end=end, value=data[start:end])
         #print('Debug: match=', match)
-        matcheslist.append(match)
+        #matcheslist.append(match)
+        #print ('Debug: current_groups=', current_groups)
+
+        matcheslist.append(Match(groups=current_groups))
         if l.lexer.re in ['search', 'match']:  
           break
       else:

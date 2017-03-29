@@ -392,6 +392,39 @@ class TestPyrata(object):
     expected = [[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}]]
     self.test(description, method, lexicons, pattern, data, expected, verbosity)    
 
+  def test_search_groups_in_data(self, verbosity):
+    if verbosity >0:
+      print ('================================================')
+    description = 'test_search_groups_in_data'
+    method = 'search'
+    lexicons = {}
+    pattern = '(raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}], 1, 7], [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], [[{'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}], 3, 5], [[{'raw': 'funny', 'pos': 'JJ'}], 5, 6], [[{'raw': 'to', 'pos': 'TO'}], 6, 7]]
+    #self.test(description, method, lexicons, pattern, data, expected, verbosity)  
+    result = pyrata.re.search(pattern, data, lexicons=lexicons, verbosity = 1).groups
+
+    #print ('Debug: type(result)=',result)
+    if verbosity >0:
+      print ()
+      print ('Test:\t', description)
+      print ('Method:\t', method) 
+      print ('Lexicons:\t', lexicons)       
+      print ('Pattern:\t', pattern)
+      print ('Data:\t\t', data)
+      print ('Expected groups:\t', expected)
+      print ('Recognized groups:\t', result) 
+    if result == expected:
+      if verbosity >0:
+        print ('Result:\tSUCCESS')
+      self.testSuccess += 1
+    else:
+      if verbosity >0:
+        print ('Result:\tFAIL')
+    self.testCounter +=1
+
+    if verbosity >0:
+      print ()
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -400,7 +433,7 @@ class TestPyrata(object):
 
   def __init__(self):
 
-    myverbosity = 1
+    myverbosity = 3
     self.test_search_step_in_data(myverbosity)
     self.test_findall_step_in_data(myverbosity)
     self.test_finditer_step_in_data(myverbosity)
@@ -444,6 +477,9 @@ class TestPyrata(object):
 
     self.test_search_any_class_step_error_step_in_data(myverbosity)
     self.test_findall_step_any_not_step1_step1_in_data(myverbosity)
+
+    self.test_search_groups_in_data(myverbosity)
+
 
 
 

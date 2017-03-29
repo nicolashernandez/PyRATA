@@ -176,8 +176,8 @@ class Lexer(object):
     self.lexer.quantified_step_end = {}
     # last couple of index position of the current group
     self.lexer.last_group_offsets_candidate = []
-    # list of group offsets
-    self.lexer.group_offsets_list = []
+    # list of group offsets e.g. [[start_i, end_i], [start_j, end_j], [start_k, end_k]]
+    self.lexer.group_pattern_offsets_group_list = []
 
   def build(self, pattern, **kwargs):
     """

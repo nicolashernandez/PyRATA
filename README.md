@@ -27,17 +27,21 @@ But it is not limited to the representation of sentences. It can also be used to
 
 ### The API
 
-The API is developed to be familiar for whom who develop with the python re module API. Methods such as `search`, `findall`, or `finditer` are implemented. At a minimum, they take two arguments the pattern to recognize and the data to explore (e.g. `search(pattern, data)`).
+The API is developed to be familiar for whom who develops with the python re module API. 
 
-More named arguments (`lexicons`, `verbosity`) allows to set lexicons which can be used to define set of accepted values for an attribute or the level of verbosity.
+The module defines several known functions such as `search`, `findall`, or `finditer`. Some of the functions are also available for compiled regular expressions. The former take at least two arguments including the pattern to recognize and the data to explore (e.g. `re.search(pattern, data)`) while the latter take at least one, the data to explore (e.g. `compiledPattern.search(data)`).
 
-A __pattern__ is made of one or several steps. A __step__ is, in its simplest form, the specification of a single constraint (*NAME OPERATOR VALUE*). For a given attribute name, you can specify its required exact value (with `=` *OPERATOR*), a regex definition of its value (`~` *OPERATOR*) or a list of possible values (`@` *OPERATOR*). A more complex step can be a __quantified step__ or a __class step__. The former allows to set *optional* step (`?`), steps which should occurs *at least one* (`+`), or *zero or more* (`*`). The latter aims at specifing more than one constraints and conditions on them with *parenthesis* (`()`) and logical connectors such as *and* (`&`), *or* (`|`) and *not* (`!`).
+More named arguments (`lexicons`, `verbosity`) allows to set lexicons which can be used to define set of accepted values for a specified feature or the level of verbosity.
+
+A __pattern__ is made of one or several steps. A __step__ is, in its simplest form, the specification of a single constraint (*NAME OPERATOR VALUE*). For a given attribute name, you can specify its required exact value (with `=` *OPERATOR*), a regex definition of its value (`~` *OPERATOR*) or a list of possible values (`@` *OPERATOR*). A more complex step can be a __quantified step__ or a __class step__. The former allows to set *optional* step (`?`), steps which should occurs *at least one* (`+`), or *zero or more* (`*`). The latter aims at specifing more than one constraints and conditions on them with *parenthesis* (`()`) and logical connectors such as *and* (`&`), *or* (`|`) and *not* (`!`). A class step can be quantied.
+The language offers the possibility to retrieve specific parts of a patterns by defining some *groups* with parenthesis (`()`) over the steps.
 
 See the *Quick overview* section for more details and examples.
 
 ### References
   * https://docs.python.org/3/library/re.html
   * [nltk.RegexpParser](https://gist.github.com/alexbowe/879414) ; http://www.nltk.org/_modules/nltk/chunk/regexp.html#RegexpChunkParser ; http://nbviewer.jupyter.org/github/lukewrites/NP_chunking_with_nltk/blob/master/NP_chunking_with_the_NLTK.ipynb ; https://gist.github.com/alexbowe/879414
+  * linguastream
   * pattern
   * ruta
   * xpath from me over graph of objects
@@ -223,6 +227,18 @@ Below an example of use for `findall`
     [[{'raw': 'regular', 'pos': 'JJ'}, {'raw': 'expressions', 'pos': 'NNS'}], [{'raw': 'Pyrata', 'pos': 'NNP'}]]
 
 
+### Groups
+
+In order to __retrieve the contents a specific part of a match, groups can be defined with parenthesis__ which indicate the start and end of a group.
+
+    >>> import pyrata.re as pyrata_re
+    >>> pyrata_re.search('raw="is" (!raw="to"+) raw="to"', [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]).group(1)
+    [{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}]
+
+Have a look at test_pyrata to see a more complex example of groups use.
+
+
+
 ### Generating the pyrata data structure
 
 Have a look at the `pyrata_nltk.py` script (run it). It shows __how to turn various nltk analysis results into the pyrata data structure__.
@@ -244,27 +260,12 @@ Example for generating complex data on fly:
 
 Example of uses of pyrata dedicated conversion methods: See the `pyrata_nltk.py` scripts
 
-
-### Groups
-
-Under development TODO
-
-    import pyrata.re as pyrata_re
-    pyrata_re.search('(raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")', [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}], verbosity=3)
-
-[[0, 1], [2, 4], [4, 5], [1, 5], [1, 5], [5, 6], [0, 6]]
-group 0 = [[None, 'raw="is"']]
-group 1 = [[None, 'pos="JJ" '], [None, 'raw="and"']]
-group 2 = [[None, 'pos="JJ"']]
-group 3 = [['*', 'pos="JJ"'], [None, 'pos="JJ" '], [None, 'raw="and"'], [None, 'pos="JJ"']]
-group 4 = [['*', 'pos="JJ"'], [None, 'pos="JJ" '], [None, 'raw="and"'], [None, 'pos="JJ"']]
-group 5 = [[None, 'raw="to"']]
 ## Roadmap
 ---------
 
 
 ### TODO
-* grammar implement capture index of groups : in semantic_analysis, see re api to understand how groups are referenced and modify Match consequently to accept a list of groups ; use pattern_cursor_to_data_cursor to set the correct data offsets matched 
+
 * grammar implement handle sequence of tokens with a BIO value as a single token
 * module re implement pyrata_re.match
 * module re regex implement substitution sub/// and the annotation annotate/// ; the new feature is added to the current feature structure in a BIO style
@@ -275,9 +276,10 @@ group 5 = [[None, 'raw="to"']]
 * code test re methods on Compiled regular expression objects 
 * code end location is stored several times with the expression rules ; have a look at len(l.lexer.groupstartindex): and len(l.lexer.groupendindex): after parsing in pyrata_re methods to compare 
 * ihm revise the README and create a specific developer page
+* grammar implement group reference so they can be matched later in the data with the \number special sequence
+* grammar implement alternative in groups
 * grammar implement wildcards
 * grammar think about the context notion, and possibly about forcing the pattern to match from the begining ^ and/or to the end $
-* grammar implement reuse groups in regex
 * grammar test complex regex as value
 * module nltk implement methods to turn nltk complex structures (chunking Tree and IOB) into the pyrata data structure 
 * grammar implement lex.lex(reflags=re.UNICODE)
@@ -330,4 +332,5 @@ group 5 = [[None, 'raw="to"']]
 * code implement re methods on Compiled regular expression objects  
 * ihm revise README add description about compile and re methods on Compiled regular expression objects  
 * project make pyrata a python module and revise installation procedure in readme
-* code modify syntactic pattern parser + lexer to capture groups ; revise README ; extend gitignore to ignore ply temporary files
+* code modify syntactic pattern parser + lexer to capture groups ; revise README ; extend gitignore to ignore ply temporary 
+* grammar implement capture index of groups
