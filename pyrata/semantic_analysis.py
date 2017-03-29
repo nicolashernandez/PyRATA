@@ -17,6 +17,7 @@ class Match(object):
   (VALUE, START, END) = (0,1,2)
 
   def __init__(self, **kwargs):
+    self.groups = []
     value = ''
     startPosition = -1
     endPosition = -1
@@ -26,12 +27,13 @@ class Match(object):
       endPosition = kwargs['end']
     if 'value' in kwargs.keys(): # MANDATORY
       value = kwargs['value']
+      #print ('Debug: Match__init__:(start={}, end={}, value={})'.format(startPosition, endPosition, value))
 
     if  value == '' or startPosition == -1 or endPosition == -1:   
       raise Exception('pyrata.re - attempt to create a Match object with incomplete informations')
-
+    #print ('Debug: groups=', self.groups)
     self.groups.append([value, startPosition, endPosition])
-
+    
 
   def __repr__(self):
     return '<pyrata.re Match object; span=('+str(self.start())+', '+str(self.end())+'), match="'+str(self.group())+'">'
@@ -46,6 +48,7 @@ class Match(object):
     return group_id
 
   def group(self, *argv):
+
     return self.groups[self.get_group_id(*argv)][Match.VALUE]
 
   def start(self, *argv):
@@ -92,10 +95,10 @@ class MatchesList(object):
     return self.matcheslist[0]
 
   def start(self, *args):
-    return self.group(args).start()
+    return self.group(*args).start()
 
-  def end(self):
-    return self.group(args).end()
+  def end(self, *args):
+    return self.group(*args).end()
 
   def __iter__(self):
     return iter(self.matcheslist)
@@ -110,11 +113,11 @@ class MatchesList(object):
   def __len__(self):
     return len(self.matcheslist)
 
-  def __repr__(self):
-    ml = ''
-    for m in self.matcheslist:
-      ml = ml + '<pyrata.re Match object; span=('+str(m.start())+', '+str(m.end())+'), match="'+str(m.group())+'">\n'
-    return ml
+  # def __repr__(self):
+  #   ml = ''
+  #   for m in self.matcheslist:
+  #     ml = ml + '<pyrata.re Match object; span=({}, {}), match="{}">\n'.format(str(m.start()), str(m.end()), str(m.group()))
+  #   return ml
 
   def __eq__(self, other):
     matches = 0
@@ -320,15 +323,14 @@ def parse_semantic (compiledPattern, data, **kwargs):
     #  print (2*'  pattern_cursor="{}" quantifier="{}" pattern_step=[{}] len(pattern_steps)="{}" data_cursor="{}" data_token="{}" match_on_going="{}"'.format(pattern_cursor, quantifier, step, len(pattern_steps), data_cursor, data_token, match_on_going))        
     if pattern_cursor >= len(pattern_steps):
       if match_on_going:
-        if verbosity >1: print ('  recognize a whole pattern ; store the data_cursor as a end position')
-        group_end_index.append(data_cursor)
-        if verbosity >3: 
-          print ('      Debug: group_start_index=', group_start_index)
-          print ('      Debug: group_end_index=', group_end_index) 
+        group_end_index.append(data_cursor)           
         start = group_start_index[len(group_start_index)-1]
         end = group_end_index[len(group_start_index)-1]
-
+        if verbosity >1: 
+          print ('  recognize a whole pattern ; store the data_cursor as a end position')
+          print ('  create the Match(start={}, end={}, value={})'.format(start, end, data[start:end]))
         match = Match (start=start, end=end, value=data[start:end])
+        #print('Debug: match=', match)
         matcheslist.append(match)
         if l.lexer.re in ['search', 'match']:  
           break
@@ -344,5 +346,20 @@ def parse_semantic (compiledPattern, data, **kwargs):
     else: 
       if verbosity >1: print ('  some pattern recognition may be on going but none full form has been recognized after processing this pattern_step')
         
+  #print('Debug: matcheslist=', matcheslist)
 
   return matcheslist
+
+
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+#  MAIN
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+if __name__ == '__main__':  
+  start = 0
+  end = 1
+  data =  [{'raw': 'It', 'pos': 'PRP'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}, {'raw': 'write', 'pos': 'VB'}, {'raw': 'regular', 'pos': 'JJ'}, {'raw': 'expressions', 'pos': 'NNS'}, {'raw': 'with', 'pos': 'IN'}, {'raw': 'Pyrata', 'pos': 'NNP'}]
+
+  print ('Debug: create the Match(start={}, end={}, value={})'.format(start, end, data[start:end]))
+  match = Match (start=start, end=end, value=data[start:end])
+  print('Debug: match=', match)

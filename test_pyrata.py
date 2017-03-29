@@ -400,7 +400,7 @@ class TestPyrata(object):
 
   def __init__(self):
 
-    myverbosity = 2
+    myverbosity = 1
     self.test_search_step_in_data(myverbosity)
     self.test_findall_step_in_data(myverbosity)
     self.test_finditer_step_in_data(myverbosity)

@@ -38,8 +38,8 @@ class CompiledPattern(object):
 
     self.getLexer().lexer.re = method
 
-    return pyrata.semantic_analysis.parse_semantic (self, data, **kwargs)
-
+    r = pyrata.semantic_analysis.parse_semantic (self, data, **kwargs)
+    return r
 
   # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
   def search(self, data, **kwargs):
