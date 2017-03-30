@@ -263,74 +263,73 @@ Example of uses of pyrata dedicated conversion methods: See the `pyrata_nltk.py`
 ## Roadmap
 ---------
 
+By default TODO
 
-### TODO
 
-* grammar implement handle sequence of tokens with a BIO value as a single token
-* module re implement pyrata_re.match
-* module re regex implement substitution sub/// and the annotation annotate/// ; the new feature is added to the current feature structure in a BIO style
+### Grammar
+* implement group alternative so they can be used to handle IOB-chunk operator
+* implement IOB operator to handle sequence of tokens with a BIO value as a single token
+* implement operator to search the pattern from the begining ^ and/or to the end $
+* implement group reference so they can be matched later in the data with the \number special sequence
+* implement wildcards (so far handled by a `'!b*'` in `'!b* b'`
+* implement lex.lex(reflags=re.UNICODE)
+* does class atomic with non atomic contraint should be prefered to not step to adapt one single way of doing stuff: partofclassconstraint -> NOT classconstraint more than step -> NOT step ; but the latter is simpler so check if it is working as expected wi quantifier +!pos:"EX" = +[!pos:"EX"])
+* allow grammar with multiple rules (each rule should have an identifier... and its own groupindex)
+* move the python methods as grammar components
+* think about the context notion 
+* DONE implement sequence parsing
+* DONE implement CLASS OF tokens (parsing and semantic analysis with logical and/or/not operators and parenthesis)
+* DONE implement quantifier AT_LEAST_ONE
+* DONE implement quantifier OPTIONAL
+* DONE implement quantifier ANY
+* DONE implement surface EQ comparison operator for atomic constraint 
+* DONE implement list inclusion operator for atomic constraint 
+* DONE implement REGEX comparison operator for atomic constraint 
+* DONE implement groups
+
+### API and regex engine
+* module re implement match
+* module re implement substitution sub/// 
+* module re implement annotate/// ; the new feature is added to the current feature structure in a BIO style
+* DONE module re implement search
+* DONE module re implement findall
+* DONE module re implement finditer
+* DONE module re implement compile
+* DONE module re compiled re object implement
+* DONE module nltk implement methods to turn nltk structures (POS tagging, chunking Tree and IOB) into the pyrata data structure 
+* DONE make modular pyrata_re _syntactic_parser and semantic_parser : creation of syntactic_analysis, syntactic_pattern_parser, semantic_analysis, semantic_step_parser, 
+
+
+### Communication and code quality
+* implement logging facility
+* user ongoing revise the README 
+* user/developer reorganize into specific docs : quick overview vs user guide, developer guide, roadmap pages
+* developer make diagrams to explain relations
+* test complex regex as value
 * evaluate performance http://www.marinamele.com/7-tips-to-time-python-scripts-and-control-memory-and-cpu-usage
 * evaluate performance comparing to pattern and python 3 chunking (see the use example and show how to do similar)
-* code check how the lexicons are handled during the compilation and how they are passed to the semantic analysis
+* improve performance (memory and time) ; evaluate the possibility of doing the ply way to handle the debug/tracking mode
 * code handle the test case of error in the patterns
 * code test re methods on Compiled regular expression objects 
 * code end location is stored several times with the expression rules ; have a look at len(l.lexer.groupstartindex): and len(l.lexer.groupendindex): after parsing in pyrata_re methods to compare 
-* ihm revise the README and create a specific developer page
-* grammar implement group reference so they can be matched later in the data with the \number special sequence
-* grammar implement alternative in groups
-* grammar implement wildcards
-* grammar think about the context notion, and possibly about forcing the pattern to match from the begining ^ and/or to the end $
-* grammar test complex regex as value
-* module nltk implement methods to turn nltk complex structures (chunking Tree and IOB) into the pyrata data structure 
-* grammar implement lex.lex(reflags=re.UNICODE)
-* code quality review http://www.marinamele.com/7-tips-to-time-python-scripts-and-control-memory-and-cpu-usage
-* evaluate performance comparing to pattern and python 3 chunking 
-* code depending on performance evaluate the possibility of doing the ply way to handle the debug/tracking mode
-* grammar does class atomic with non atomic contraint should be prefered to not step to adapt one single way of doing stuff: partofclassconstraint -> NOT classconstraint more than step -> NOT step ; but the latter is simpler so check if it is working as expected wi quantifier +!pos:"EX" = +[!pos:"EX"])
-* grammar allow grammar with multiple rules (each rule should have an identifier... and its own groupindex)
-* gramamr move the python methods as grammar components
-* developer make diagrams to explain relations
 * see the pattern search module and its facilities
+* packaging and distributing publish On PyPI
+* DONE write README with short description, installation, quick overview sections
+* DONE home made debugging solution for users when writting patterns (e.g. using an attribute name not existing in the data) ; wirh verbosity levels
+* DONE a test file 
+* DONE packaging and distributing package the project (python module, structure, licence wi copyright notice, gitignore)
+* DONE packaging and distributing configure the project 
 
 
-###  Done (see below for reading the latest improvements)
-* module re implement pyrata_re.search
-* module re implement pyrata_re.findall
-* module re implement pyrata_re.finditer
-* grammar implement sequence parsing/semantic analysis with token an atomicconstraint
-* grammar implement class of tokens (parsing and semantic analysis with logical and/or/not operators and parenthesis)
-* grammar implement quantifier AT_LEAST_ONE
-* code lexer and parser as classes
-* ihm improve the log experience by displaying parsed lextoken from the grammar, the grammar/pattern step, and the data token with length, Line Number and Position (based on http://www.dabeaz.com/ply/ply.html#ply_nn33)
-* ihm improve the debugging for users when writting patterns (e.g. using an attribute name not existing in the data) ; revise the verbosity/loglevel 
-* code handle errors wo fatal crash http://stackoverflow.com/questions/18046579/reporting-parse-errors-from-ply-to-caller-of-parser
-* rename global step grammar -> patternStep and local into localstep (quantifiedStep is ambiguous since it is the name of the production just before expression)
-* code move the code for testing the validity of a patternstep into the quantifier production rule and non in expression
-* code fix global step count based on works on split(' ') when class constraints with multiple constraints 
+## Developpers tips
+---------
+
+* access to parsed lextoken from the grammar, the grammar/pattern step, and the data token with length, Line Number and Position based on http://www.dabeaz.com/ply/ply.html#ply_nn33
+reporting-parse-errors-from-ply-to-caller-of-parser
+* code handle errors wo fatal crash http://stackoverflow.com/questions/18046579/
 * code fix use test_match_inside_sequence_at_least_one_including_negation_on_atomic_constraint and test_match_inside_sequence_at_least_one_including_negation_in_class_constraint
-* code revision to remove lexer.grammar since lexdata exists
-* grammar parsing when a quantifier step is not valid, the parsing should be aborted wo waiting for expression parsing
 * grammar parsing solve the shift/reduce conflict with AND and OR  ; The parser does not know what to apply between Rule 10    classconstraint -> partofclassconstraint,  and   (Rule 11    classconstraint -> partofclassconstraint AND classconstraint and Rule 12  or  classconstraint -> partofclassconstraint OR classconstraint) ; sol1 : removing Rule 10 since classconstraint should only be used to combine atomic constraint (at least two); but consequently negation should be accepted wo class (i.e. bracket) and with quantifier if so ; the use of empty rule lead to Parsing error: found token type= RBRACKET  with value= ] but not expected ; sol2 : which solve the problem, inverse the order partofclassconstraint AND classconstraint  -> classconstraint AND partofclassconstraint
-* module nltk done nltk facilities to turn it into pyrata data structure
-* implement grammar optional quantifier in quantifiedstep 
-* implement grammar any quantifier in quantifiedstep
-* grammar modify symbol ':' turned into '=' (since it had an equal meaning)
-* ihm README with a section part for the user
-* grammar implement a regex as a value of atomic constraint 
-* grammar implement 'in' operator for specifying a list of possible values for atomic constraints 
-* rename loglevel into verbosity
 * Warning: code cannot rename tokens into lextokens in parser since it is Ply 
 * Warning: ihm when copying the grammar in the console, do not insert whitespace ahead
 * code separate lexer, syntactic parser and semantic parser in distinct files http://www.dabeaz.com/ply/ply.html#ply_nn34 
-* module re implement pyrata_re.compile and revise dependant methods such as search... from it
-* code revise test 
 * fix parsing bug with pos~"VB." *[!raw="to"] raw="to", +[pos~"NN.*" | pos="JJ"] pos~"NN.*", *[pos~"NN.*" | pos="JJ"] pos~"NN.*", 
-* grammar change the grammar so that the quantifiers are after the token
-* license add copyright notice
-* code make modular pyrata_re _syntactic_parser and semantic_parser : creation of syntactic_analysis, syntactic_pattern_parser, semantic_analysis, semantic_step_parser, 
-* code pyrata_nltk demonstration how to turn iob tags (chunks tags) into pyrata data structure
-* code implement re methods on Compiled regular expression objects  
-* ihm revise README add description about compile and re methods on Compiled regular expression objects  
-* project make pyrata a python module and revise installation procedure in readme
-* code modify syntactic pattern parser + lexer to capture groups ; revise README ; extend gitignore to ignore ply temporary 
-* grammar implement capture index of groups
