@@ -260,65 +260,81 @@ Example for generating complex data on fly:
 
 Example of uses of pyrata dedicated conversion methods: See the `pyrata_nltk.py` scripts
 
-## Roadmap
+## Project development
 ---------
 
-By default TODO
+
+### Roadmap
+
+#### Last report
+Implementation of alternative sequence in groups requires first to modify the grammar. The actual branch named parsing-alternative-sequences faces some regression issues with test on groups.
+
+Idea to handle IOB-chunk operator, is to generate a corresponding sub pattern e.g. 'chunk_"NN"' -> 'chunk="B-NN" chunk="I-NN"*'. The problem with this trick is how to handle quantifier e.g. 'chunk_"NN"*' would mean '(chunk="B-NN" chunk="I-NN"*)*'. 
+In the parsing algorithm it already exists the mechanism for processing quantifiers. It would make sense to reuse it by passing in parameter the sub pattern. This echoes to the necessity to handle groups/sequences as a token. This is a common part with implementing the handling of alternative sequences in groups.
+
+Right now (because of the issues in parsing-alternative-sequences), we will focus on modifying the syntactic parser to generate a sub list for sequence tokens, then we will modify the semantic parser to call itself on sequence tokens.
+
+#### TODO list following a decreasing priority order.
+
+* grammar implement IOB operator to handle sequence of tokens with a BIO value as a single token
+* api/engine module re implement substitution sub/// 
+* api/engine module re implement annotate/// ; the new feature is added to the current feature structure in a BIO style
+* grammar implement operator to search the pattern from the begining ^ and/or to the end $
+* api/engine module re implement match
+* quality implement logging facility
+* communication packaging and distributing publish On PyPI
+* communication user/developer reorganize README into specific docs : quick overview vs user guide, developer guide, roadmap pages
+* quality evaluate performance http://www.marinamele.com/7-tips-to-time-python-scripts-and-control-memory-and-cpu-usage
+* quality evaluate performance comparing to pattern and python 3 chunking (see the use example and show how to do similar)
+* quality improve performance (memory and time) ; evaluate the possibility of doing the ply way to handle the debug/tracking mode
+* grammar implement group alternative so they can be used to handle IOB-chunk operator
+* grammar implement group reference so they can be matched later in the data with the \number special sequence
+* grammar implement wildcards (so far handled by a `'!b*'` in `'!b* b'`
+* grammar does class atomic with non atomic contraint should be prefered to not step to adapt one single way of doing stuff: partofclassconstraint -> NOT classconstraint more than step -> NOT step ; but the latter is simpler so check if it is working as expected wi quantifier +!pos:"EX" = +[!pos:"EX"])
+* grammar allow grammar with multiple rules (each rule should have an identifier... and its own groupindex)
+* grammar move the python methods as grammar components
+* grammar think about the context notion 
+* api/engine implement lex.lex(reflags=re.UNICODE)
+* communication developer make diagrams to explain process and relations between files
+* quality test complex regex as value
+* quality code handle the test case of error in the patterns
+* quality code test re methods on Compiled regular expression objects 
+* quality code end location is stored several times with the expression rules ; have a look at len(l.lexer.groupstartindex): and len(l.lexer.groupendindex): after parsing in pyrata_re methods to compare 
+* quality see the pattern search module and its facilities
+
+### Achieved
+
+Done...
+
+#### Grammar
+
+* implement sequence parsing
+* implement CLASS OF tokens (parsing and semantic analysis with logical and/or/not operators and parenthesis)
+* implement quantifier AT_LEAST_ONE
+* implement quantifier OPTIONAL
+* implement quantifier ANY
+* implement surface EQ comparison operator for atomic constraint 
+* implement list inclusion operator for atomic constraint 
+* implement REGEX comparison operator for atomic constraint 
+* implement groups
+
+#### API and regex engine
+* module re implement search
+* module re implement findall
+* module re implement finditer
+* module re implement compile
+* module re compiled re object implement
+* module nltk implement methods to turn nltk structures (POS tagging, chunking Tree and IOB) into the pyrata data structure 
+* make modular pyrata_re _syntactic_parser and semantic_parser : creation of syntactic_analysis, syntactic_pattern_parser, semantic_analysis, semantic_step_parser, 
 
 
-### Grammar
-* implement group alternative so they can be used to handle IOB-chunk operator
-* implement IOB operator to handle sequence of tokens with a BIO value as a single token
-* implement operator to search the pattern from the begining ^ and/or to the end $
-* implement group reference so they can be matched later in the data with the \number special sequence
-* implement wildcards (so far handled by a `'!b*'` in `'!b* b'`
-* implement lex.lex(reflags=re.UNICODE)
-* does class atomic with non atomic contraint should be prefered to not step to adapt one single way of doing stuff: partofclassconstraint -> NOT classconstraint more than step -> NOT step ; but the latter is simpler so check if it is working as expected wi quantifier +!pos:"EX" = +[!pos:"EX"])
-* allow grammar with multiple rules (each rule should have an identifier... and its own groupindex)
-* move the python methods as grammar components
-* think about the context notion 
-* DONE implement sequence parsing
-* DONE implement CLASS OF tokens (parsing and semantic analysis with logical and/or/not operators and parenthesis)
-* DONE implement quantifier AT_LEAST_ONE
-* DONE implement quantifier OPTIONAL
-* DONE implement quantifier ANY
-* DONE implement surface EQ comparison operator for atomic constraint 
-* DONE implement list inclusion operator for atomic constraint 
-* DONE implement REGEX comparison operator for atomic constraint 
-* DONE implement groups
+#### Communication and code quality
 
-### API and regex engine
-* module re implement match
-* module re implement substitution sub/// 
-* module re implement annotate/// ; the new feature is added to the current feature structure in a BIO style
-* DONE module re implement search
-* DONE module re implement findall
-* DONE module re implement finditer
-* DONE module re implement compile
-* DONE module re compiled re object implement
-* DONE module nltk implement methods to turn nltk structures (POS tagging, chunking Tree and IOB) into the pyrata data structure 
-* DONE make modular pyrata_re _syntactic_parser and semantic_parser : creation of syntactic_analysis, syntactic_pattern_parser, semantic_analysis, semantic_step_parser, 
-
-
-### Communication and code quality
-* implement logging facility
-* user ongoing revise the README 
-* user/developer reorganize into specific docs : quick overview vs user guide, developer guide, roadmap pages
-* developer make diagrams to explain relations
-* test complex regex as value
-* evaluate performance http://www.marinamele.com/7-tips-to-time-python-scripts-and-control-memory-and-cpu-usage
-* evaluate performance comparing to pattern and python 3 chunking (see the use example and show how to do similar)
-* improve performance (memory and time) ; evaluate the possibility of doing the ply way to handle the debug/tracking mode
-* code handle the test case of error in the patterns
-* code test re methods on Compiled regular expression objects 
-* code end location is stored several times with the expression rules ; have a look at len(l.lexer.groupstartindex): and len(l.lexer.groupendindex): after parsing in pyrata_re methods to compare 
-* see the pattern search module and its facilities
-* packaging and distributing publish On PyPI
-* DONE write README with short description, installation, quick overview sections
-* DONE home made debugging solution for users when writting patterns (e.g. using an attribute name not existing in the data) ; wirh verbosity levels
-* DONE a test file 
-* DONE packaging and distributing package the project (python module, structure, licence wi copyright notice, gitignore)
-* DONE packaging and distributing configure the project 
+* write README with short description, installation, quick overview sections
+* home made debugging solution for users when writting patterns (e.g. using an attribute name not existing in the data) ; wirh verbosity levels
+* a test file 
+* packaging and distributing package the project (python module, structure, licence wi copyright notice, gitignore)
+* packaging and distributing configure the project 
 
 
 ## Developpers tips
