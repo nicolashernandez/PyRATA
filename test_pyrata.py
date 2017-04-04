@@ -23,7 +23,8 @@ class TestPyrata(object):
 # Main test method
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-  def test (self, description, method, lexicons, pattern, data, expected, verbosity):
+  def test (self, description = '', method = '', lexicons = {}, pattern = '', data = [], expected = [], verbosity = 0, 
+    action = '', annotation= {}, group = [0], iob = False, **kwargs):
     ''' 
     general method for testing 
     '''
@@ -44,7 +45,10 @@ class TestPyrata(object):
     elif method == 'findall':
       result = pyrata.re.findall(pattern, data, lexicons=lexicons, verbosity = verbosity)
     elif method == 'finditer':
-      result = pyrata.re.finditer(pattern, data, lexicons=lexicons, verbosity = verbosity)   
+      result = pyrata.re.finditer(pattern, data, lexicons=lexicons, verbosity = verbosity) 
+    elif method == 'annotate':
+      result = pyrata.re.annotate (pattern, annotation, data, group, action, iob, verbosity = verbosity, **kwargs)
+
     else:
       raise Exception('wrong method to test')
     #print('Result:',l.lexer.finalresult,'; start:',l.lexer.groupstartindex,'; end:',l.lexer.groupendindex)
@@ -53,8 +57,11 @@ class TestPyrata(object):
       print ()
       print ('Test:\t', description)
       print ('Method:\t', method) 
-      print ('Lexicons:\t', lexicons)       
+      if action != '': print ('Action:\t', action) 
+      if lexicons != {}: print ('Lexicons:\t', lexicons)       
       print ('Pattern:\t', pattern)
+      if group != [0]:       print ('Group:\t', group)
+      if annotation != {}:       print ('Annotation:\t', annotation)
       print ('Data:\t\t', data)
       print ('Expected:\t', expected)
       print ('Recognized:\t', result) 
@@ -402,7 +409,7 @@ class TestPyrata(object):
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}], 1, 7], [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], [[{'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}], 3, 5], [[{'raw': 'funny', 'pos': 'JJ'}], 5, 6], [[{'raw': 'to', 'pos': 'TO'}], 6, 7]]
     #self.test(description, method, lexicons, pattern, data, expected, verbosity)  
-    result = pyrata.re.search(pattern, data, lexicons=lexicons, verbosity = 1).groups
+    result = pyrata.re.search(pattern, data, lexicons=lexicons, verbosity = verbosity).groups
 
     #print ('Debug: type(result)=',result)
     if verbosity >0:
@@ -426,6 +433,292 @@ class TestPyrata(object):
     if verbosity >0:
       print ()
 
+  def test_annotate_default_action_sub_default_group_default_iob_annotation_dict_in_data(self, verbosity):
+    if verbosity >0:
+      print ('================================================')
+    description = 'test_annotate_default_action_sub_default_group_default_iob_annotation_dict_in_data'
+    method = 'annotate'
+    pattern = 'pos~"NN.?"'
+    annotation = {'raw':'smurf', 'pos':'NN' },
+    data = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' }, 
+      {'raw':'cup', 'pos':'NN' },
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP'}, 
+      {'raw':'Stone', 'pos':'NNP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$'}, 
+      {'raw':'story', 'pos':'NN'} ]
+    expected = [{'pos': 'IN', 'raw': 'Over'}, {'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'smurf'}, {'pos': 'IN', 'raw': 'of'}, {'pos': 'NN', 'raw': 'smurf'}, {'pos': ',', 'raw': ','}, {'pos': 'NN', 'raw': 'smurf'}, {'pos': 'NN', 'raw': 'smurf'}, {'pos': 'VBD', 'raw': 'told'}, {'pos': 'PRP$', 'raw': 'his'}, {'pos': 'NN', 'raw': 'smurf'}]
+    result = pyrata.re.annotate(pattern, annotation, data, verbosity = verbosity)
+    if verbosity >0:
+      print ()
+      print ('Test:\t', description)
+      print ('Method:\t', method)
+      print ('Action:\t', 'default (i.e. sub)')
+      print ('Pattern:\t', pattern)
+      print ('Group:\t', 'default (i.e. [0])')      
+      print ('Annotation:\t', annotation) 
+      print ('IOB:\t', 'default (i.e. False)')
+      print ('Data:\t\t', data)
+      print ('Expected:\t', expected)
+      print ('Result:\t\t', result) 
+    if result == expected:
+      if verbosity >0:
+        print ('Result:\tSUCCESS')
+      self.testSuccess += 1
+    else:
+      if verbosity >0:
+        print ('Result:\tFAIL')
+    self.testCounter +=1
+
+    if verbosity >0:
+      print ()
+
+    gold = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT', 'chunk':'B-NP'}, 
+      {'raw':'cup', 'pos':'NN', 'chunk':'I-NP'},
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN', 'chunk':'B-NP'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP', 'chunk':'B-NP'}, 
+      {'raw':'Stone', 'pos':'NNP', 'chunk':'I-NP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$', 'chunk':'B-NP'}, 
+      {'raw':'story', 'pos':'NN', 'chunk':'I-NP'} ]
+
+
+  def test_annotate_default_action_sub_default_group_default_iob_annotation_dict_not_in_data(self, verbosity):
+    description = 'test_annotate_default_action_sub_default_group_default_iob_annotation_dict_not_in_data'
+    method = 'annotate'
+    action = 'sub'
+    pattern = 'pos="JJ"'
+    lexicons = {}
+    annotation = {'raw':'smurf', 'pos':'NN' }
+    data = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' }, 
+      {'raw':'cup', 'pos':'NN' },
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP'}, 
+      {'raw':'Stone', 'pos':'NNP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$'}, 
+      {'raw':'story', 'pos':'NN'} ]
+    expected = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' }, {'raw':'cup', 'pos':'NN' },
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN'}, 
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP'}, {'raw':'Stone', 'pos':'NNP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$'}, {'raw':'story', 'pos':'NN'} ]
+    self.test(description, method, lexicons, pattern, data, expected, verbosity, action, annotation)
+
+  def test_annotate_default_action_sub_default_group_default_iob_annotation_dict_pattern_sequence_to_annotation_step_in_data(self, verbosity):
+    description = 'test_annotate_default_action_sub_default_group_default_iob_annotation_dict_pattern_sequence_to_annotation_step_in_data'
+    method = 'annotate'
+    action = 'sub'
+    pattern = 'pos~"(DT|PRP\$)" pos~"NN.?"'
+    lexicons = {}
+    annotation = {'raw':'smurf', 'pos':'NN' }
+    data = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' }, 
+      {'raw':'cup', 'pos':'NN' },
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP'}, 
+      {'raw':'Stone', 'pos':'NNP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$'}, 
+      {'raw':'story', 'pos':'NN'} ]
+    expected = [{'raw': 'Over', 'pos': 'IN'}, {'raw': 'smurf', 'pos': 'NN'}, {'raw': 'of', 'pos': 'IN'}, {'raw': 'coffee', 'pos': 'NN'}, {'raw': ',', 'pos': ','}, {'raw': 'Mr.', 'pos': 'NNP'}, {'raw': 'Stone', 'pos': 'NNP'}, {'raw': 'told', 'pos': 'VBD'}, {'raw': 'his', 'pos': 'PRP$'}, {'raw': 'smurf', 'pos': 'NN'}]
+    self.test(description, method, lexicons, pattern, data, expected, verbosity, action, annotation)  #def test (self, description = '', method = '', lexicons = {}, pattern = '', data = [], expected = [], verbosity = 0, action = '', annotation= {}, group = [0], iob = False, **kwargs):
+
+
+  def test_annotate_default_action_sub_group_one_default_iob_annotation_dict_pattern_in_data (self, verbosity):
+    description = 'test_annotate_default_action_sub_group_one_default_iob_annotation_dict_pattern_in_data'
+    method = 'annotate'
+    action = 'sub'
+    pattern = 'pos~"(DT|PRP\$)" (pos~"NN.?")'
+    group = [1]
+    lexicons = {}
+    annotation = {'raw':'smurf', 'pos':'NN' }
+    data = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' }, 
+      {'raw':'cup', 'pos':'NN' },
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP'}, 
+      {'raw':'Stone', 'pos':'NNP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$'}, 
+      {'raw':'story', 'pos':'NN'} ]
+    expected = [{'raw': 'Over', 'pos': 'IN'}, {'raw': 'a', 'pos': 'DT'}, {'raw': 'smurf', 'pos': 'NN'}, {'raw': 'of', 'pos': 'IN'}, {'raw': 'coffee', 'pos': 'NN'}, {'raw': ',', 'pos': ','}, {'raw': 'Mr.', 'pos': 'NNP'}, {'raw': 'Stone', 'pos': 'NNP'}, {'raw': 'told', 'pos': 'VBD'}, {'raw': 'his', 'pos': 'PRP$'}, {'raw': 'smurf', 'pos': 'NN'}]
+    self.test(description, method, lexicons, pattern, data, expected, verbosity, action, annotation, group)  
+    #def test (self, description = '', method = '', lexicons = {}, pattern = '', data = [], expected = [], verbosity = 0, action = '', annotation= {}, group = [0], iob = False, **kwargs):
+
+
+
+  def test_annotate_default_action_update_default_group_default_iob_annotation_dict_pattern_in_data(self, verbosity):
+    description = 'test_annotate_default_action_update_default_group_default_iob_annotation_dict_pattern_in_data'
+    method = 'annotate'
+    action = 'update'
+    pattern = 'pos~"(DT|PRP\$|NNP)"? pos~"NN.?"'
+    lexicons = {}
+    annotation = {'raw':'smurf', 'pos':'NN', 'chunk':'NP'}
+    data = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' }, 
+      {'raw':'cup', 'pos':'NN' },
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP'}, 
+      {'raw':'Stone', 'pos':'NNP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$'}, 
+      {'raw':'story', 'pos':'NN'} ]
+    expected = [{'pos': 'IN', 'raw': 'Over'}, {'chunk': 'NP', 'pos': 'NN', 'raw': 'smurf'}, {'chunk': 'NP', 'pos': 'NN', 'raw': 'smurf'}, {'pos': 'IN', 'raw': 'of'}, {'chunk': 'NP', 'pos': 'NN', 'raw': 'smurf'}, {'pos': ',', 'raw': ','}, {'chunk': 'NP', 'pos': 'NN', 'raw': 'smurf'}, {'chunk': 'NP', 'pos': 'NN', 'raw': 'smurf'}, {'pos': 'VBD', 'raw': 'told'}, {'chunk': 'NP', 'pos': 'NN', 'raw': 'smurf'}, {'chunk': 'NP', 'pos': 'NN', 'raw': 'smurf'}]
+    self.test(description, method, lexicons, pattern, data, expected, verbosity, action, annotation)  #def test (self, description = '', method = '', lexicons = {}, pattern = '', data = [], expected = [], verbosity = 0, action = '', annotation= {}, group = [0], iob = False, **kwargs):
+
+  def test_annotate_default_action_extend_default_group_default_iob_annotation_dict_pattern_in_data(self, verbosity):
+    description = 'test_annotate_default_action_extend_default_group_default_iob_annotation_dict_pattern_in_data'
+    method = 'annotate'
+    action = 'extend'
+    pattern = 'pos~"(DT|PRP\$|NNP)"? pos~"NN.?"'
+    lexicons = {}
+    annotation = {'raw':'smurf', 'pos':'NN', 'chunk':'NP'}
+    data = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' }, 
+      {'raw':'cup', 'pos':'NN' },
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP'}, 
+      {'raw':'Stone', 'pos':'NNP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$'}, 
+      {'raw':'story', 'pos':'NN'} ]
+    expected = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' , 'chunk':'NP'}, 
+      {'raw':'cup', 'pos':'NN' , 'chunk':'NP'},
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN', 'chunk':'NP'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP', 'chunk':'NP'}, 
+      {'raw':'Stone', 'pos':'NNP', 'chunk':'NP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$', 'chunk':'NP'}, 
+      {'raw':'story', 'pos':'NN', 'chunk':'NP'} ]
+
+    self.test(description, method, lexicons, pattern, data, expected, verbosity, action, annotation)  #def test (self, description = '', method = '', lexicons = {}, pattern = '', data = [], expected = [], verbosity = 0, action = '', annotation= {}, group = [0], iob = False, **kwargs):
+
+
+  def test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data(self, verbosity):
+    description = 'test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data'
+    method = 'annotate'
+    action = 'extend'
+    pattern = 'pos~"(DT|PRP\$|NNP)"? pos~"NN.?"'
+    lexicons = {}
+    annotation = {'chunk':'NP'}
+    data = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' }, 
+      {'raw':'cup', 'pos':'NN' },
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP'}, 
+      {'raw':'Stone', 'pos':'NNP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$'}, 
+      {'raw':'story', 'pos':'NN'} ]
+    expected = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' , 'chunk':'NP'}, 
+      {'raw':'cup', 'pos':'NN' , 'chunk':'NP'},
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN', 'chunk':'NP'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP', 'chunk':'NP'}, 
+      {'raw':'Stone', 'pos':'NNP', 'chunk':'NP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$', 'chunk':'NP'}, 
+      {'raw':'story', 'pos':'NN', 'chunk':'NP'} ]
+    self.test(description, method, lexicons, pattern, data, expected, verbosity, action, annotation)  #def test (self, description = '', method = '', lexicons = {}, pattern = '', data = [], expected = [], verbosity = 0, action = '', annotation= {}, group = [0], iob = False, **kwargs):
+
+
+  def test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data(self, verbosity):
+    description = 'test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data'
+    method = 'annotate'
+    action = 'extend'
+    pattern = 'pos~"NN.?"'
+    lexicons = {}
+    annotation = [{'raw':'smurf1'}, {'raw':'smurf2'} ]
+    iob = True
+    data = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' }, 
+      {'raw':'cup', 'pos':'NN' },
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP'}, 
+      {'raw':'Stone', 'pos':'NNP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$'}, 
+      {'raw':'story', 'pos':'NN'} ]
+    expected = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' }, 
+      {'raw':'cup', 'pos':'NN' },
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP'}, 
+      {'raw':'Stone', 'pos':'NNP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$'}, 
+      {'raw':'story', 'pos':'NN'} ]
+
+    self.test(description, method, lexicons, pattern, data, expected, verbosity, action, annotation)  #def test (self, description = '', method = '', lexicons = {}, pattern = '', data = [], expected = [], verbosity = 0, action = '', annotation= {}, group = [0], iob = False, **kwargs):
+
+
+
+  def test_annotate_default_action_extend_default_group_iob_True_annotation_sequence_by_one_dict_in_data(self, verbosity):
+    description = 'test_annotate_default_action_extend_default_group_iob_True_annotation_sequence_by_one_dict_in_data'
+    method = 'annotate'
+    action = 'extend'
+    pattern = 'pos~"(DT|PRP\$|NNP)"? pos~"NN.?"'
+    lexicons = {}
+    annotation = {'chunk':'NP'}
+    group = [0]
+    iob = True
+    data = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' }, 
+      {'raw':'cup', 'pos':'NN' },
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP'}, 
+      {'raw':'Stone', 'pos':'NNP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$'}, 
+      {'raw':'story', 'pos':'NN'} ]
+    expected = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' , 'chunk':'B-NP'}, 
+      {'raw':'cup', 'pos':'NN' , 'chunk':'I-NP'},
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN', 'chunk':'B-NP'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP', 'chunk':'B-NP'}, 
+      {'raw':'Stone', 'pos':'NNP', 'chunk':'I-NP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$', 'chunk':'B-NP'}, 
+      {'raw':'story', 'pos':'NN', 'chunk':'I-NP'} ]
+    self.test(description, method, lexicons, pattern, data, expected, verbosity, action, annotation, group, iob)  
+    #def test (self, description = '', method = '', lexicons = {}, pattern = '', data = [], expected = [], verbosity = 0, action = '', annotation= {}, group = [0], iob = False, **kwargs):
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # Declare here all the tests you want to run
@@ -433,7 +726,7 @@ class TestPyrata(object):
 
   def __init__(self):
 
-    myverbosity = 3
+    myverbosity = 1
     self.test_search_step_in_data(myverbosity)
     self.test_findall_step_in_data(myverbosity)
     self.test_finditer_step_in_data(myverbosity)
@@ -479,6 +772,16 @@ class TestPyrata(object):
     self.test_findall_step_any_not_step1_step1_in_data(myverbosity)
 
     self.test_search_groups_in_data(myverbosity)
+
+    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_in_data(myverbosity)
+    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_not_in_data(myverbosity)
+    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_pattern_sequence_to_annotation_step_in_data(myverbosity)
+    self.test_annotate_default_action_sub_group_one_default_iob_annotation_dict_pattern_in_data(myverbosity)
+    self.test_annotate_default_action_update_default_group_default_iob_annotation_dict_pattern_in_data(myverbosity)
+    self.test_annotate_default_action_extend_default_group_default_iob_annotation_dict_pattern_in_data(myverbosity)
+    self.test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data(myverbosity)
+    self.test_annotate_default_action_extend_default_group_iob_True_annotation_sequence_by_one_dict_in_data(myverbosity)
+
 
 
 

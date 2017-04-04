@@ -177,6 +177,8 @@ In that case, the operator will not be `=` but `~`
     >>> pyrata_re.findall('pos~"NN."', data)
     [[{'raw': 'expressions', 'pos': 'NNS'}], [{'raw': 'Pyrata', 'pos': 'NNP'}]]
 
+Consequently `[pos="NNS" | pos="NNP"]`, `pos~"NN[SP]"` and 'pos~"(NNS|NNP)"' are equivalent forms. They may not have the same processing time.
+
 You can also __set a list of possible values (lexicon)__. In that case, the operator will be `@` in your pattern and the value will be the name of the lexicon. The lexicon is specified as a parameter of the pyrata_re methods (`lexicons` parameter). Indeed, multiple lexicons can be specified. The data structure for storing lexicons is a dict/map of lists. Each key of the dict is the name of a lexicon, and each corresponding value a list of elements making of the lexicon.
 
     >>> pyrata_re.findall('lem@"positiveLexicon"', data, lexicons = {'positiveLexicon':['easy', 'funny']})
@@ -237,6 +239,55 @@ In order to __retrieve the contents a specific part of a match, groups can be de
 
 Have a look at test_pyrata to see a more complex example of groups use.
 
+### Data modification
+
+#### Substitution
+
+The `sub` method **substitutes the leftmost non-overlapping occurrences of pattern matches or a given group of matches by a dict or a sequence of dicts**. Returns a copy of the data obtained and by default the data unchanged.
+
+    >>> import pyrata.re as pyrata_re
+    >>> pyrata_re.sub('pos~"NN.?"', {'raw':'smurf', 'pos':'NN' }, [{'raw':'Over', 'pos':'IN'}, {'raw':'a', 'pos':'DT' }, {'raw':'cup', 'pos':'NN' }, {'raw':'of', 'pos':'IN'}, {'raw':'coffee', 'pos':'NN'}, {'raw':',', 'pos':','}, {'raw':'Mr.', 'pos':'NNP'}, {'raw':'Stone', 'pos':'NNP'}, {'raw':'told', 'pos':'VBD'}, {'raw':'his', 'pos':'PRP$'}, {'raw':'story', 'pos':'NN'}])
+    [{'raw': 'Over', 'pos': 'IN'}, {'raw': 'a', 'pos': 'DT'}, {'raw': 'smurf', 'pos': 'NN'}, {'raw': 'of', 'pos': 'IN'}, {'raw': 'smurf', 'pos': 'NN'}, {'raw': ',', 'pos': ','}, {'raw': 'smurf', 'pos': 'NN'}, {'raw': 'smurf', 'pos': 'NN'}, {'raw': 'told', 'pos': 'VBD'}, {'raw': 'his', 'pos': 'PRP$'}, {'raw': 'smurf', 'pos': 'NN'}]
+
+Here an example by modifying a group of a Match:
+
+    >>> group = [1]
+    >>> pyrata_re.sub('pos~"(DT|PRP\$)" (pos~"NN.?")', {'raw':'smurf', 'pos':'NN' }, [{'raw':'Over', 'pos':'IN'}, {'raw':'a', 'pos':'DT' }, {'raw':'cup', 'pos':'NN' }, {'raw':'of', 'pos':'IN'}, {'raw':'coffee', 'pos':'NN'}, {'raw':',', 'pos':','}, {'raw':'Mr.', 'pos':'NNP'}, {'raw':'Stone', 'pos':'NNP'}, {'raw':'told', 'pos':'VBD'}, {'raw':'his', 'pos':'PRP$'}, {'raw':'story', 'pos':'NN'}], group)
+    [{'raw': 'Over', 'pos': 'IN'}, {'raw': 'a', 'pos': 'DT'}, {'raw': 'smurf', 'pos': 'NN'}, {'raw': 'of', 'pos': 'IN'}, {'raw': 'coffee', 'pos': 'NN'}, {'raw': ',', 'pos': ','}, {'raw': 'Mr.', 'pos': 'NNP'}, {'raw': 'Stone', 'pos': 'NNP'}, {'raw': 'told', 'pos': 'VBD'}, {'raw': 'his', 'pos': 'PRP$'}, {'raw': 'smurf', 'pos': 'NN'}]
+
+To **update (and extends) the features of a match or a group of a match with the features of a dict or a sequence of dicts** (of the same size as the group/match).
+
+    >>> pyrata_re.update('(raw="Mr.")', {'raw':'Mr.', 'pos':'TITLE' }, [{'raw':'Over', 'pos':'IN'}, {'raw':'a', 'pos':'DT' }, {'raw':'cup', 'pos':'NN' }, {'raw':'of', 'pos':'IN'}, {'raw':'coffee', 'pos':'NN'}, {'raw':',', 'pos':','}, {'raw':'Mr.', 'pos':'NNP'}, {'raw':'Stone', 'pos':'NNP'}, {'raw':'told', 'pos':'VBD'}, {'raw':'his', 'pos':'PRP$'}, {'raw':'story', 'pos':'NN'}])
+    [{'raw': 'Over', 'pos': 'IN'}, {'raw': 'a', 'pos': 'DT'}, {'raw': 'cup', 'pos': 'NN'}, {'raw': 'of', 'pos': 'IN'}, {'raw': 'coffee', 'pos': 'NN'}, {'raw': ',', 'pos': ','}, {'raw': 'Mr.', 'pos': 'TITLE'}, {'raw': 'Stone', 'pos': 'NNP'}, {'raw': 'told', 'pos': 'VBD'}, {'raw': 'his', 'pos': 'PRP$'}, {'raw': 'story', 'pos': 'NN'}]
+
+To **extends (i.e. if a feature exists then do not update) the features of a match or a group of a match with the features of a dict or a sequence of dicts** (of the same size as the group/match:
+    >>> pattern = 'pos~"(DT|PRP\$|NNP)"? pos~"NN.?"'
+    >>> annotation = {'chunk':'NP'}
+    data = [ {'raw':'Over', 'pos':'IN'},  {'raw':'a', 'pos':'DT' },  {'raw':'cup', 'pos':'NN' }, {'raw':'of', 'pos':'IN'}, {'raw':'coffee', 'pos':'NN'}, {'raw':',', 'pos':','},  {'raw':'Mr.', 'pos':'NNP'},  {'raw':'Stone', 'pos':'NNP'}, {'raw':'told', 'pos':'VBD'}, {'raw':'his', 'pos':'PRP$'},  {'raw':'story', 'pos':'NN'} ]
+    >>> pyrata_re.extend(pattern, annotation, data, [0])
+    [{'pos': 'IN', 'raw': 'Over'}, {'pos': 'DT', 'raw': 'a', 'chunk': 'NP'}, {'pos': 'NN', 'raw': 'cup', 'chunk': 'NP'}, {'pos': 'IN', 'raw': 'of'}, {'pos': 'NN', 'raw': 'coffee', 'chunk': 'NP'}, {'pos': ',', 'raw': ','}, {'pos': 'NNP', 'raw': 'Mr.', 'chunk': 'NP'}, {'pos': 'NNP', 'raw': 'Stone', 'chunk': 'NP'}, {'pos': 'VBD', 'raw': 'told'}, {'pos': 'PRP$', 'raw': 'his', 'chunk': 'NP'}, {'pos': 'NN', 'raw': 'story', 'chunk': 'NP'}]
+
+    >>> pyrata_re.extend(pattern, annotation, data, [0])
+
+Both with update or extend, you can specify if the data obtained should be annotated with IOB tag prefix.
+    >>> group = [0]
+    >>> iob = True
+    >>> pyrata_re.extend(pattern, annotation, data, group, iob)
+    [{'raw': 'Over', 'pos': 'IN'}, 
+     {'raw': 'a', 'chunk': 'B-NP', 'pos': 'DT'}, {'raw': 'cup', 'chunk': 'I-NP', 'pos': 'NN'}, 
+     {'raw': 'of', 'pos': 'IN'}, {'raw': 'coffee', 'chunk': 'B-NP', 'pos': 'NN'}, 
+     {'raw': ',', 'pos': ','}, 
+     {'raw': 'Mr.', 'chunk': 'B-NP', 'pos': 'NNP'}, {'raw': 'Stone', 'chunk': 'I-NP', 'pos': 'NNP'}, 
+     {'raw': 'told', 'pos': 'VBD'}, 
+     {'raw': 'his', 'chunk': 'B-NP', 'pos': 'PRP$'}, {'raw': 'story', 'chunk': 'I-NP', 'pos': 'NN'}]
+
+
+#### FIXME
+  * 
+  * 
+  * updates|extends the features of a match or a group of a match with IOB values of the features of a dict or a sequence of dicts (of the same size as the group/match or kwargs ?
+  Return the data obtained.  If the pattern isn't found, data is returned unchanged.
+
 
 
 ### Generating the pyrata data structure
@@ -279,6 +330,7 @@ Right now (because of the issues in parsing-alternative-sequences), we will focu
 * grammar implement IOB operator to handle sequence of tokens with a BIO value as a single token
 * api/engine module re implement substitution sub/// 
 * api/engine module re implement annotate/// ; the new feature is added to the current feature structure in a BIO style
+* api/engine implement the position (from which word token position we start to search) and the search for annotate (not finditer) 
 * grammar implement operator to search the pattern from the begining ^ and/or to the end $
 * api/engine module re implement match
 * quality implement logging facility
@@ -286,6 +338,7 @@ Right now (because of the issues in parsing-alternative-sequences), we will focu
 * communication user/developer reorganize README into specific docs : quick overview vs user guide, developer guide, roadmap pages
 * quality evaluate performance http://www.marinamele.com/7-tips-to-time-python-scripts-and-control-memory-and-cpu-usage
 * quality evaluate performance comparing to pattern and python 3 chunking (see the use example and show how to do similar)
+* quality evaluate performance time `[pos="NNS" | pos="NNP"]`, `pos~"NN[SP]"` and 'pos~"(NNS|NNP)"' are equivalent forms. They may not have the same processing time.
 * quality improve performance (memory and time) ; evaluate the possibility of doing the ply way to handle the debug/tracking mode
 * grammar implement group alternative so they can be used to handle IOB-chunk operator
 * grammar implement group reference so they can be matched later in the data with the \number special sequence

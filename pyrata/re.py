@@ -9,6 +9,7 @@ from pyrata.lexer import *
 import pyrata.syntactic_analysis
 import pyrata.semantic_analysis
 
+(PREFIX_BEGIN, PREFIX_INSIDE, PREFIX_OTHER) = ('B-', 'I-', 'O-')
 
     
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -123,7 +124,115 @@ def finditer (pattern, data, **kwargs):
   compiledPattern = compile(pattern, lexicons=lexicons,  **kwargs)
 
   return compiledPattern.finditer(data, **kwargs)
- 
+
+# 16:15
+# 18 et 19 
+
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
+def annotate (pattern, annotation, data, group = [0], action = 'sub', iob = False, **kwargs): # group=[0]
+  """ 
+  Do one of the following process on a copy of the data
+  * sub/substitutes a match or a group of a match with a dict or a sequence of dicts (in case of dict we turn it into list of dict to process it the same way)
+  * updates (and extends) the features of a match or a group of a match with the features of a dict or a sequence of dicts (of the same size as the group/match
+  * extends (i.e. if a feature exists then do not update) the features of a match or a group of a match with the features of a dict or a sequence of dicts (of the same size as the group/match
+  * updates|extends the features of a match or a group of a match with IOB values of the features of a dict or a sequence of dicts (of the same size as the group/match or kwargs ?
+  Return the data obtained.  If the pattern isn't found, data is returned unchanged.
+  """
+  prefix = ''
+
+  data_copy = list(data)
+  if isinstance(annotation, dict):
+    annotation = [annotation]
+
+  iter = finditer(pattern, data)  
+  if iter != None:
+    for m in finditer(pattern, data):
+      for g in group:
+        #print ('Debug: m={} g={} start={} end={}'.format(m, g, m.start(g), m.end(g)))
+        if action == 'sub':
+          data_copy[m.start(g):m.end(g)] = annotation
+
+        elif action == 'update':
+          if len(annotation) == 1:
+            for k in annotation[0].keys():
+              for r in range (m.start(g), m.end(g)):
+                if iob and r == m.start(g): 
+                  prefix = PREFIX_BEGIN
+                elif iob: 
+                  prefix = PREFIX_INSIDE
+                data_copy[r][k] = prefix + annotation[0][k]
+          else:
+            for k in annotation[0].keys():
+              for r in range (m.start(g), m.end(g)):
+                if len(annotation) == (m.end(g) - m.start(g)): 
+                  if iob and r == m.start(g): 
+                    prefix = PREFIX_BEGIN
+                  elif iob: 
+                    prefix = PREFIX_INSIDE
+                  data_copy[r][k] = prefix + annotation[0][k]
+                else: # Verbosity not the same size
+                  data_copy = data  
+                  break
+
+        elif action == 'extend':
+          if len(annotation) == 1:
+            for k in annotation[0].keys():
+              for r in range (m.start(g), m.end(g)):
+                if k not in data_copy[r]:
+                  if iob and r == m.start(g): 
+                    prefix = PREFIX_BEGIN
+                  elif iob: 
+                    prefix = PREFIX_INSIDE
+                  data_copy[r][k] = prefix+annotation[0][k]
+          else:
+            for k in annotation[0].keys():
+              for r in range (m.start(g), m.end(g)):
+                if len(annotation) == (m.end(g) - m.start(g)):
+                  if k not in data_copy[r]:
+                    if iob and r == m.start(g): 
+                      prefix = PREFIX_BEGIN
+                    elif iob: 
+                      prefix = PREFIX_INSIDE
+                    data_copy[r][k] = prefix+annotation[0][k]
+                else: # Verbosity not the same size
+                  data_copy = data  
+                  break                   
+  return data_copy
+
+
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
+def sub (pattern, repl, data, group = [0], **kwargs):
+  """
+  Return the data obtained by replacing the leftmost non-overlapping occurrences of 
+  pattern matches or group of matches in data by the replacement repl. 
+  """
+  return annotate (pattern, repl, data, group, action = 'sub', iob = False, **kwargs)
+
+
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
+def subn (pattern, repl, data, **kwargs):
+  """
+  Perform the same operation as sub(), but return a tuple (new_string, number_of_subs_made).
+  """
+  raise Exception ("Not implemented yet !")
+
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
+def update (pattern, repl, data, group = [0], iob = False, **kwargs):
+  """
+  Return the data after updating (and extending) the features of a match or a group of a match 
+  with the features of a dict or a sequence of dicts (of the same size as the group/match). 
+  """
+  return annotate (pattern, repl, data, group, action = 'update', iob = False, **kwargs)
+
+
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
+def extend (pattern, repl, data, group = [0], iob = False, **kwargs):
+  """
+  Return the data after updating (and extending) the features of a match or a group of a match 
+  with the features of a dict or a sequence of dicts (of the same size as the group/match). 
+  """
+  action = 'extend'
+  return annotate (pattern, repl, data, group, action, iob, **kwargs)
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # Run all the tests

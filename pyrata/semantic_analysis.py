@@ -142,6 +142,8 @@ class MatchesList(object):
   #   return ml
 
   def __eq__(self, other):
+    if other == None: 
+      return False       
     matches = 0
     for s, o in zip(self.matcheslist, other.matcheslist):
       if s == o: matches += 1
@@ -150,6 +152,8 @@ class MatchesList(object):
     return False  
 
   def __ne__(self, other):
+    if other == None: 
+      return True       
     matches = 0
     for s, o in zip(self.matcheslist, other.matcheslist):
       if s == o: matches += 1
