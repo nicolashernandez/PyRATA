@@ -283,10 +283,6 @@ Both with update or extend, you can specify if the data obtained should be annot
 
 
 #### FIXME
-  * 
-  * 
-  * updates|extends the features of a match or a group of a match with IOB values of the features of a dict or a sequence of dicts (of the same size as the group/match or kwargs ?
-  Return the data obtained.  If the pattern isn't found, data is returned unchanged.
 
 
 
@@ -327,9 +323,9 @@ Right now (because of the issues in parsing-alternative-sequences), we will focu
 
 #### TODO list following a decreasing priority order.
 
+* api/engine revise annotate, sub, extend, and update method signatures for working with kwargs
 * grammar implement IOB operator to handle sequence of tokens with a BIO value as a single token
-* api/engine module re implement substitution sub/// 
-* api/engine module re implement annotate/// ; the new feature is added to the current feature structure in a BIO style
+* api/engine re implement insert, delete (sub with [] ; check), insert-to-the-leftmost (~ sub with reference)... 
 * api/engine implement the position (from which word token position we start to search) and the search for annotate (not finditer) 
 * grammar implement operator to search the pattern from the begining ^ and/or to the end $
 * api/engine module re implement match
@@ -378,7 +374,8 @@ Done...
 * module re implement compile
 * module re compiled re object implement
 * module nltk implement methods to turn nltk structures (POS tagging, chunking Tree and IOB) into the pyrata data structure 
-* make modular pyrata_re _syntactic_parser and semantic_parser : creation of syntactic_analysis, syntactic_pattern_parser, semantic_analysis, semantic_step_parser, 
+* make modular pyrata_re _syntactic_parser and semantic_parser : creation of syntactic_analysis, syntactic_pattern_parser, semantic_analysis, semantic_step_parser,
+* module re implement CRUD operations on data such as sub, update and extend features -- kind of annotation method -- (optionally in a BIO style)
 
 
 #### Communication and code quality

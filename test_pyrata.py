@@ -518,6 +518,35 @@ class TestPyrata(object):
       {'raw':'his', 'pos':'PRP$'}, {'raw':'story', 'pos':'NN'} ]
     self.test(description, method, lexicons, pattern, data, expected, verbosity, action, annotation)
 
+
+  def test_annotate_default_action_sub_default_group_default_iob_annotation_empty_in_data(self, verbosity):
+    description = 'test_annotate_default_action_sub_default_group_default_iob_annotation_empty_in_data'
+    method = 'annotate'
+    action = 'sub'
+    pattern = 'pos~"NN.?"'
+    lexicons = {}
+    annotation = []
+    data = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' }, 
+      {'raw':'cup', 'pos':'NN' },
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP'}, 
+      {'raw':'Stone', 'pos':'NNP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$'}, 
+      {'raw':'story', 'pos':'NN'} ]
+    expected = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' }, 
+      {'raw':'of', 'pos':'IN'},
+      {'raw':',', 'pos':','},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$'}]
+    self.test(description, method, lexicons, pattern, data, expected, verbosity, action, annotation)
+
+
+
   def test_annotate_default_action_sub_default_group_default_iob_annotation_dict_pattern_sequence_to_annotation_step_in_data(self, verbosity):
     description = 'test_annotate_default_action_sub_default_group_default_iob_annotation_dict_pattern_sequence_to_annotation_step_in_data'
     method = 'annotate'
@@ -658,6 +687,7 @@ class TestPyrata(object):
     pattern = 'pos~"NN.?"'
     lexicons = {}
     annotation = [{'raw':'smurf1'}, {'raw':'smurf2'} ]
+    group = [0]
     iob = True
     data = [ {'raw':'Over', 'pos':'IN'},
       {'raw':'a', 'pos':'DT' }, 
@@ -681,8 +711,8 @@ class TestPyrata(object):
       {'raw':'told', 'pos':'VBD'},
       {'raw':'his', 'pos':'PRP$'}, 
       {'raw':'story', 'pos':'NN'} ]
+    self.test(description, method, lexicons, pattern, data, expected, verbosity, action, annotation, group, iob)  
 
-    self.test(description, method, lexicons, pattern, data, expected, verbosity, action, annotation)  #def test (self, description = '', method = '', lexicons = {}, pattern = '', data = [], expected = [], verbosity = 0, action = '', annotation= {}, group = [0], iob = False, **kwargs):
 
 
 
@@ -777,6 +807,9 @@ class TestPyrata(object):
     self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_not_in_data(myverbosity)
     self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_pattern_sequence_to_annotation_step_in_data(myverbosity)
     self.test_annotate_default_action_sub_group_one_default_iob_annotation_dict_pattern_in_data(myverbosity)
+    self.test_annotate_default_action_sub_default_group_default_iob_annotation_empty_in_data(myverbosity)
+
+
     self.test_annotate_default_action_update_default_group_default_iob_annotation_dict_pattern_in_data(myverbosity)
     self.test_annotate_default_action_extend_default_group_default_iob_annotation_dict_pattern_in_data(myverbosity)
     self.test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data(myverbosity)

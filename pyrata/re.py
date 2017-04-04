@@ -144,13 +144,16 @@ def annotate (pattern, annotation, data, group = [0], action = 'sub', iob = Fals
   if isinstance(annotation, dict):
     annotation = [annotation]
 
-  iter = finditer(pattern, data)  
+  iter = finditer(pattern, data) #reversed([finditer(pattern, data)])  
   if iter != None:
-    for m in finditer(pattern, data):
+    size = 0
+    for m in iter:
       for g in group:
         #print ('Debug: m={} g={} start={} end={}'.format(m, g, m.start(g), m.end(g)))
         if action == 'sub':
           data_copy[m.start(g):m.end(g)] = annotation
+#          data_copy[m.start(g)-size:m.end(g)-size] = annotation
+          #size = m.end(g) - m.start(g)
 
         elif action == 'update':
           if len(annotation) == 1:
