@@ -71,7 +71,8 @@ class TestPyrata(object):
       self.testSuccess += 1
     else:
       if verbosity >0:
-        print ('Result:\tFAIL')
+        print ('Result:\tFAIL') 
+        #exit()
     self.testCounter +=1
 
     if verbosity >0:
@@ -555,17 +556,21 @@ class TestPyrata(object):
     lexicons = {}
     annotation = {'raw':'smurf', 'pos':'NN' }
     data = [ {'raw':'Over', 'pos':'IN'},
-      {'raw':'a', 'pos':'DT' }, 
-      {'raw':'cup', 'pos':'NN' },
+      {'raw':'a', 'pos':'DT' }, {'raw':'cup', 'pos':'NN' },
       {'raw':'of', 'pos':'IN'},
       {'raw':'coffee', 'pos':'NN'},
       {'raw':',', 'pos':','},
-      {'raw':'Mr.', 'pos':'NNP'}, 
-      {'raw':'Stone', 'pos':'NNP'},
+      {'raw':'Mr.', 'pos':'NNP'}, {'raw':'Stone', 'pos':'NNP'},
       {'raw':'told', 'pos':'VBD'},
-      {'raw':'his', 'pos':'PRP$'}, 
-      {'raw':'story', 'pos':'NN'} ]
-    expected = [{'raw': 'Over', 'pos': 'IN'}, {'raw': 'smurf', 'pos': 'NN'}, {'raw': 'of', 'pos': 'IN'}, {'raw': 'coffee', 'pos': 'NN'}, {'raw': ',', 'pos': ','}, {'raw': 'Mr.', 'pos': 'NNP'}, {'raw': 'Stone', 'pos': 'NNP'}, {'raw': 'told', 'pos': 'VBD'}, {'raw': 'his', 'pos': 'PRP$'}, {'raw': 'smurf', 'pos': 'NN'}]
+      {'raw':'his', 'pos':'PRP$'}, {'raw':'story', 'pos':'NN'} ]
+    expected = [{'raw': 'Over', 'pos': 'IN'}, 
+      {'raw': 'smurf', 'pos': 'NN'}, 
+      {'raw': 'of', 'pos': 'IN'}, 
+      {'raw': 'coffee', 'pos': 'NN'}, 
+      {'raw': ',', 'pos': ','}, 
+      {'raw': 'Mr.', 'pos': 'NNP'}, {'raw': 'Stone', 'pos': 'NNP'}, 
+      {'raw': 'told', 'pos': 'VBD'}, 
+      {'raw': 'smurf', 'pos': 'NN'}]
     self.test(description, method, lexicons, pattern, data, expected, verbosity, action, annotation)  #def test (self, description = '', method = '', lexicons = {}, pattern = '', data = [], expected = [], verbosity = 0, action = '', annotation= {}, group = [0], iob = False, **kwargs):
 
 

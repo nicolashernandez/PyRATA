@@ -87,6 +87,8 @@ If you do not properly install pyrata, you will have to manually install ply.
 
     python3 test_pyrata.py
 
+Only one test should fail. The one named `test_search_any_class_step_error_step_in_data`. It is due to a `syntactic parsing error - unexpected token type="NAME" with value="pos" at position 35. Search an error before this point.` So far the process of a pattern is not stopped when it encounters a parsing error, we would like to prevent this behavior (expected result). So the current obtained result differs from the one expected, and consequently gives a fail.
+
 
 ## Quick overview (in console)
 -----------------
@@ -243,36 +245,65 @@ Have a look at test_pyrata to see a more complex example of groups use.
 
 #### Substitution
 
-The `sub` method **substitutes the leftmost non-overlapping occurrences of pattern matches or a given group of matches by a dict or a sequence of dicts**. Returns a copy of the data obtained and by default the data unchanged.
+The `sub(pattern, annotation, replacement, group = [0])` method **substitutes the leftmost non-overlapping occurrences of pattern matches or a given group of matches by a dict or a sequence of dicts**. Returns a copy of the data obtained and by default the data unchanged.
 
     >>> import pyrata.re as pyrata_re
-    >>> pyrata_re.sub('pos~"NN.?"', {'raw':'smurf', 'pos':'NN' }, [{'raw':'Over', 'pos':'IN'}, {'raw':'a', 'pos':'DT' }, {'raw':'cup', 'pos':'NN' }, {'raw':'of', 'pos':'IN'}, {'raw':'coffee', 'pos':'NN'}, {'raw':',', 'pos':','}, {'raw':'Mr.', 'pos':'NNP'}, {'raw':'Stone', 'pos':'NNP'}, {'raw':'told', 'pos':'VBD'}, {'raw':'his', 'pos':'PRP$'}, {'raw':'story', 'pos':'NN'}])
-    [{'raw': 'Over', 'pos': 'IN'}, {'raw': 'a', 'pos': 'DT'}, {'raw': 'smurf', 'pos': 'NN'}, {'raw': 'of', 'pos': 'IN'}, {'raw': 'smurf', 'pos': 'NN'}, {'raw': ',', 'pos': ','}, {'raw': 'smurf', 'pos': 'NN'}, {'raw': 'smurf', 'pos': 'NN'}, {'raw': 'told', 'pos': 'VBD'}, {'raw': 'his', 'pos': 'PRP$'}, {'raw': 'smurf', 'pos': 'NN'}]
+    >>> pattern = 'pos~"NN.?"'
+    >>> annotation = {'raw':'smurf', 'pos':'NN' }
+    >>> data = [ {'raw':'Over', 'pos':'IN'},  
+          {'raw':'a', 'pos':'DT' },  {'raw':'cup', 'pos':'NN' }, 
+          {'raw':'of', 'pos':'IN'}, 
+          {'raw':'coffee', 'pos':'NN'}, 
+          {'raw':',', 'pos':','},  
+          {'raw':'Mr.', 'pos':'NNP'},  {'raw':'Stone', 'pos':'NNP'}, 
+          {'raw':'told', 'pos':'VBD'}, 
+          {'raw':'his', 'pos':'PRP$'},  {'raw':'story', 'pos':'NN'} ]    
+    >>> pyrata_re.sub(pattern, annotation, data)
+    [{'raw': 'Over', 'pos': 'IN'}, 
+    {'raw': 'a', 'pos': 'DT'}, {'raw': 'smurf', 'pos': 'NN'},
+    {'raw': 'of', 'pos': 'IN'}, 
+    {'raw': 'smurf', 'pos': 'NN'}, 
+    {'raw': ',', 'pos': ','}, 
+    {'raw': 'smurf', 'pos': 'NN'}, {'raw': 'smurf', 'pos': 'NN'}, 
+    {'raw': 'told', 'pos': 'VBD'}, 
+    {'raw': 'his', 'pos': 'PRP$'}, {'raw': 'smurf', 'pos': 'NN'}]
 
 Here an example by modifying a group of a Match:
 
-    >>> group = [1]
-    >>> pyrata_re.sub('pos~"(DT|PRP\$)" (pos~"NN.?")', {'raw':'smurf', 'pos':'NN' }, [{'raw':'Over', 'pos':'IN'}, {'raw':'a', 'pos':'DT' }, {'raw':'cup', 'pos':'NN' }, {'raw':'of', 'pos':'IN'}, {'raw':'coffee', 'pos':'NN'}, {'raw':',', 'pos':','}, {'raw':'Mr.', 'pos':'NNP'}, {'raw':'Stone', 'pos':'NNP'}, {'raw':'told', 'pos':'VBD'}, {'raw':'his', 'pos':'PRP$'}, {'raw':'story', 'pos':'NN'}], group)
+    >>> pyrata_re.sub('pos~"(DT|PRP\$)" (pos~"NN.?")', {'raw':'smurf', 'pos':'NN' }, [{'raw':'Over', 'pos':'IN'}, {'raw':'a', 'pos':'DT' }, {'raw':'cup', 'pos':'NN' }, {'raw':'of', 'pos':'IN'}, {'raw':'coffee', 'pos':'NN'}, {'raw':',', 'pos':','}, {'raw':'Mr.', 'pos':'NNP'}, {'raw':'Stone', 'pos':'NNP'}, {'raw':'told', 'pos':'VBD'}, {'raw':'his', 'pos':'PRP$'}, {'raw':'story', 'pos':'NN'}], group = [1])
     [{'raw': 'Over', 'pos': 'IN'}, {'raw': 'a', 'pos': 'DT'}, {'raw': 'smurf', 'pos': 'NN'}, {'raw': 'of', 'pos': 'IN'}, {'raw': 'coffee', 'pos': 'NN'}, {'raw': ',', 'pos': ','}, {'raw': 'Mr.', 'pos': 'NNP'}, {'raw': 'Stone', 'pos': 'NNP'}, {'raw': 'told', 'pos': 'VBD'}, {'raw': 'his', 'pos': 'PRP$'}, {'raw': 'smurf', 'pos': 'NN'}]
 
-To **update (and extends) the features of a match or a group of a match with the features of a dict or a sequence of dicts** (of the same size as the group/match).
+To completely remove some parts of the data, the anotation should be an empty list `[]`.
+
+
+The `update(pattern, annotation, replacement, group = [0], iob = False)` method **updates (and extends) the features of a match or a group of a match with the features of a dict or a sequence of dicts** (of the same size as the group/match).
 
     >>> pyrata_re.update('(raw="Mr.")', {'raw':'Mr.', 'pos':'TITLE' }, [{'raw':'Over', 'pos':'IN'}, {'raw':'a', 'pos':'DT' }, {'raw':'cup', 'pos':'NN' }, {'raw':'of', 'pos':'IN'}, {'raw':'coffee', 'pos':'NN'}, {'raw':',', 'pos':','}, {'raw':'Mr.', 'pos':'NNP'}, {'raw':'Stone', 'pos':'NNP'}, {'raw':'told', 'pos':'VBD'}, {'raw':'his', 'pos':'PRP$'}, {'raw':'story', 'pos':'NN'}])
     [{'raw': 'Over', 'pos': 'IN'}, {'raw': 'a', 'pos': 'DT'}, {'raw': 'cup', 'pos': 'NN'}, {'raw': 'of', 'pos': 'IN'}, {'raw': 'coffee', 'pos': 'NN'}, {'raw': ',', 'pos': ','}, {'raw': 'Mr.', 'pos': 'TITLE'}, {'raw': 'Stone', 'pos': 'NNP'}, {'raw': 'told', 'pos': 'VBD'}, {'raw': 'his', 'pos': 'PRP$'}, {'raw': 'story', 'pos': 'NN'}]
 
-To **extends (i.e. if a feature exists then do not update) the features of a match or a group of a match with the features of a dict or a sequence of dicts** (of the same size as the group/match:
+The `extend(pattern, annotation, replacement, group = [0], iob = False)` method **extends (i.e. if a feature exists then do not update) the features of a match or a group of a match with the features of a dict or a sequence of dicts** (of the same size as the group/match:
     >>> pattern = 'pos~"(DT|PRP\$|NNP)"? pos~"NN.?"'
     >>> annotation = {'chunk':'NP'}
-    data = [ {'raw':'Over', 'pos':'IN'},  {'raw':'a', 'pos':'DT' },  {'raw':'cup', 'pos':'NN' }, {'raw':'of', 'pos':'IN'}, {'raw':'coffee', 'pos':'NN'}, {'raw':',', 'pos':','},  {'raw':'Mr.', 'pos':'NNP'},  {'raw':'Stone', 'pos':'NNP'}, {'raw':'told', 'pos':'VBD'}, {'raw':'his', 'pos':'PRP$'},  {'raw':'story', 'pos':'NN'} ]
-    >>> pyrata_re.extend(pattern, annotation, data, [0])
-    [{'pos': 'IN', 'raw': 'Over'}, {'pos': 'DT', 'raw': 'a', 'chunk': 'NP'}, {'pos': 'NN', 'raw': 'cup', 'chunk': 'NP'}, {'pos': 'IN', 'raw': 'of'}, {'pos': 'NN', 'raw': 'coffee', 'chunk': 'NP'}, {'pos': ',', 'raw': ','}, {'pos': 'NNP', 'raw': 'Mr.', 'chunk': 'NP'}, {'pos': 'NNP', 'raw': 'Stone', 'chunk': 'NP'}, {'pos': 'VBD', 'raw': 'told'}, {'pos': 'PRP$', 'raw': 'his', 'chunk': 'NP'}, {'pos': 'NN', 'raw': 'story', 'chunk': 'NP'}]
+    >>> data = [ {'raw':'Over', 'pos':'IN'},  
+          {'raw':'a', 'pos':'DT' },  {'raw':'cup', 'pos':'NN' }, 
+          {'raw':'of', 'pos':'IN'}, 
+          {'raw':'coffee', 'pos':'NN'}, 
+          {'raw':',', 'pos':','},  
+          {'raw':'Mr.', 'pos':'NNP'},  {'raw':'Stone', 'pos':'NNP'}, 
+          {'raw':'told', 'pos':'VBD'}, 
+          {'raw':'his', 'pos':'PRP$'},  {'raw':'story', 'pos':'NN'} ]
+    >>> pyrata_re.extend(pattern, annotation, data)
+    [{'pos': 'IN', 'raw': 'Over'}, 
+    {'pos': 'DT', 'raw': 'a', 'chunk': 'NP'}, {'pos': 'NN', 'raw': 'cup', 'chunk': 'NP'}, 
+    {'pos': 'IN', 'raw': 'of'}, 
+    {'pos': 'NN', 'raw': 'coffee', 'chunk': 'NP'}, 
+    {'pos': ',', 'raw': ','}, 
+    {'pos': 'NNP', 'raw': 'Mr.', 'chunk': 'NP'}, {'pos': 'NNP', 'raw': 'Stone', 'chunk': 'NP'}, 
+    {'pos': 'VBD', 'raw': 'told'}, 
+    {'pos': 'PRP$', 'raw': 'his', 'chunk': 'NP'}, {'pos': 'NN', 'raw': 'story', 'chunk': 'NP'}]
 
-    >>> pyrata_re.extend(pattern, annotation, data, [0])
-
-Both with update or extend, you can specify if the data obtained should be annotated with IOB tag prefix.
-    >>> group = [0]
-    >>> iob = True
-    >>> pyrata_re.extend(pattern, annotation, data, group, iob)
+Both with update or extend, you can specify if the data obtained should be annotated with IOB tag prefix. 
+    >>> pyrata_re.extend(pattern, annotation, data, iob = True)
     [{'raw': 'Over', 'pos': 'IN'}, 
      {'raw': 'a', 'chunk': 'B-NP', 'pos': 'DT'}, {'raw': 'cup', 'chunk': 'I-NP', 'pos': 'NN'}, 
      {'raw': 'of', 'pos': 'IN'}, {'raw': 'coffee', 'chunk': 'B-NP', 'pos': 'NN'}, 
@@ -280,9 +311,6 @@ Both with update or extend, you can specify if the data obtained should be annot
      {'raw': 'Mr.', 'chunk': 'B-NP', 'pos': 'NNP'}, {'raw': 'Stone', 'chunk': 'I-NP', 'pos': 'NNP'}, 
      {'raw': 'told', 'pos': 'VBD'}, 
      {'raw': 'his', 'chunk': 'B-NP', 'pos': 'PRP$'}, {'raw': 'story', 'chunk': 'I-NP', 'pos': 'NN'}]
-
-
-#### FIXME
 
 
 

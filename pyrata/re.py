@@ -151,9 +151,9 @@ def annotate (pattern, annotation, data, group = [0], action = 'sub', iob = Fals
       for g in group:
         #print ('Debug: m={} g={} start={} end={}'.format(m, g, m.start(g), m.end(g)))
         if action == 'sub':
-          data_copy[m.start(g):m.end(g)] = annotation
-#          data_copy[m.start(g)-size:m.end(g)-size] = annotation
-          #size = m.end(g) - m.start(g)
+#          data_copy[m.start(g):m.end(g)] = annotation
+          data_copy[m.start(g)+size:m.end(g)+size] = annotation
+          size +=  len(annotation) - (m.end(g) - m.start(g)) 
 
         elif action == 'update':
           if len(annotation) == 1:
@@ -225,7 +225,7 @@ def update (pattern, repl, data, group = [0], iob = False, **kwargs):
   Return the data after updating (and extending) the features of a match or a group of a match 
   with the features of a dict or a sequence of dicts (of the same size as the group/match). 
   """
-  return annotate (pattern, repl, data, group, action = 'update', iob = False, **kwargs)
+  return annotate (pattern, repl, data, group = group, action = 'update', iob = iob, **kwargs)
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
@@ -234,8 +234,7 @@ def extend (pattern, repl, data, group = [0], iob = False, **kwargs):
   Return the data after updating (and extending) the features of a match or a group of a match 
   with the features of a dict or a sequence of dicts (of the same size as the group/match). 
   """
-  action = 'extend'
-  return annotate (pattern, repl, data, group, action, iob, **kwargs)
+  return annotate (pattern, repl, data, group = group, action = extend, iob = iob, **kwargs)
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # Run all the tests
