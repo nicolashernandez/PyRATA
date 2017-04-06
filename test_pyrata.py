@@ -761,64 +761,64 @@ class TestPyrata(object):
 
   def __init__(self):
 
-    myverbosity = 1
-    self.test_search_step_in_data(myverbosity)
-    self.test_findall_step_in_data(myverbosity)
-    self.test_finditer_step_in_data(myverbosity)
+    myverbosity = 3
+    # self.test_search_step_in_data(myverbosity)
+    # self.test_findall_step_in_data(myverbosity)
+    # self.test_finditer_step_in_data(myverbosity)
 
-    self.test_search_step_absent_in_data(myverbosity)
-    self.test_findall_step_absent_in_data(myverbosity)
+    # self.test_search_step_absent_in_data(myverbosity)
+    # self.test_findall_step_absent_in_data(myverbosity)
 
-    self.test_search_class_step_in_data(myverbosity)
-    self.test_search_rich_class_step_in_data(myverbosity)
+    # self.test_search_class_step_in_data(myverbosity)
+    # self.test_search_rich_class_step_in_data(myverbosity)
 
-    self.test_findall_regex_step_in_data(myverbosity)
-    self.test_findall_lexicon_step_in_data(myverbosity)
-    self.test_findall_undefined_lexicon_step_in_data(myverbosity)
+    # self.test_findall_regex_step_in_data(myverbosity)
+    # self.test_findall_lexicon_step_in_data(myverbosity)
+    # self.test_findall_undefined_lexicon_step_in_data(myverbosity)
 
-    self.test_findall_multiple_lexicon_step_in_data(myverbosity)
+    # self.test_findall_multiple_lexicon_step_in_data(myverbosity)
 
-    self.test_search_optional_step_in_data(myverbosity)
-    self.test_findall_optional_step_in_data(myverbosity)
+    # self.test_search_optional_step_in_data(myverbosity)
+    # self.test_findall_optional_step_in_data(myverbosity)
     
-    self.test_findall_step_step_in_data(myverbosity)
+    # self.test_findall_step_step_in_data(myverbosity)
 
-    self.test_findall_optional_step_step_in_data(myverbosity)
-    self.test_findall_any_step_step_in_data(myverbosity)
-    self.test_findall_at_least_one_step_step_in_data(myverbosity)
+    # self.test_findall_optional_step_step_in_data(myverbosity)
+    # self.test_findall_any_step_step_in_data(myverbosity)
+    # self.test_findall_at_least_one_step_step_in_data(myverbosity)
 
-    self.test_findall_any_step_step_nbar_in_data(myverbosity)
-    self.test_findall_at_least_one_step_step_nbar_in_data(myverbosity)
+    # self.test_findall_any_step_step_nbar_in_data(myverbosity)
+    # self.test_findall_at_least_one_step_step_nbar_in_data(myverbosity)
 
-    self.test_findall_step_step_partially_matched_in_data_ending(myverbosity)
-    self.test_findall_optional_step_step_partially_matched_in_data_ending(myverbosity)
-    self.test_findall_any_step_step_partially_matched_in_data_ending(myverbosity)
-    self.test_findall_at_least_one_step_step_partially_matched_in_data_ending(myverbosity)
+    # self.test_findall_step_step_partially_matched_in_data_ending(myverbosity)
+    # self.test_findall_optional_step_step_partially_matched_in_data_ending(myverbosity)
+    # self.test_findall_any_step_step_partially_matched_in_data_ending(myverbosity)
+    # self.test_findall_at_least_one_step_step_partially_matched_in_data_ending(myverbosity)
 
-    self.test_findall_step_at_least_one_not_step_step_in_data(myverbosity)
-    self.test_findall_step_present_optional_step_step_in_data(myverbosity)
-    self.test_findall_step_absent_optional_step_step_in_data(myverbosity)
+    # self.test_findall_step_at_least_one_not_step_step_in_data(myverbosity)
+    # self.test_findall_step_present_optional_step_step_in_data(myverbosity)
+    # self.test_findall_step_absent_optional_step_step_in_data(myverbosity)
 
-    self.test_findall_step_optional_step_in_data(myverbosity)
-    self.test_findall_step_any_step_in_data(myverbosity)
-    self.test_findall_step_optinal_step_optional_step_step_in_data(myverbosity)
+    # self.test_findall_step_optional_step_in_data(myverbosity)
+    # self.test_findall_step_any_step_in_data(myverbosity)
+    # self.test_findall_step_optinal_step_optional_step_step_in_data(myverbosity)
 
-    self.test_search_any_class_step_error_step_in_data(myverbosity)
-    self.test_findall_step_any_not_step1_step1_in_data(myverbosity)
+    # self.test_search_any_class_step_error_step_in_data(myverbosity)
+    # self.test_findall_step_any_not_step1_step1_in_data(myverbosity)
 
     self.test_search_groups_in_data(myverbosity)
 
-    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_in_data(myverbosity)
-    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_not_in_data(myverbosity)
-    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_pattern_sequence_to_annotation_step_in_data(myverbosity)
-    self.test_annotate_default_action_sub_group_one_default_iob_annotation_dict_pattern_in_data(myverbosity)
-    self.test_annotate_default_action_sub_default_group_default_iob_annotation_empty_in_data(myverbosity)
+    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_in_data(myverbosity)
+    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_not_in_data(myverbosity)
+    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_pattern_sequence_to_annotation_step_in_data(myverbosity)
+    # self.test_annotate_default_action_sub_group_one_default_iob_annotation_dict_pattern_in_data(myverbosity)
+    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_empty_in_data(myverbosity)
 
 
-    self.test_annotate_default_action_update_default_group_default_iob_annotation_dict_pattern_in_data(myverbosity)
-    self.test_annotate_default_action_extend_default_group_default_iob_annotation_dict_pattern_in_data(myverbosity)
-    self.test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data(myverbosity)
-    self.test_annotate_default_action_extend_default_group_iob_True_annotation_sequence_by_one_dict_in_data(myverbosity)
+    # self.test_annotate_default_action_update_default_group_default_iob_annotation_dict_pattern_in_data(myverbosity)
+    # self.test_annotate_default_action_extend_default_group_default_iob_annotation_dict_pattern_in_data(myverbosity)
+    # self.test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data(myverbosity)
+    # self.test_annotate_default_action_extend_default_group_iob_True_annotation_sequence_by_one_dict_in_data(myverbosity)
 
 
 

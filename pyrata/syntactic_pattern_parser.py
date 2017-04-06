@@ -82,11 +82,15 @@ class SyntacticPatternParser(object):
         self.log(p, '(p_quantified_step_group_list->quantified_step_group)')
       elif len(p) == 3:
         self.log(p, '(p_quantified_step_group_list->p_quantified_step_group_list quantified_step_group)')
+
+    # get the start and the end of the part of the pattern recognized by the current rule 
     startpositionleftsymbol, endpositionleftsymbol = p.lexspan(1)
     if p.lexer.lexpos > len(p.lexer.lexdata):
       previouslextokenendposition = len(p.lexer.lexdata)
     else:
       previouslextokenendposition = p.lexer.lexpos - len(p.lexer.lexTokenEndDict[p.lexer.lexpos].value)
+
+    # store the last couple of quantified step position which delimits a group candidate
     #print ('   Debug: p_quantified_step_group_list - lexdata from {} to {}'.format(startpositionleftsymbol, previouslextokenendposition))    
     if startpositionleftsymbol in p.lexer.quantified_step_start: # and previouslextokenendposition in p.lexer.quantified_step_end:
       #p.lexer.last_group_offsets_candidate = [p.lexer.quantified_step_start[startpositionleftsymbol],p.lexer.quantified_step_end[previouslextokenendposition]]    
@@ -108,6 +112,8 @@ class SyntacticPatternParser(object):
       else:
         self.log(p, '(quantified_step_group->LPAREN p_quantified_step_group_list RPAREN)')
         #p.lexer.group_pattern_offsets_group_list.append([p.lexer.last_group_offsets_candidate[0],p.lexer.last_group_offsets_candidate[1]])
+  
+    # the rule which recognize a group matches so we definitively store the last couple of quantified step position as a group (at least for the first position)
     if len(p) == 4:    
       p.lexer.group_pattern_offsets_group_list.append([p.lexer.last_group_offsets_candidate[0],p.lexer.quantified_step_index])
       if self.verbosity >2:
@@ -140,13 +146,14 @@ class SyntacticPatternParser(object):
       elif len(p) == 3:
         self.log(p, '(p_quantified_step->step QUANTIFIER)')
 
-     
+    # get the start and the end of the part of the pattern recognized by the current rule 
     startpositionleftsymbol, endpositionleftsymbol = p.lexspan(1)
     if p.lexer.lexpos > len(p.lexer.lexdata):
       previouslextokenendposition = len(p.lexer.lexdata)
     else:
       previouslextokenendposition = p.lexer.lexpos - len(p.lexer.lexTokenEndDict[p.lexer.lexpos].value)
 
+    # store the corresponding quantified step at the character position start and end 
     p.lexer.quantified_step_start[startpositionleftsymbol] = p.lexer.quantified_step_index
     p.lexer.quantified_step_end[previouslextokenendposition] = p.lexer.quantified_step_index +1
     p.lexer.quantified_step_index += 1
