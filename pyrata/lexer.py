@@ -178,6 +178,16 @@ class Lexer(object):
     self.lexer.last_group_offsets_candidate = []
     # list of group offsets e.g. [[start_i, end_i], [start_j, end_j], [start_k, end_k]]
     self.lexer.group_pattern_offsets_group_list = []
+    # to prevent from duplicate step counting (wo then wi parenthesis) 
+    # Production= (quantified_step_group->step_group) raw="is"
+    #   Debug: quantified_step_index++
+    #   Debug: store the step offsets corresponding to the character positions of lexdata i.e. 10->2 to 18->3
+    # Production= (step_group->LPAREN step_group_class RPAREN) (raw="is") 
+    #   Debug: group detected from 1 to 2 step(s)
+    # Production= (quantified_step_group->step_group) (raw="is") 
+    #   Debug: quantified_step_index++
+    #   Debug: store the step offsets corresponding to the character positions of lexdata i.e. 9->3 to 20->4
+    self.lexer.step_already_counted = 0
 
   def build(self, pattern, **kwargs):
     """

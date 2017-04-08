@@ -48,7 +48,7 @@ class SyntacticPatternParser(object):
       self.log(p, '(expression->...)')
 
     if self.verbosity >2:  
-      print ('  ','Syntactic structure parsed: {}'.format(p.lexer.pattern_steps))
+      print ('Debug: Syntactic structure parsed: {}'.format(p.lexer.pattern_steps))
       print ('Debug: group_pattern_offsets_group_list=',p.lexer.group_pattern_offsets_group_list)
     ordered_list = []
     list_to_order = p.lexer.group_pattern_offsets_group_list
@@ -75,13 +75,13 @@ class SyntacticPatternParser(object):
 # _______________________________________________________________
   def p_quantified_step_group_list(self, p): 
     ''' quantified_step_group_list : quantified_step_group_list quantified_step_group
-                             | quantified_step_group   '''
+                                    | quantified_step_group   '''
     if self.verbosity >1:
       self.setPatternStep(p)
       if len(p) == 2:
-        self.log(p, '(p_quantified_step_group_list->quantified_step_group)')
+        self.log(p, '(quantified_step_group_list->quantified_step_group)')
       elif len(p) == 3:
-        self.log(p, '(p_quantified_step_group_list->p_quantified_step_group_list quantified_step_group)')
+        self.log(p, '(quantified_step_group_list->quantified_step_group_list quantified_step_group)')
 
     # get the start and the end of the part of the pattern recognized by the current rule 
     startpositionleftsymbol, endpositionleftsymbol = p.lexspan(1)
@@ -96,105 +96,163 @@ class SyntacticPatternParser(object):
       #p.lexer.last_group_offsets_candidate = [p.lexer.quantified_step_start[startpositionleftsymbol],p.lexer.quantified_step_end[previouslextokenendposition]]    
       p.lexer.last_group_offsets_candidate = [p.lexer.quantified_step_start[startpositionleftsymbol],p.lexer.quantified_step_index]    
       if self.verbosity >2:
-        print ('   Debug: p_quantified_step_group_list - set last_group_offsets_candidate wi lexdata from {} to {}'.format(startpositionleftsymbol, previouslextokenendposition))    
+        print ('      Debug: set last_group_offsets_candidate wi lexdata from {} to {}'.format(startpositionleftsymbol, previouslextokenendposition))    
     else:
       if self.verbosity >2:
-        print ('   Debug: p_quantified_step_group_list - do not set last_group_offsets_candidate wi lexdata from {} to {}'.format(startpositionleftsymbol, previouslextokenendposition))    
+        print ('      Debug: do not set last_group_offsets_candidate wi lexdata from {} to {}'.format(startpositionleftsymbol, previouslextokenendposition))    
 
 # _______________________________________________________________
-  def p_quantified_step_group(self, p): 
-    ''' quantified_step_group : quantified_step
-                    | LPAREN quantified_step_group_list RPAREN   '''
-    if self.verbosity >1:
-      self.setPatternStep(p)
-      if len(p) == 2:
-        self.log(p, '(quantified_step_group->quantified_step)')
-      else:
-        self.log(p, '(quantified_step_group->LPAREN p_quantified_step_group_list RPAREN)')
-        #p.lexer.group_pattern_offsets_group_list.append([p.lexer.last_group_offsets_candidate[0],p.lexer.last_group_offsets_candidate[1]])
+  # def p_quantified_step_group(self, p): 
+  #   ''' quantified_step_group : quantified_step
+  #                   | LPAREN quantified_step_group_list RPAREN   '''
+  #   if self.verbosity >1:
+  #     self.setPatternStep(p)
+  #     if len(p) == 2:
+  #       self.log(p, '(quantified_step_group->quantified_step)')
+  #     else:
+  #       self.log(p, '(quantified_step_group->LPAREN p_quantified_step_group_list RPAREN)')
+  #       #p.lexer.group_pattern_offsets_group_list.append([p.lexer.last_group_offsets_candidate[0],p.lexer.last_group_offsets_candidate[1]])
   
-    # the rule which recognize a group matches so we definitively store the last couple of quantified step position as a group (at least for the first position)
-    if len(p) == 4:    
-      p.lexer.group_pattern_offsets_group_list.append([p.lexer.last_group_offsets_candidate[0],p.lexer.quantified_step_index])
-      if self.verbosity >2:
-        print ('      group detected from {} to {}'.format(p.lexer.last_group_offsets_candidate[0],p.lexer.last_group_offsets_candidate[1]))
+  #   # the rule which recognize a group matches so we definitively store the last couple of quantified step position as a group (at least for the first position)
+  #   if len(p) == 4:    
+  #     p.lexer.group_pattern_offsets_group_list.append([p.lexer.last_group_offsets_candidate[0],p.lexer.quantified_step_index])
+  #     if self.verbosity >2:
+  #       print ('      group detected from {} to {}'.format(p.lexer.last_group_offsets_candidate[0],p.lexer.last_group_offsets_candidate[1]))
         
 
 # _______________________________________________________________
-  def p_quantified_step(self, p):
-    '''quantified_step : step 
-            | step OPTION
-            | step ATLEASTONE 
-            | step ANY 
+  def p_quantified_step_group(self, p):
+    ''' quantified_step_group : step_group
+            | step_group OPTION
+            | step_group ATLEASTONE 
+            | step_group ANY 
             ''' 
 
-    if len(p) == 2:
-      p.lexer.pattern_steps.append([None, p[1]])
-    elif p[2] == '*':
-      p.lexer.pattern_steps.append(['*', p[1]])
-    elif p[2] == '+':
-      p.lexer.pattern_steps.append(['+', p[1]])
-    elif p[2] == '?':  
-      p.lexer.pattern_steps.append(['?', p[1]])
-#    else:
-#      print ('Debug: LPAREN quantified_step_list RPAREN from {} to {}'.format())
 
     if self.verbosity >1:
       self.setPatternStep(p)  
       if len(p) == 2:
-        self.log(p, '(p_quantified_step->step)')
+        self.log(p, '(quantified_step_group->step_group)')
       elif len(p) == 3:
-        self.log(p, '(p_quantified_step->step QUANTIFIER)')
+        self.log(p, '(quantified_step_group->step_group QUANTIFIER)')
 
-    # get the start and the end of the part of the pattern recognized by the current rule 
-    startpositionleftsymbol, endpositionleftsymbol = p.lexspan(1)
-    if p.lexer.lexpos > len(p.lexer.lexdata):
-      previouslextokenendposition = len(p.lexer.lexdata)
-    else:
-      previouslextokenendposition = p.lexer.lexpos - len(p.lexer.lexTokenEndDict[p.lexer.lexpos].value)
+    if p.lexer.step_already_counted == 0:
 
-    # store the corresponding quantified step at the character position start and end 
-    p.lexer.quantified_step_start[startpositionleftsymbol] = p.lexer.quantified_step_index
-    p.lexer.quantified_step_end[previouslextokenendposition] = p.lexer.quantified_step_index +1
-    p.lexer.quantified_step_index += 1
-    if self.verbosity >2:
-      print ('   Debug: p_quantified_step - lexdata from {} to {}'.format(startpositionleftsymbol, previouslextokenendposition))
+    # to prevent from duplicate step counting (wo then wi parenthesis), pattern_step storing... 
+    # Production= (quantified_step_group->step_group) raw="is"
+    #   Debug: quantified_step_index++
+    #   Debug: store the step offsets corresponding to the character positions of lexdata i.e. 10->2 to 18->3
+    # Production= (step_group->LPAREN step_group_class RPAREN) (raw="is") 
+    #   Debug: group detected from 1 to 2 step(s)
+    # Production= (quantified_step_group->step_group) (raw="is") 
+    #   Debug: quantified_step_index++
+    #   Debug: store the step offsets corresponding to the character positions of lexdata i.e. 9->3 to 20->4
 
-  
+      # store the step
+      if len(p) == 2:
+        p.lexer.pattern_steps.append([None, p[1]])
+      elif p[2] == '*':
+        p.lexer.pattern_steps.append(['*', p[1]])
+      elif p[2] == '+':
+        p.lexer.pattern_steps.append(['+', p[1]])
+      elif p[2] == '?':  
+        p.lexer.pattern_steps.append(['?', p[1]])
+
+      # get the start and the end of the part of the pattern recognized by the current rule 
+      startpositionleftsymbol, endpositionleftsymbol = p.lexspan(1)
+      if p.lexer.lexpos > len(p.lexer.lexdata):
+        previouslextokenendposition = len(p.lexer.lexdata)
+      else:
+        previouslextokenendposition = p.lexer.lexpos - len(p.lexer.lexTokenEndDict[p.lexer.lexpos].value)
+
+      # store the corresponding quantified step at the character position start and end 
+      p.lexer.quantified_step_start[startpositionleftsymbol] = p.lexer.quantified_step_index
+      p.lexer.quantified_step_end[previouslextokenendposition] = p.lexer.quantified_step_index +1
+      if self.verbosity >2:
+        print ('      Debug: quantified_step_index++')
+        print ('      Debug: store the step offsets corresponding to the character positions of lexdata i.e. {}->{} to {}->{}'.format(startpositionleftsymbol,p.lexer.quantified_step_index, previouslextokenendposition, p.lexer.quantified_step_index+1))
+        print ('      Debug: step_already_counted=1')
+
+      # increment the step
+      p.lexer.quantified_step_index += 1
+
+      # to avoid duplicate counting
+      p.lexer.step_already_counted = 1
+   
+
 # _______________________________________________________________
-  def p_step(self,p):
-    '''step : atomicconstraint
-            | NOT step
-            | LBRACKET classconstraint RBRACKET '''  # | NOT atomicconstraint # ajoute WARNING: 2 shift/reduce conflicts
+  def p_step_group(self,p):
+    '''step_group : step
+                  | NOT step_group
+                  | LPAREN step_group_class RPAREN'''
     self.setPatternStep(p)    
     p[0] = p.lexer.patternStep
-    self.log(p, '(p_step->...)')
+    if len(p) == 2:
+      self.log(p, '(step_group->step)')
+    elif len(p) == 3:
+      self.log(p, '(step_group->NOT step_group)') 
+    elif len(p) == 4:
+      self.log(p, '(step_group->LPAREN step_group_class RPAREN)') 
+      # the rule which recognize a group matches so we definitively store the last couple of quantified step position as a group (at least for the first position)
+      p.lexer.group_pattern_offsets_group_list.append([p.lexer.last_group_offsets_candidate[0],p.lexer.quantified_step_index])
+      if self.verbosity >2:
+        print ('      Debug: group detected from {} to {} step(s)'.format(p.lexer.last_group_offsets_candidate[0],p.lexer.last_group_offsets_candidate[1]))
+      #  print ('      Debug: quantified_step_index--')
+      #p.lexer.quantified_step_index -= 1   
 
 # _______________________________________________________________
-  def p_classconstraint(self,p):
-    '''classconstraint : classconstraint AND partofclassconstraint
-            | classconstraint OR partofclassconstraint 
-            | partofclassconstraint ''' 
-    if self.verbosity >1:
-      self.setPatternStep(p)
-      self.log(p, '(p_classconstraint->...)')  
-# _______________________________________________________________
-  def p_partofclassconstraint(self,p):
-    '''partofclassconstraint : atomicconstraint
-                    | LPAREN classconstraint RPAREN  
-                    | NOT classconstraint '''
-    if self.verbosity >1:
-      self.setPatternStep(p)
-      self.log(p, '(p_partofclassconstraint->...)')  
+  def p_step_group_class(self,p):
+    '''step_group_class : quantified_step_group_list
+                        | step_group_class OR quantified_step_group_list'''
+ #                       | step_group_class OR quantified_step_group'''   # FIXME
+    self.setPatternStep(p)    
+    p[0] = p.lexer.patternStep
+    if len(p) == 2:
+      self.log(p, '(step_group_class->quantified_step_group_list)')
+    else:
+      self.log(p, '(step_group_class->step_group_class OR quantified_step_group_list)') 
+ #     self.log(p, '(step_group_class->step_group_class OR quantified_step_group)') # FIXME
+
 
 # _______________________________________________________________
-  def p_atomicconstraint(self,p):
-    '''atomicconstraint : NAME EQ VALUE 
+  def p_step(self,p):
+    '''step : single_constraint
+            | LBRACKET constraint_class RBRACKET '''  # | NOT atomicconstraint # ajoute WARNING: 2 shift/reduce conflicts
+    self.setPatternStep(p)    
+    p[0] = p.lexer.patternStep
+    self.log(p, '(step->...)')
+
+
+# _______________________________________________________________
+  def p_constraint_class(self,p):
+    '''constraint_class : constraint_class AND constraint_class_part
+            | constraint_class OR constraint_class_part 
+            | constraint_class_part ''' 
+    if self.verbosity >1:
+      self.setPatternStep(p)
+      self.log(p, '(constraint_class->...)')  
+# _______________________________________________________________
+  def p_constraint_class_part(self,p):
+    '''constraint_class_part : single_constraint
+                    | LPAREN constraint_class RPAREN  
+                    | NOT constraint_class '''
+    if self.verbosity >1:
+      self.setPatternStep(p)
+      self.log(p, '(constraint_class_part->...)')  
+
+# _______________________________________________________________
+  def p_single_constraint(self,p):
+    '''single_constraint : NAME EQ VALUE 
                           | NAME MATCH VALUE
                           | NAME IN VALUE'''
     if self.verbosity >1:
       self.setPatternStep(p)
-      self.log(p, '(p_atomicconstraint->...)')  
+      self.log(p, '(single_constraint->...)')  
+
+    # to avoid duplicate counting
+    if self.verbosity >2:
+      print ('      Debug: step_already_counted=0')
+    p.lexer.step_already_counted = 0
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # 
