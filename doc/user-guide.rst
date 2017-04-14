@@ -85,11 +85,11 @@ In that case, the operator will be ``~``
 In 'list' operator
 ^^^^^^^^^^^^^^^
 
-You can also **set a list of possible values (lexicon)**. In that case, the operator will be ``@`` in your pattern and the value will be the name of the lexicon. The lexicon is specified as a parameter of the pyrata_re methods (``lexicons`` parameter). Indeed, multiple lexicons can be specified. The data structure for storing lexicons is a dict/map of lists. Each key of the dict is the name of a lexicon, and each corresponding value a list of elements making of the lexicon.
+You can also **set a list of possible values (lexicon)**. In that case, the operator will be ``@`` in your constraint definition and the value will be the name of the lexicon. The lexicon is specified as a parameter of the pyrata_re methods (``lexicons`` parameter). Indeed, multiple lexicons can be specified. The data structure for storing lexicons is a dict/map of lists. Each key of the dict is the name of a lexicon, and each corresponding value a list of elements making of the lexicon.
 
 .. doctest ::
 
-    >>> pyrata_re.findall('lem@"positiveLexicon"', data, lexicons = {'positiveLexicon':['easy', 'funny']})
+    >>> pyrata_re.findall('raw@"positiveLexicon"', data, lexicons = {'positiveLexicon':['easy', 'funny']})
     [[ {'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}]]
 
 IOB Chunk operator
@@ -123,7 +123,7 @@ An example of pyrata data structure with chunks annotated in IOB tagged format i
 Sequence of steps
 ------------------
 
-You can search a **sequence of steps**, for example an adjective (tagged *JJ*) followed by a noun in plural form  (tagged *NNS*):
+You can search a **sequence of steps**, for example an adjective (tagged *JJ*) followed by a noun in plural form  (tagged *NNS*). The natural separator between the steps is the whitespace character.
 
 .. doctest ::
 
@@ -134,7 +134,7 @@ You can search a **sequence of steps**, for example an adjective (tagged *JJ*) f
 Class of step
 ------------------
 
-You can specify a **class of steps** by combining single constraints on the properties of the required step with logical operators like:
+A **class of step** is a step definition made of a combination of single constraints that a data element should check. The definition is marked by *squared bracket* (``[...]``). *Logical operators* (and ``&``, or ``|`` and not ``!``) and *parenthesis* are available to combine the constraints.
 
 .. doctest ::
 
