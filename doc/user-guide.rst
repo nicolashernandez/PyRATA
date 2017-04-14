@@ -203,7 +203,8 @@ In order to **retrieve the contents a specific part of a match, groups can be de
 
 Have a look at test_pyrata to see a more complex example of groups use.
 
-
+Alternatives
+------
 
 Debugging a pattern
 ------------------
