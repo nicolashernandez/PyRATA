@@ -108,7 +108,9 @@ An example of pyrata data structure with chunks annotated in IOB tagged format i
 
 
 .. warning:: The following subsubsection is incomplete.
+
 .. todo:: finish the subsubsection
+
 .. seealso:: nothing to see here
   
 
