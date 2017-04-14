@@ -111,29 +111,12 @@ An example of pyrata data structure with chunks annotated in IOB tagged format i
 
   The following subsubsection is incomplete.
 
-.. todo:: 
-
-  finish the subsubsection
-
-.. seealso:: 
-
-  nothing to see here
-  
-
-TODO
-
+..  
     chunk-"PERSON" [pos~"VB"]* FIXME
     pos="IN" chunk."ORGANIZATION" FIXME
 
     Before introducing the chunk operator: introduce the annotate methods
 
-What can do the annotate method:
-- each feature set of the matched sequences are updated with a given feature set
-- each feature set of the matched sequences are updated with a given feature set ; some of them should follow the iob scheme.
-- by default group 0 is updated or the given groups of the matched squences
-
-    annotation = {'chunk':'PERSON'}
-    new_data = annotate (pattern, data, annotation, iob=['chunk'], groups = ['1'])
 
 
 Sequence of steps
