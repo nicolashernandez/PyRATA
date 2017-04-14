@@ -58,53 +58,6 @@ Let's say you want to search all the adjectives in the sentence. By chance there
   >>> pattern = 'pos="JJ"'
 
 
-Sequence of steps
-------------------
-
-You can search a **sequence of steps**, for example an adjective (tagged *JJ*) followed by a noun in plural form  (tagged *NNS*):
-
-.. doctest ::
-
-    >>> pattern = 'pos="JJ" pos="NNS"'
-    >>> pyrata_re.search(pattern, data).group()
-    [{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}]
-
-Class of step
-------------------
-
-You can specify a **class of steps** by combining single constraints on the properties of the required step with logical operators like:
-
-.. doctest ::
-
-    >>> pyrata_re.findall('[(pos="NNS" | pos="NNP") & !raw="pattern"]', data)
-    [[{'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'NNP', 'raw': 'Pyrata'}]]
-
-
-Step quantifiers (*at_least_one, any, optional*)
-------------------
-
-You can quantify the repetition of a step: in other words specifying a **quantifier to match one or more times** the same form of an element:
-
-.. doctest ::
-
-    >>> pyrata_re.findall('pos="JJ"+', data)
-    [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}], [{'raw': 'funny', 'pos': 'JJ'}], [{'raw': 'regular', 'pos': 'JJ'}]
-
-Or specifying a **quantifier to match zero or more times** a certain form of an element:
-
-.. doctest ::
-
-    >>> pyrata_re.findall('pos="JJ"* [(pos="NNS" | pos="NNP")]', data)
-    [[[{'raw': 'regular', 'pos': 'JJ'}, {'raw': 'expressions', 'pos': 'NNS'}], [{'raw': 'Pyrata', 'pos': 'NNP'}]]
-
-Or specifying a **quantifier to match once or not at all** the given form of an element:
-
-.. doctest ::
-
-    >>> pyrata_re.findall('pos="JJ"? [(pos="NNS" | pos="NNP")]', data)
-    [[{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'NNP', 'raw': 'Pyrata'}]]
-
-
 Step constraint operators (*equal, match, in, chunk*)
 ------------------
 
@@ -146,6 +99,12 @@ Working with **chunks in IOB tagged format**. As mentioned in [nltk book](http:/
 
     >>> data = [{'pos': 'NNP', 'chunk': 'B-PERSON', 'raw': 'Mark'}, {'pos': 'NNP', 'chunk': 'I-PERSON', 'raw': 'Zuckerberg'}, {'pos': 'VBZ', 'chunk': 'O', 'raw': 'is'}, {'pos': 'VBG', 'chunk': 'O', 'raw': 'working'}, {'pos': 'IN', 'chunk': 'O', 'raw': 'at'}, {'pos': 'NNP', 'chunk': 'B-ORGANIZATION', 'raw': 'Facebook'}, {'pos': 'NNP', 'chunk': 'I-ORGANIZATION', 'raw': 'Corp'}, {'pos': '.', 'chunk': 'O', 'raw': '.'}] 
 
+.. warning:: 
+
+  The following subsubsection is incomplete.
+
+TODO
+
     chunk-"PERSON" [pos~"VB"]* FIXME
     pos="IN" chunk."ORGANIZATION" FIXME
 
@@ -160,6 +119,65 @@ What can do the annotate method:
     new_data = annotate (pattern, data, annotation, iob=['chunk'], groups = ['1'])
 
 
+Sequence of steps
+------------------
+
+You can search a **sequence of steps**, for example an adjective (tagged *JJ*) followed by a noun in plural form  (tagged *NNS*):
+
+.. doctest ::
+
+    >>> pattern = 'pos="JJ" pos="NNS"'
+    >>> pyrata_re.search(pattern, data).group()
+    [{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}]
+
+Class of step
+------------------
+
+You can specify a **class of steps** by combining single constraints on the properties of the required step with logical operators like:
+
+.. doctest ::
+
+    >>> pyrata_re.findall('[(pos="NNS" | pos="NNP") & !raw="pattern"]', data)
+    [[{'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'NNP', 'raw': 'Pyrata'}]]
+
+
+Step quantifiers (*at_least_one, any, optional*)
+------------------
+
+You can quantify the repetition of a step.
+
+At_least_one quantifier
+^^^^^^^^^^^^^^^
+You can specify a **quantifier to match one or more times consecutively** the same form of an element. The step definition should be followed by the ``+`` symbol:
+
+.. doctest ::
+
+    >>> pyrata_re.findall('pos="JJ"+', data)
+    [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}], [{'raw': 'funny', 'pos': 'JJ'}], [{'raw': 'regular', 'pos': 'JJ'}]
+
+Any quantifier
+^^^^^^^^^^^^^^^
+
+You can specify a **quantifier to match zero or more times consecutively ** a certain form of an element. The step definition should be followed by the ``*`` symbol:
+
+.. doctest ::
+
+    >>> pyrata_re.findall('pos="JJ"* [(pos="NNS" | pos="NNP")]', data)
+    [[[{'raw': 'regular', 'pos': 'JJ'}, {'raw': 'expressions', 'pos': 'NNS'}], [{'raw': 'Pyrata', 'pos': 'NNP'}]]
+
+Option quantifier
+^^^^^^^^^^^^^^^
+
+You can specify a  **quantifier to match once or not at all** the given form of an element. The step definition should be followed by the ``?`` symbol:
+
+
+.. doctest ::
+
+    >>> pyrata_re.findall('pos="JJ"? [(pos="NNS" | pos="NNP")]', data)
+    [[{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'NNP', 'raw': 'Pyrata'}]]
+
+
+
 Wildcard step
 ------------------
 
@@ -169,22 +187,6 @@ Currently no **wildcard character** is implemented but you can easily simulate i
 
     >>> pyrata_re.findall('pos~"VB." [!raw="to"]* raw="to"', data)
     [[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}]]
-
-Debugging a pattern
-------------------
-To **understand the process of a pyrata_re method**, specify a **verbosity degree** to it (*0 None, 1 +Parsing Warning and Error, 2 +syntactic and semantic parsing logs, 3 +More parsing informations*):
-
-Here some syntactic problems examples: 
-
-.. doctest ::
-
-    >>> pyrata_re.findall('*pos="JJ" [(pos="NNS" | pos="NNP")]', data, verbosity=1)
-    Error: syntactic parsing error - unexpected token type="ANY" with value="*" at position 1. Search an error before this point.
-
-    >>> pyrata_re.findall('pos="JJ"* bla bla [(pos="NNS" | pos="NNP")]', data, verbosity=1)
-    Error: syntactic parsing error - unexpected token type="NAME" with value="bla" at position 17. Search an error before this point.
-
-
 
 
 
@@ -200,6 +202,22 @@ In order to **retrieve the contents a specific part of a match, groups can be de
     [{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}]
 
 Have a look at test_pyrata to see a more complex example of groups use.
+
+
+
+Debugging a pattern
+------------------
+To **understand the process of a pyrata_re method**, specify a **verbosity degree** to it (*0 None, 1 +Parsing Warning and Error, 2 +syntactic and semantic parsing logs, 3 +More parsing informations*):
+
+Here some syntactic problems examples: 
+
+.. doctest ::
+
+    >>> pyrata_re.findall('*pos="JJ" [(pos="NNS" | pos="NNP")]', data, verbosity=1)
+    Error: syntactic parsing error - unexpected token type="ANY" with value="*" at position 1. Search an error before this point.
+
+    >>> pyrata_re.findall('pos="JJ"* bla bla [(pos="NNS" | pos="NNP")]', data, verbosity=1)
+    Error: syntactic parsing error - unexpected token type="NAME" with value="bla" at position 17. Search an error before this point.
 
 
 
