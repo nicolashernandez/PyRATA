@@ -6,13 +6,14 @@ PyRATA is an acronym which stands both for "Python Rule-based feAture sTructure 
 ## Features
 -------------
 In short, PyRATA 
-* provides regular expression matching operations over more complex structures than a list of characters (string), namely a sequence of features set (i.e. list of dict in python jargon).
-* offers a similar API to the python re module,
-* follows the Perl regexes de facto standard in terms of language syntax,
-* is implemented in python 3,
-* can be used for processing textual data but is not limited to (the only restriction is the respect of the data structure to explore)
-* is released under the MIT Licence which is *a short and simple permissive license*
-* fun and easy to use
+* provides regular expression matching methods over more complex structures than a list of characters (string), namely a sequence of features set (i.e. list of dict in python jargon);
+* in addition to the re methods, it provides data structure modification methods to substitute, update or extend the data structure itself;
+* offers a similar re API to the python re module in order not to disturb python re users;
+* degines a pattern matching language whose syntax follows the Perl regexes de facto standard;
+* is implemented in python 3;
+* can be used for processing textual data but is not limited to (the only restriction is the respect of the data structure to explore);
+* is released under the MIT Licence which is *a short and simple permissive license*;
+* is fun and easy to use.
 
 ## Brief introduction
 -------------
