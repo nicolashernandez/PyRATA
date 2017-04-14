@@ -133,7 +133,7 @@ class SemanticStepParser(object):
   def log(self, p, production):
     if self.verbosity >2:
       #print (2*'  ','- - - - - - - - - - - - - - - - - - - - - - - -')
-      print (2*'  ','Production={} ; pattern_step=[{}] ; data_token = "{}" ; return="{}"'
+      print ('\t\tProduction={} ; pattern_step=[{}] ; data_token = "{}" ; return="{}"'
         .format(production, p.lexer.lexdata, p.lexer.data[p.lexer.data_cursor], p[0]))
 
 
@@ -146,7 +146,7 @@ class SemanticStepParser(object):
   def p_error(self,p):
     if not p:
       if self.verbosity >2: 
-        print(2*'  ',"Info: pattern semantically parsed.")
+        print('\t\tInfo: pattern semantically parsed.')
       return
 
       # http://www.dabeaz.com/ply/ply.html#ply_nn26 6.8.2

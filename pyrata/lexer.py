@@ -39,7 +39,9 @@ class Lexer(object):
     'NOT',
     'OPTION',
     'ATLEASTONE',
-    'ANY'
+    'ANY',
+    'BEFORE_FIRST_TOKEN',
+    'AFTER_LAST_TOKEN',   
     )
 # EOI end of instruction
 #    ,'IS',
@@ -68,6 +70,9 @@ class Lexer(object):
   t_OPTION  = r'\?'
   t_ATLEASTONE  = r'\+'
   t_ANY  = r'\*'
+  t_BEFORE_FIRST_TOKEN  = r'\^'
+  t_AFTER_LAST_TOKEN  = r'\$'
+
 #t_EOI  = r'\;'
 
   # Ignored characters
@@ -158,7 +163,10 @@ class Lexer(object):
 
     self.lexer.pattern_cursor = 0          # cursor to follow the parsing progress in the pattern
 
-    self.lexer.pattern_steps = []          # compiled pattern: list of (quantifier, step) 
+    self.lexer.pattern_steps = []          # compiled pattern: list of (quantifier=[None, '*', '+', '?'] not=[True, False] group=[True, False], step or group)
+
+    self.lexer.pattern_must_match_data_start = False  # ^ matches the start of data before the first token in a data.
+    self.lexer.pattern_must_match_data_end = False    # $ matches the end of data ~after the last token of data.
 
     self.lexer.data = data                 # data explored by the pattern  
 
@@ -168,17 +176,15 @@ class Lexer(object):
     
     self.lexer.truth_value = False  # parsing result of a given pattern over a certain data 
 
-    # syntactic pattern parser
-    # quantified step index 
-    self.lexer.quantified_step_index = 0
-    # at a given position returns the quantified step index
-    self.lexer.quantified_step_start = {}
-    self.lexer.quantified_step_end = {}
-    # last couple of index position of the current group
-    self.lexer.last_group_offsets_candidate = []
-    # list of group offsets e.g. [[start_i, end_i], [start_j, end_j], [start_k, end_k]]
-    self.lexer.group_pattern_offsets_group_list = []
-    # to prevent from duplicate step counting (wo then wi parenthesis) 
+   
+    self.lexer.quantified_step_index = 0     # syntactic pattern : parser quantified step index 
+    self.lexer.quantified_step_start = {}    # syntactic pattern parser : at a given position returns the quantified step index
+    self.lexer.quantified_step_end = {}      # syntactic pattern parser : at a given position returns the quantified step index
+    
+    self.lexer.last_group_offsets_candidate = []     # last couple of index position of the current group
+    self.lexer.group_pattern_offsets_group_list = []     # list of group offsets e.g. [[start_i, end_i], [start_j, end_j], [start_k, end_k]]
+
+    
     # Production= (quantified_step_group->step_group) raw="is"
     #   Debug: quantified_step_index++
     #   Debug: store the step offsets corresponding to the character positions of lexdata i.e. 10->2 to 18->3
@@ -187,7 +193,10 @@ class Lexer(object):
     # Production= (quantified_step_group->step_group) (raw="is") 
     #   Debug: quantified_step_index++
     #   Debug: store the step offsets corresponding to the character positions of lexdata i.e. 9->3 to 20->4
-    self.lexer.step_already_counted = 0
+    self.lexer.step_already_counted = 0 # to prevent from duplicate step counting (wo then wi parenthesis) 
+    
+    self.lexer.step_group_class = []    # step_group_class list of alternatives
+
 
   def build(self, pattern, **kwargs):
     """

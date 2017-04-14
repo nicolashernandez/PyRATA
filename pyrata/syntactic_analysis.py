@@ -38,9 +38,8 @@ class CompiledPattern(object):
 
     self.getLexer().lexer.re = method
 
-    exit() # FIXME used to stop the parsing after the syntactic analysis (to see the parser.out or adapt the parser)
-
-
+    #exit() # FIXME used to stop the parsing after the syntactic analysis (to see the parser.out or adapt the parser)
+    #print ('Debug: compiledPattern=', self)
     r = pyrata.semantic_analysis.parse_semantic (self, data, **kwargs)
     return r
 

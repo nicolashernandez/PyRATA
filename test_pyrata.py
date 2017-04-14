@@ -400,6 +400,81 @@ class TestPyrata(object):
     expected = [[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}]]
     self.test(description, method, lexicons, pattern, data, expected, verbosity)    
 
+  def test_pattern_starting_with_the_first_token_of_data_present_as_expected_in_data(self, verbosity):
+    # ^ matches the start of data before the first token in a data.
+    # $ matches the end of data ~after the last token of data.
+    # test_pattern_starting_with_the_first_token_of_data_present_as_expected_in_data
+    # test_pattern_ending_with_the_last_token_of_data_present_as_expected_in_data
+    # test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_present_as_expected_in_data   
+    # test_pattern_starting_with_the_first_token_of_data_not_present_as_expected_in_data
+    # test_pattern_ending_with_the_last_token_of_data_not_present_as_expected_in_data
+    # test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_not_present_as_expected_in_data  
+    description = 'test_pattern_starting_with_the_first_token_of_data_present_as_expected_in_data'
+    method = 'search'
+    lexicons = {}
+    pattern = '^raw="It" raw="is"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}]
+    self.test(description, method, lexicons, pattern, data, expected, verbosity)  
+
+  def test_pattern_ending_with_the_last_token_of_data_present_as_expected_in_data(self, verbosity):
+    description = 'test_pattern_ending_with_the_last_token_of_data_present_as_expected_in_data'
+    method = 'search'
+    lexicons = {}
+    pattern = 'raw="with" raw="Pyrata"$'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [{'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    self.test(description, method, lexicons, pattern, data, expected, verbosity)  
+
+  def test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_present_as_expected_in_data(self, verbosity):
+
+    description = 'test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_present_as_expected_in_data'
+    method = 'search'
+    lexicons = {}
+    pattern = '^raw="with" raw="Pyrata"$'
+    data = [{'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [{'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    self.test(description, method, lexicons, pattern, data, expected, verbosity)  
+
+
+  def test_pattern_starting_with_the_first_token_of_data_not_present_as_expected_in_data(self, verbosity):
+    description = 'test_pattern_starting_with_the_first_token_of_data_not_present_as_expected_in_data'
+    method = 'search'
+    lexicons = {}
+    pattern = '^raw="is" raw="fast"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    self.test(description, method, lexicons, pattern, data, expected, verbosity)  
+
+
+  def test_pattern_starting_with_the_first_token_of_data_not_present_as_expected_in_data(self, verbosity):
+    description = 'test_pattern_starting_with_the_first_token_of_data_present_as_expected_in_data'
+    method = 'search'
+    lexicons = {}
+    pattern = '^raw="is" raw="fast"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    self.test(description, method, lexicons, pattern, data, expected, verbosity)  
+
+  def test_pattern_ending_with_the_last_token_of_data_not_present_as_expected_in_data(self, verbosity):
+    description = 'test_pattern_ending_with_the_last_token_of_data_not_present_as_expected_in_data'
+    method = 'search'
+    lexicons = {}
+    pattern = 'raw="is" raw="fast"$'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    self.test(description, method, lexicons, pattern, data, expected, verbosity)  
+
+  def test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_not_present_as_expected_in_data(self, verbosity):
+    description = 'test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_not_present_as_expected_in_data'
+    method = 'search'
+    lexicons = {}
+    pattern = '^raw="is" raw="fast"$'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    self.test(description, method, lexicons, pattern, data, expected, verbosity)  
+
+
   def test_search_groups_in_data(self, verbosity):
     if verbosity >0:
       print ('================================================')
@@ -407,6 +482,10 @@ class TestPyrata(object):
     method = 'search'
     lexicons = {}
     pattern = 'raw="It" (raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")'
+    #pattern = 'raw="It" (raw="is" |fa="ke") (( pos="JJ"* (pos="JJ" raw="and"|fa="ke") (pos="JJ"|fa="ke") |fa="ke")|fa="ke") (raw="to"|fa="ke")'
+    #pattern = 'raw="It" (raw="is"|fa="ke") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )|fa="ke") (raw="to"|fa="ke")'
+    #pattern = 'raw="It" (raw="is"|fa="ke") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to"|fa="ke")'
+  
     #pattern = '(raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[[{'pos': 'PRP', 'raw': 'It'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}], 0, 7], [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], [[{'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}], 3, 5], [[{'raw': 'funny', 'pos': 'JJ'}], 5, 6], [[{'raw': 'to', 'pos': 'TO'}], 6, 7]]
@@ -772,6 +851,12 @@ class TestPyrata(object):
     pattern = '(raw="a" raw="cup" raw="of" raw="coffee" | raw="a" raw="tea" )' # Error: syntactic parsing error - unexpected token type="NAME" with value="raw" at position 54. Search an error before this point.
     pattern = '((raw="a" raw="cup" raw="of" raw="coffee") | (raw="a" raw="tea" ))'
 
+    pattern = '((raw="of" raw="coffee") | (raw="of" raw="tea" ))'
+    pattern = '(raw="of" raw="coffee" | raw="of" raw="tea" )'
+    pattern = '(pos="IN") (raw="a" raw="tea" | raw="a" raw="cup" raw="of" raw="coffee" | raw="an" raw="orange" raw="juice" ) !pos=";"'
+
+    #pattern = '((raw="a" raw="cup" raw="of" raw="coffee")*| (raw="a" raw="tea" ))+'
+
     #pattern = '(raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")'
     data = [ {'raw':'Over', 'pos':'IN'},
       {'raw':'a', 'pos':'DT' }, 
@@ -786,7 +871,10 @@ class TestPyrata(object):
       {'raw':'story', 'pos':'NN'} ]
     expected = [[{'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'cup'}, {'pos': 'IN', 'raw': 'of'}, {'pos': 'NN', 'raw': 'coffee'}], 1, 5]
         #self.test(description, method, lexicons, pattern, data, expected, verbosity)  
-    result = pyrata.re.search(pattern, data, lexicons=lexicons, verbosity = verbosity).groups[1]
+    expected = [[{'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'cup'}, {'pos': 'IN', 'raw': 'of'}, {'pos': 'NN', 'raw': 'coffee'}], 1, 5]
+
+    result = pyrata.re.search(pattern, data, lexicons=lexicons, verbosity = verbosity)
+    if result != None: result = result.groups[2] #group(2)
 
     #print ('Debug: type(result)=',result)
     if verbosity >0:
@@ -811,74 +899,298 @@ class TestPyrata(object):
       print ()
 
 
+  def test_search_alternative_groups_wi_unmatched_quantifiers_in_data(self, verbosity):
+    if verbosity >0:
+      print ('================================================')
+    description = 'test_search_alternative_groups_wi_unmatched_quantifiers_in_data'
+    method = 'search'
+    group = [1]
+    lexicons = {}
+    pattern = '(pos="IN") (raw="a" raw="tea" | raw="a" raw="cup" raw="of"? raw="coffee" | raw="an" raw="orange"* raw="juice" )+ !pos=";"'
+
+    data = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' }, 
+      {'raw':'cup', 'pos':'NN' },
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP'}, 
+      {'raw':'Stone', 'pos':'NNP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$'}, 
+      {'raw':'story', 'pos':'NN'} ]
+    expected = [[{'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'cup'}, {'pos': 'IN', 'raw': 'of'}, {'pos': 'NN', 'raw': 'coffee'}], 1, 5]
+
+    result = pyrata.re.search(pattern, data, lexicons=lexicons, verbosity = verbosity)
+    if result != None: result = result.groups[2] #group(2)
+
+    #print ('Debug: type(result)=',result)
+    if verbosity >0:
+      print ()
+      print ('Test:\t', description)
+      print ('Method:\t', method) 
+      print ('Lexicons:\t', lexicons)       
+      print ('Pattern:\t', pattern)
+      print ('Data:\t\t', data)
+      print ('Expected groups:\t', expected)
+      print ('Recognized groups:\t', result) 
+    if result == expected:
+      if verbosity >0:
+        print ('Result:\tSUCCESS')
+      self.testSuccess += 1
+    else:
+      if verbosity >0:
+        print ('Result:\tFAIL')
+    self.testCounter +=1
+
+    if verbosity >0:
+      print ()
+
+  def test_search_groups_wi_matched_quantifiers_in_data(self, verbosity):
+    if verbosity >0:
+      print ('================================================')
+    description = 'test_search_groups_wi_matched_quantifiers_in_data'
+    method = 'search'
+    group = [1]
+    lexicons = {}
+    #pattern = '(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos="."|pos="FAKE")+' # Debug: p[0]=[[[None, 'pos="VB" '], ['?', 'pos="DT"'], ['*', 'pos="JJ"'], [None, 'pos="NN" '], [None, 'pos="."']], [[None, 'pos="FAKE"']]]
+
+    pattern = '(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos=".")+' # Debug: p[0]=['(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos=".")']
+
+
+    # Choose Life. Choose a job. Choose a career. Choose a family. Choose a fucking big television, choose washing machines, cars, compact disc players and electrical tin openers. Choose good health, low cholesterol, and dental insurance. 
+    data = [ {'raw':'Choose', 'pos':'VB'},
+      {'raw':'Life', 'pos':'NN' }, 
+      {'raw':'.', 'pos':'.' },
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'job', 'pos':'NN'},
+      {'raw':'.', 'pos':'.'}, 
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'career', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'family', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'fucking', 'pos':'JJ'}, 
+      {'raw':'big', 'pos':'JJ'},             
+      {'raw':'television', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'}  
+      ]
+    expected = [ {'raw':'Choose', 'pos':'VB'},
+      {'raw':'Life', 'pos':'NN' }, 
+      {'raw':'.', 'pos':'.' },
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'job', 'pos':'NN'},
+      {'raw':'.', 'pos':'.'}, 
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'career', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'family', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'fucking', 'pos':'JJ'}, 
+      {'raw':'big', 'pos':'JJ'},             
+      {'raw':'television', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'}  
+      ]
+    result = pyrata.re.search(pattern, data, lexicons=lexicons, verbosity = verbosity)
+    if result != None: result = result.group(0) #group(2)
+
+    #print ('Debug: type(result)=',result)
+    if verbosity >0:
+      print ()
+      print ('Test:\t', description)
+      print ('Method:\t', method) 
+      print ('Lexicons:\t', lexicons)       
+      print ('Pattern:\t', pattern)
+      print ('Data:\t\t', data)
+      print ('Expected groups:\t', expected)
+      print ('Recognized groups:\t', result) 
+    if result == expected:
+      if verbosity >0:
+        print ('Result:\tSUCCESS')
+      self.testSuccess += 1
+    else:
+      if verbosity >0:
+        print ('Result:\tFAIL')
+    self.testCounter +=1
+
+    if verbosity >0:
+      print ()
+
+
+  def test_search_alternatives_groups_wi_matched_quantifiers_in_data(self, verbosity):
+    if verbosity >0:
+      print ('================================================')
+    description = 'test_search_alternatives_groups_wi_matched_quantifiers_in_data'
+    method = 'search'
+    group = [1]
+    lexicons = {}
+    pattern = '(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos="."|pos="FAKE")+' # Debug: p[0]=[[[None, 'pos="VB" '], ['?', 'pos="DT"'], ['*', 'pos="JJ"'], [None, 'pos="NN" '], [None, 'pos="."']], [[None, 'pos="FAKE"']]]
+
+
+
+    # Choose Life. Choose a job. Choose a career. Choose a family. Choose a fucking big television, choose washing machines, cars, compact disc players and electrical tin openers. Choose good health, low cholesterol, and dental insurance. 
+    data = [ {'raw':'Choose', 'pos':'VB'},
+      {'raw':'Life', 'pos':'NN' }, 
+      {'raw':'.', 'pos':'.' },
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'job', 'pos':'NN'},
+      {'raw':'.', 'pos':'.'}, 
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'career', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'family', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'fucking', 'pos':'JJ'}, 
+      {'raw':'big', 'pos':'JJ'},             
+      {'raw':'television', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'}  
+      ]
+    expected = [ {'raw':'Choose', 'pos':'VB'},
+      {'raw':'Life', 'pos':'NN' }, 
+      {'raw':'.', 'pos':'.' },
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'job', 'pos':'NN'},
+      {'raw':'.', 'pos':'.'}, 
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'career', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'family', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'fucking', 'pos':'JJ'}, 
+      {'raw':'big', 'pos':'JJ'},             
+      {'raw':'television', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'}  
+      ]
+    result = pyrata.re.search(pattern, data, lexicons=lexicons, verbosity = verbosity)
+    if result != None: result = result.group(0) #group(2)
+
+    #print ('Debug: type(result)=',result)
+    if verbosity >0:
+      print ()
+      print ('Test:\t', description)
+      print ('Method:\t', method) 
+      print ('Lexicons:\t', lexicons)       
+      print ('Pattern:\t', pattern)
+      print ('Data:\t\t', data)
+      print ('Expected groups:\t', expected)
+      print ('Recognized groups:\t', result) 
+    if result == expected:
+      if verbosity >0:
+        print ('Result:\tSUCCESS')
+      self.testSuccess += 1
+    else:
+      if verbosity >0:
+        print ('Result:\tFAIL')
+    self.testCounter +=1
+
+    if verbosity >0:
+      print ()
+
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # Declare here all the tests you want to run
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
   def __init__(self):
 
-    myverbosity = 3
-    # self.test_search_step_in_data(myverbosity)
-    # self.test_findall_step_in_data(myverbosity)
-    # self.test_finditer_step_in_data(myverbosity)
+    myverbosity = 1
+    self.test_search_step_in_data(myverbosity)
+    self.test_findall_step_in_data(myverbosity)
+    self.test_finditer_step_in_data(myverbosity)
 
-    # self.test_search_step_absent_in_data(myverbosity)
-    # self.test_findall_step_absent_in_data(myverbosity)
+    self.test_search_step_absent_in_data(myverbosity)
+    self.test_findall_step_absent_in_data(myverbosity)
 
-    # self.test_search_class_step_in_data(myverbosity)
-    # self.test_search_rich_class_step_in_data(myverbosity)
+    self.test_search_class_step_in_data(myverbosity)
+    self.test_search_rich_class_step_in_data(myverbosity)
 
-    # self.test_findall_regex_step_in_data(myverbosity)
-    # self.test_findall_lexicon_step_in_data(myverbosity)
-    # self.test_findall_undefined_lexicon_step_in_data(myverbosity)
+    self.test_findall_regex_step_in_data(myverbosity)
+    self.test_findall_lexicon_step_in_data(myverbosity)
+    self.test_findall_undefined_lexicon_step_in_data(myverbosity)
 
-    # self.test_findall_multiple_lexicon_step_in_data(myverbosity)
+    self.test_findall_multiple_lexicon_step_in_data(myverbosity)
 
-    # self.test_search_optional_step_in_data(myverbosity)
-    # self.test_findall_optional_step_in_data(myverbosity)
+    self.test_search_optional_step_in_data(myverbosity)
+    self.test_findall_optional_step_in_data(myverbosity)
     
-    # self.test_findall_step_step_in_data(myverbosity)
+    self.test_findall_step_step_in_data(myverbosity)
 
-    # self.test_findall_optional_step_step_in_data(myverbosity)
-    # self.test_findall_any_step_step_in_data(myverbosity)
-    # self.test_findall_at_least_one_step_step_in_data(myverbosity)
+    self.test_findall_optional_step_step_in_data(myverbosity)
+    self.test_findall_any_step_step_in_data(myverbosity)
+    self.test_findall_at_least_one_step_step_in_data(myverbosity)
 
-    # self.test_findall_any_step_step_nbar_in_data(myverbosity)
-    # self.test_findall_at_least_one_step_step_nbar_in_data(myverbosity)
+    self.test_findall_any_step_step_nbar_in_data(myverbosity)
+    self.test_findall_at_least_one_step_step_nbar_in_data(myverbosity)
 
-    # self.test_findall_step_step_partially_matched_in_data_ending(myverbosity)
-    # self.test_findall_optional_step_step_partially_matched_in_data_ending(myverbosity)
-    # self.test_findall_any_step_step_partially_matched_in_data_ending(myverbosity)
-    # self.test_findall_at_least_one_step_step_partially_matched_in_data_ending(myverbosity)
+    self.test_findall_step_step_partially_matched_in_data_ending(myverbosity)
+    self.test_findall_optional_step_step_partially_matched_in_data_ending(myverbosity)
+    self.test_findall_any_step_step_partially_matched_in_data_ending(myverbosity)
+    self.test_findall_at_least_one_step_step_partially_matched_in_data_ending(myverbosity)
 
-    # self.test_findall_step_at_least_one_not_step_step_in_data(myverbosity)
-    # self.test_findall_step_present_optional_step_step_in_data(myverbosity)
-    # self.test_findall_step_absent_optional_step_step_in_data(myverbosity)
+    self.test_findall_step_at_least_one_not_step_step_in_data(myverbosity)
+    self.test_findall_step_present_optional_step_step_in_data(myverbosity)
+    self.test_findall_step_absent_optional_step_step_in_data(myverbosity)
 
-    # self.test_findall_step_optional_step_in_data(myverbosity)
-    # self.test_findall_step_any_step_in_data(myverbosity)
-    # self.test_findall_step_optinal_step_optional_step_step_in_data(myverbosity)
+    self.test_findall_step_optional_step_in_data(myverbosity)
+    self.test_findall_step_any_step_in_data(myverbosity)
+    self.test_findall_step_optinal_step_optional_step_step_in_data(myverbosity)
 
-    # self.test_search_any_class_step_error_step_in_data(myverbosity)
-    # self.test_findall_step_any_not_step1_step1_in_data(myverbosity)
+    self.test_findall_step_any_not_step1_step1_in_data(myverbosity)
 
-    #self.test_search_groups_in_data(myverbosity)
+    self.test_pattern_starting_with_the_first_token_of_data_present_as_expected_in_data(myverbosity)
+    self.test_pattern_ending_with_the_last_token_of_data_present_as_expected_in_data(myverbosity)
+    self.test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_present_as_expected_in_data(myverbosity)
+    self.test_pattern_starting_with_the_first_token_of_data_not_present_as_expected_in_data(myverbosity)
+    self.test_pattern_ending_with_the_last_token_of_data_not_present_as_expected_in_data(myverbosity)
+    self.test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_not_present_as_expected_in_data(myverbosity)
+
+
+    self.test_search_groups_in_data(myverbosity)
+
+    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_in_data(myverbosity)
+    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_not_in_data(myverbosity)
+    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_pattern_sequence_to_annotation_step_in_data(myverbosity)
+    self.test_annotate_default_action_sub_group_one_default_iob_annotation_dict_pattern_in_data(myverbosity)
+    self.test_annotate_default_action_sub_default_group_default_iob_annotation_empty_in_data(myverbosity)
+
+
+    self.test_annotate_default_action_update_default_group_default_iob_annotation_dict_pattern_in_data(myverbosity)
+    self.test_annotate_default_action_extend_default_group_default_iob_annotation_dict_pattern_in_data(myverbosity)
+    self.test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data(myverbosity)
+    self.test_annotate_default_action_extend_default_group_iob_True_annotation_sequence_by_one_dict_in_data(myverbosity)
+
+
     self.test_search_alternative_groups_in_data(myverbosity)
-
-    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_in_data(myverbosity)
-    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_not_in_data(myverbosity)
-    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_pattern_sequence_to_annotation_step_in_data(myverbosity)
-    # self.test_annotate_default_action_sub_group_one_default_iob_annotation_dict_pattern_in_data(myverbosity)
-    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_empty_in_data(myverbosity)
+    self.test_search_groups_wi_matched_quantifiers_in_data(myverbosity)
+    self.test_search_alternatives_groups_wi_matched_quantifiers_in_data(myverbosity)
 
 
-    # self.test_annotate_default_action_update_default_group_default_iob_annotation_dict_pattern_in_data(myverbosity)
-    # self.test_annotate_default_action_extend_default_group_default_iob_annotation_dict_pattern_in_data(myverbosity)
-    # self.test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data(myverbosity)
-    # self.test_annotate_default_action_extend_default_group_iob_True_annotation_sequence_by_one_dict_in_data(myverbosity)
+    
 
-
-
+    #self.test_search_any_class_step_error_step_in_data(myverbosity)
 
 
 

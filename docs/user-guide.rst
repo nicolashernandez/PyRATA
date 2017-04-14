@@ -146,6 +146,14 @@ You can search a **sequence of steps**, for example an adjective (tagged *JJ*) f
     [{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}]
 
 
+Start and End of data Anchors
+------
+
+To specify that a pattern should **match from the begining  and/or to the end of a data structure**, you can used the anchors ``^`` and ``$`` respectively to the set the start or the end of the pattern relatively to the processed data.
+
+**TODO** give an example.
+
+
 Step quantifiers (*at_least_one, any, optional*)
 ------------------
 
