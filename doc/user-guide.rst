@@ -222,10 +222,12 @@ Here some syntactic problems examples:
 
 
 
-Regular expression methods to explore the data
+Regular expression methods 
 =====================
 
-At this point you can use the regular expression methods available to explore the data. Let's say you want to search the advectives. By chance there is a property which specifies the part of speech of tokens, *pos*, the value of *pos* which stands for adjectives is *JJ*.
+The regular expression available methods offer multiple ways of exploring the data. 
+
+Let's say you want to search the adjectives. By chance there is a property which specifies the part of speech of tokens, *pos*, the value of *pos* which stands for adjectives is *JJ*.
 
 Search the first match of a given pattern
 -------------------------
@@ -294,7 +296,7 @@ Below an example of use for ``findall``
     >>> compiled_re.findall(data)
     [[{'raw': 'regular', 'pos': 'JJ'}, {'raw': 'expressions', 'pos': 'NNS'}], [{'raw': 'Pyrata', 'pos': 'NNP'}]]
 
-Data Feature structure modification 
+Data Feature structure modification methods
 ====================================
 
 By modification we mean subtitution, updating, extension of the data feature structure. 
