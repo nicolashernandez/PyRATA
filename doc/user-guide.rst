@@ -49,29 +49,32 @@ pyrata pattern
   Pyrata allows to define *regular expressions* over the pyrata data structure.
 
 pattern step
-  The elementary component of a pyrata pattern is the **step**. It corresponds to the set of constraints a data element should match.
+  The elementary component of a pyrata pattern is the **step**. It defines the combination of constraints a data element should match.
 
-Let's say you want to search all the adjectives in the sentence. By chance there is a property which specifies the part of speech of tokens, *pos*, the value of *pos* which stands for adjectives is *JJ*. Your pattern will be:
+Let's say you want to search all the adjectives in the sentence. By chance there is a property which specifies the part of speech of tokens, *pos*, the value of *pos* which stands for adjectives is *JJ*. Your pattern will be made of only one step which will set only one constraint:
 
 .. doctest ::
 
   >>> pattern = 'pos="JJ"'
 
 
-Step constraint operators (*equal, match, in, chunk*)
+Single constraint operators (*equal, match, in, chunk*)
 ------------------
+Step are made of constraints. At the atomic level, the single constraint is defined with one of the following operators.
 
 Equal operator
 ^^^^^^^^^^^^^^^
 
-Classically, the value of the refered feature name should be equal to the specified value.
+Classically, the value of the refered feature name should be equal to the specified value. The syntax is ``name="value"`` where name should match ``[a-zA-Z_][a-zA-Z0-9_]*``
+and value ``\"([^\\\n]|(\\.))*?\"``.
 
+The following operators use the same definition for the related name and value, only the operator changes. 
 
 Regular expression match operator
 ^^^^^^^^^^^^^^^
 
-At the atomic level, there is not only the equal operator to set a constraint. You can also **set a regular expression as a value**. 
-In that case, the operator will not be ``=`` but ``~`` 
+In addition to the equal operator, you can **set a regular expression as a value**. 
+In that case, the operator will be ``~`` 
 
 .. doctest ::
 
@@ -109,7 +112,7 @@ An example of pyrata data structure with chunks annotated in IOB tagged format i
 
 .. warning:: 
 
-  The following subsubsection is incomplete.
+  This subsubsection is incomplete. **TODO**
 
 ..  
     chunk-"PERSON" [pos~"VB"]* FIXME
