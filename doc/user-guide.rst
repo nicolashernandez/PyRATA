@@ -81,8 +81,6 @@ In that case, the operator will be ``~``
     >>> pyrata_re.findall('pos~"NN."', data)
     [[{'raw': 'expressions', 'pos': 'NNS'}], [{'raw': 'Pyrata', 'pos': 'NNP'}]]
 
-Consequently ``[pos="NNS" | pos="NNP"]``, ``pos~"NN[SP]"`` and 'pos~"(NNS|NNP)"' are equivalent forms. They may not have the same processing time.
-
 
 In 'list' operator
 ^^^^^^^^^^^^^^^
@@ -143,6 +141,8 @@ You can specify a **class of steps** by combining single constraints on the prop
     >>> pyrata_re.findall('[(pos="NNS" | pos="NNP") & !raw="pattern"]', data)
     [[{'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'NNP', 'raw': 'Pyrata'}]]
 
+
+Consequently ``[pos="NNS" | pos="NNP"]``, ``pos~"NN[SP]"`` and 'pos~"(NNS|NNP)"' are equivalent forms. They may not have the same processing time.
 
 Step quantifiers (*at_least_one, any, optional*)
 ------------------
