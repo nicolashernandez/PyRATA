@@ -120,6 +120,20 @@ An example of pyrata data structure with chunks annotated in IOB tagged format i
 
 
 
+Class of step
+------------------
+
+A **class of step** is a step definition made of a combination of single constraints that a data element should check. The definition is marked by *squared brackets* (``[...]``). *Logical operators* (and ``&``, or ``|`` and not ``!``) and *parenthesis* are available to combine the constraints.
+
+.. doctest ::
+
+    >>> pyrata_re.findall('[(pos="NNS" | pos="NNP") & !raw="pattern"]', data)
+    [[{'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'NNP', 'raw': 'Pyrata'}]]
+
+
+Consequently ``[pos="NNS" | pos="NNP"]``, ``pos~"NN[SP]"`` and 'pos~"(NNS|NNP)"' are equivalent forms. They may not have the same processing time.
+
+
 Sequence of steps
 ------------------
 
@@ -131,18 +145,6 @@ You can search a **sequence of steps**, for example an adjective (tagged *JJ*) f
     >>> pyrata_re.search(pattern, data).group()
     [{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}]
 
-Class of step
-------------------
-
-A **class of step** is a step definition made of a combination of single constraints that a data element should check. The definition is marked by *squared bracket* (``[...]``). *Logical operators* (and ``&``, or ``|`` and not ``!``) and *parenthesis* are available to combine the constraints.
-
-.. doctest ::
-
-    >>> pyrata_re.findall('[(pos="NNS" | pos="NNP") & !raw="pattern"]', data)
-    [[{'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'NNP', 'raw': 'Pyrata'}]]
-
-
-Consequently ``[pos="NNS" | pos="NNP"]``, ``pos~"NN[SP]"`` and 'pos~"(NNS|NNP)"' are equivalent forms. They may not have the same processing time.
 
 Step quantifiers (*at_least_one, any, optional*)
 ------------------
@@ -161,7 +163,7 @@ You can specify a **quantifier to match one or more times consecutively** the sa
 Any quantifier
 ^^^^^^^^^^^^^^^
 
-You can specify a **quantifier to match zero or more times consecutively ** a certain form of an element. The step definition should be followed by the ``*`` symbol:
+You can specify a **quantifier to match zero or more times consecutively** a certain form of an element. The step definition should be followed by the ``*`` symbol:
 
 .. doctest ::
 
@@ -209,22 +211,9 @@ Have a look at test_pyrata to see a more complex example of groups use.
 Alternatives
 ------
 
-Debugging a pattern
-------------------
-To **understand the process of a pyrata_re method**, specify a **verbosity degree** to it (*0 None, 1 +Parsing Warning and Error, 2 +syntactic and semantic parsing logs, 3 +More parsing informations*):
+.. warning:: 
 
-Here some syntactic problems examples: 
-
-.. doctest ::
-
-    >>> pyrata_re.findall('*pos="JJ" [(pos="NNS" | pos="NNP")]', data, verbosity=1)
-    Error: syntactic parsing error - unexpected token type="ANY" with value="*" at position 1. Search an error before this point.
-
-    >>> pyrata_re.findall('pos="JJ"* bla bla [(pos="NNS" | pos="NNP")]', data, verbosity=1)
-    Error: syntactic parsing error - unexpected token type="NAME" with value="bla" at position 17. Search an error before this point.
-
-
-
+  This subsubsection is incomplete. **TODO**
 
 Regular expression methods 
 =====================
@@ -285,6 +274,26 @@ To **get an iterator yielding match objects** over all non-overlapping matches f
     <pyrata_re Match object; span=(3, 4), match="[{'pos': 'JJ', 'raw': 'easy'}]">
     <pyrata_re Match object; span=(5, 6), match="[{'pos': 'JJ', 'raw': 'funny'}]">
     <pyrata_re Match object; span=(8, 9), match="[{'pos': 'JJ', 'raw': 'regular'}]">
+
+
+
+Debugging a pattern
+------------------
+To **understand the process of a pyrata_re method**, specify a **verbosity degree** to it (*0 None, 1 +Parsing Warning and Error, 2 +syntactic and semantic parsing logs, 3 +More parsing informations*):
+
+Here some syntactic problems examples: 
+
+.. doctest ::
+
+    >>> pyrata_re.findall('*pos="JJ" [(pos="NNS" | pos="NNP")]', data, verbosity=1)
+    Error: syntactic parsing error - unexpected token type="ANY" with value="*" at position 1. Search an error before this point.
+
+    >>> pyrata_re.findall('pos="JJ"* bla bla [(pos="NNS" | pos="NNP")]', data, verbosity=1)
+    Error: syntactic parsing error - unexpected token type="NAME" with value="bla" at position 17. Search an error before this point.
+
+
+
+
 
 Compiled regular expression
 ===========================
