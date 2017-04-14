@@ -107,9 +107,10 @@ An example of pyrata data structure with chunks annotated in IOB tagged format i
     >>> data = [{'pos': 'NNP', 'chunk': 'B-PERSON', 'raw': 'Mark'}, {'pos': 'NNP', 'chunk': 'I-PERSON', 'raw': 'Zuckerberg'}, {'pos': 'VBZ', 'chunk': 'O', 'raw': 'is'}, {'pos': 'VBG', 'chunk': 'O', 'raw': 'working'}, {'pos': 'IN', 'chunk': 'O', 'raw': 'at'}, {'pos': 'NNP', 'chunk': 'B-ORGANIZATION', 'raw': 'Facebook'}, {'pos': 'NNP', 'chunk': 'I-ORGANIZATION', 'raw': 'Corp'}, {'pos': '.', 'chunk': 'O', 'raw': '.'}] 
 
 
-.. todo:: 
-
-  The following subsubsection is incomplete.
+.. warning:: The following subsubsection is incomplete.
+.. todo:: finish the subsubsection
+.. seealso:: nothing to see here
+  
 
 TODO
 
