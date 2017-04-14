@@ -57,7 +57,15 @@ To __find all the non-overlapping matches__ of pattern in data, you will use the
 Language expressivity
 =====================
 
-What about the expressivity of the pyrata grammar? A pattern is made of **steps**, eachone specifying the form of the element to match. 
+pyrata data structure
+  Pyrata is intented to process *data* made of *sequence of elements*, each element being a *features set* i.e. a set of name-value attributes. In other words the pyrata data structure is litteraly a ``list`` of ``dict``. 
+
+pyrata pattern
+  Pyrata allows to define *regular expressions* over the pyrata data structure.
+
+*pattern step*
+  The elementary component of a pyrata pattern is the **step**. It corresponds to the set of constraints a data element should match.
+
 
 Sequence of steps
 ------------------
