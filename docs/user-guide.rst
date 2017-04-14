@@ -38,27 +38,28 @@ In addition to exploration methods, the module offers methods to modify the stru
 
 More named arguments (`lexicons`, `verbosity`) allows to set lexicons which can be used to define set of accepted values for a specified feature or the level of verbosity.
 
-### The language to express pattern
+The language to express pattern
+------------------
 
-A __pattern__ is made of one or several steps. A __step__ is, in its simplest form, the specification of a single constraint (*NAME OPERATOR VALUE*) that a data element should satisfy. For a given attribute name, you can specify its required exact value (with `=` *OPERATOR*), a regex definition of its value (`~` *OPERATOR*) or a list of possible values (`@` *OPERATOR*). A more complex step can be a _quantified step_, a _class step_, a _group step_, an _alternatives step_ or a combination of these various types.
-A __quantified step__ allows to set *optional* step (`?`), steps which should occurs *at least one* (`+`), or *zero or more* (`*`). 
-A __class step__ aims at specifing more than one constraints and conditions on them with *parenthesis* (`()`) and logical connectors such as *and* (`&`), *or* (`|`) and *not* (`!`). 
-A __group step__, surrounded by parenthesis  (`()`), is used to refer to and retrieve subparts of the pattern.
-An __alternatives steps__ defines the possible set of step sequences at a specific point of the pattern. 
+A **pattern** is made of one or several steps. A **step** is, in its simplest form, the specification of a single constraint (*NAME OPERATOR VALUE*) that a data element should satisfy. For a given attribute name, you can specify its required exact value (with `=` *OPERATOR*), a regex definition of its value (`~` *OPERATOR*) or a list of possible values (`@` *OPERATOR*). A more complex step can be a *quantified step*, a *class step*, a *group step*, an *alternatives step* or a combination of these various types.
+A **quantified step** allows to set *optional* step (`?`), steps which should occurs *at least one* (`+`), or *zero or more* (`*`). 
+A **class step** aims at specifing more than one constraints and conditions on them with *parenthesis* (`()`) and logical connectors such as *and* (`&`), *or* (`|`) and *not* (`!`). 
+A **group step**, surrounded by parenthesis  (`()`), is used to refer to and retrieve subparts of the pattern.
+An **alternatives steps** defines the possible set of step sequences at a specific point of the pattern. 
 
 
 
 Alternatives
 ------------------
 
-* `python re module <https://docs.python.org/3/library/re.html>` python 3, PSF (open source) License
-* `python nltk chunk module <http://www.nltk.org/_modules/nltk/chunk/regexp.html#RegexpChunkParser>` python 3, Apache v2 
+* `python re module <https://docs.python.org/3/library/re.html>`_ python 3, PSF (open source) License
+* `python nltk chunk module <http://www.nltk.org/_modules/nltk/chunk/regexp.html#RegexpChunkParser>`_ python 3, Apache v2 
 .. [nltk.RegexpParser](https://gist.github.com/alexbowe/879414) ; http://nbviewer.jupyter.org/github/lukewrites/NP_chunking_with_nltk/blob/master/NP_chunking_with_the_NLTK.ipynb ; https://gist.github.com/alexbowe/879414
-* `clips pattern <http://www.clips.ua.ac.be/pattern>` python 2.6, BSD-3
+* `clips pattern <http://www.clips.ua.ac.be/pattern>`_ python 2.6, BSD-3
 .. https://github.com/clips/pattern
-* `spaCy <https://github.com/explosion/spaCy>` python 3, MIT
-* `GATE JAPE <https://gate.ac.uk/sale/tao/splitch8.html>` Java 8, GNU
-* `Apache UIMA RUTA <https://uima.apache.org/ruta.html>` JAVA 8, Apache v2
+* `spaCy <https://github.com/explosion/spaCy>`_ python 3, MIT
+* `GATE JAPE <https://gate.ac.uk/sale/tao/splitch8.html>`_ Java 8, GNU
+* `Apache UIMA RUTA <https://uima.apache.org/ruta.html>`_ JAVA 8, Apache v2
 .. * xpath from me over graph of objects
 .. * linguastream
 
