@@ -50,14 +50,15 @@ An __alternatives steps__ defines the possible set of step sequences at a specif
 
 Alternatives
 ------------------
-* [python re module](https://docs.python.org/3/library/re.html) python 3, PSF (open source) License
-* [python nltk chunk module] (http://www.nltk.org/_modules/nltk/chunk/regexp.html#RegexpChunkParser) python 3, Apache v2 
+
+* `python re module <https://docs.python.org/3/library/re.html>` python 3, PSF (open source) License
+* `python nltk chunk module <http://www.nltk.org/_modules/nltk/chunk/regexp.html#RegexpChunkParser>` python 3, Apache v2 
 .. [nltk.RegexpParser](https://gist.github.com/alexbowe/879414) ; http://nbviewer.jupyter.org/github/lukewrites/NP_chunking_with_nltk/blob/master/NP_chunking_with_the_NLTK.ipynb ; https://gist.github.com/alexbowe/879414
-* [clips pattern](http://www.clips.ua.ac.be/pattern)  python 2.6, BSD-3
+* `clips pattern <http://www.clips.ua.ac.be/pattern>` python 2.6, BSD-3
 .. https://github.com/clips/pattern
-* [spaCy](https://github.com/explosion/spaCy) python 3, MIT
-* [GATE JAPE](https://gate.ac.uk/sale/tao/splitch8.html) Java 8, GNU
-* [Apache UIMA RUTA](https://uima.apache.org/ruta.html), JAVA 8, Apache v2
+* `spaCy <https://github.com/explosion/spaCy>` python 3, MIT
+* `GATE JAPE <https://gate.ac.uk/sale/tao/splitch8.html>` Java 8, GNU
+* `Apache UIMA RUTA <https://uima.apache.org/ruta.html>` JAVA 8, Apache v2
 .. * xpath from me over graph of objects
 .. * linguastream
 
