@@ -11,7 +11,7 @@ User guide
     :local:
 
 
-Quick overview (in console)
+Running pyrata (in console)
 ============================
 
 First run python in console:
@@ -26,45 +26,36 @@ Then import the main pyrata regular expression module:
 
   >>> import pyrata.re as pyrata_re
 
-Let's say you have a sentence in the pyrata data structure format, **a list of dict**. A dict is a map i.e. a set of features, eachone with a name and value (in our case with primitive types).
+
+
+Language expressivity
+=====================
+
+Basic concepts
+--------------
+
+pyrata data structure
+  Pyrata is intented to process *data* made of *sequence of elements*, each element being a *features set* i.e. a set of name-value attributes. In other words the pyrata data structure is litteraly a ``list`` of ``dict``. The expected type of values is the primitive type ``String``.
+
 
 .. doctest ::
 
   >>> data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
 
 There is *no requirement on the names of the features*.
-
-By the way, you can also easily turn a sentence into the pyrata data structure, for example by doing:
-
-.. doctest ::
-
-    >>> import nltk
-    >>> sentence = "It is fast easy and funny to write regular expressions with Pyrata"
-    >>> data =  [{'raw':word, 'pos':pos} for (word, pos) in nltk.pos_tag(nltk.word_tokenize(sentence))]
-
 In the previous code, you see that the names ``raw`` and ``pos`` have been arbitrary choosen to means respectively the surface form of a word and its part-of-speech.
-
-At this point you can use the regular expression methods available to explore the data. Let's say you want to search all the adjectives in the sentence. By chance there is a property which specifies the part of speech of tokens, *pos*, the value of *pos* which stands for adjectives is *JJ*. Your pattern will be:
-
-    >>> pattern = 'pos="JJ"'
-
-To __find all the non-overlapping matches__ of pattern in data, you will use the `findall` method:
-
-    >>> pyrata_re.findall(pattern, data)
-    >>> [[{'pos': 'JJ', 'raw': 'fast'}], [{'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}], [{'pos': 'JJ', 'raw': 'regular'}]]]
-
-
-Language expressivity
-=====================
-
-pyrata data structure
-  Pyrata is intented to process *data* made of *sequence of elements*, each element being a *features set* i.e. a set of name-value attributes. In other words the pyrata data structure is litteraly a ``list`` of ``dict``. 
 
 pyrata pattern
   Pyrata allows to define *regular expressions* over the pyrata data structure.
 
-*pattern step*
+pattern step
   The elementary component of a pyrata pattern is the **step**. It corresponds to the set of constraints a data element should match.
+
+Let's say you want to search all the adjectives in the sentence. By chance there is a property which specifies the part of speech of tokens, *pos*, the value of *pos* which stands for adjectives is *JJ*. Your pattern will be:
+
+.. doctest ::
+
+  >>> pattern = 'pos="JJ"'
 
 
 Sequence of steps
@@ -74,13 +65,14 @@ You can search a **sequence of steps**, for example an adjective (tagged *JJ*) f
 
 .. doctest ::
 
-    >>> pyrata_re.search('pos="JJ" pos="NNS"', data).group()
+    >>> pattern = 'pos="JJ" pos="NNS"'
+    >>> pyrata_re.search(pattern, data).group()
     [{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}]
 
 Class of step
 ------------------
 
-You can specify a **class of steps** by specifying constraints on the properties of the required step with logical operators like:
+You can specify a **class of steps** by combining single constraints on the properties of the required step with logical operators like:
 
 .. doctest ::
 
@@ -387,14 +379,22 @@ Both with update or extend, you can specify if the data obtained should be annot
 Generating the pyrata data structure
 ====================================
 
-Have a look at the ``pyrata_nltk.py`` script (run it). It shows **how to turn various nltk analysis results into the pyrata data structure**.
-In practice two approaches are available: either by building the dict list of fly or by using the dedicated pyrata_nltk methods: ``list2pyrata (**kwargs)`` and ``listList2pyrata (**kwargs)``. 
+Have a look at the ``nltk.py`` script (run it). It shows **how to turn various nltk analysis results into the pyrata data structure**.
+In practice two approaches are available: either by building the dict list on fly or by using the dedicated pyrata nltk methods: ``list2pyrata (**kwargs)`` and ``listList2pyrata (**kwargs)``. 
 
-The former turns a list into a list of dict (e.g. a list of words into a list of dict) with a feature to represent the surface form of the word (default is ``raw``). If parameter ``name`` is given then the dict feature name will be the one set by the first value of the passed list as parameter value of name. If parameter ``dictList`` is given then this list of dict will be extented with the value of the list (named or not). 
+Building the dict list on fly 
+-----------------------------
 
-The latter turns a list of list ``listList`` into a list of dict with values being the elements of the second list; the value names are arbitrary choosen. If the parameter ``names`` is given then the dict feature names will be the ones set (the order matters) in the list passed as ``names`` parameter value. If parameter ``dictList`` is given then the list of dict will be extented with the values of the list (named or not).
+Thanks to python, you can also easily turn a sentence into the pyrata data structure, for example by doing:
 
-Example for generating complex data on fly:
+.. doctest ::
+
+    >>> import nltk
+    >>> sentence = "It is fast easy and funny to write regular expressions with Pyrata"
+    >>> pyrata_data =  [{'raw':word, 'pos':pos} for (word, pos) in nltk.pos_tag(nltk.word_tokenize(sentence))]
+    pyrata_data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+
+Generating a more complex data on fly is similarly easy:
 
 .. doctest ::
 
@@ -405,5 +405,12 @@ Example for generating complex data on fly:
     >>> pyrata_data =  [{'raw':word, 'pos':pos, 'stem':nltk.stem.SnowballStemmer('english').stem(word), 'lem':nltk.WordNetLemmatizer().lemmatize(word.lower()), 'sw':(word in nltk.corpus.stopwords.words('english')), 'chunk':chunk} for (word, pos, chunk) in tree2conlltags(ne_chunk(pos_tag(word_tokenize(sentence))))]
     >>> pyrata_data
     [{'lem': 'mark', 'raw': 'Mark', 'sw': False, 'stem': 'mark', 'pos': 'NNP', 'chunk': 'B-PERSON'}, {'lem': 'is', 'raw': 'is', 'sw': True, 'stem': 'is', 'pos': 'VBZ', 'chunk': 'O'}, {'lem': 'working', 'raw': 'working', 'sw': False, 'stem': 'work', 'pos': 'VBG', 'chunk': 'O'}, {'lem': 'at', 'raw': 'at', 'sw': True, 'stem': 'at', 'pos': 'IN', 'chunk': 'O'}, {'lem': 'facebook', 'raw': 'Facebook', 'sw': False, 'stem': 'facebook', 'pos': 'NNP', 'chunk': 'B-ORGANIZATION'}, {'lem': 'corp', 'raw': 'Corp', 'sw': False, 'stem': 'corp', 'pos': 'NNP', 'chunk': 'I-ORGANIZATION'}, {'lem': '.', 'raw': '.', 'sw': False, 'stem': '.', 'pos': '.', 'chunk': 'O'}]
+
+Dedicated methods to generate the pyrata data structure 
+-------------------------------------------------------
+
+The former method, ``list2pyrata``, turns a list into a list of dict (e.g. a list of words into a list of dict) with a feature to represent the surface form of the word (default is ``raw``). If parameter ``name`` is given then the dict feature name will be the one set by the first value of the passed list as parameter value of name. If parameter ``dictList`` is given then this list of dict will be extented with the value of the list (named or not). 
+
+The latter, ``listList2pyrata``, turns a list of list ``listList`` into a list of dict with values being the elements of the second list; the value names are arbitrary choosen. If the parameter ``names`` is given then the dict feature names will be the ones set (the order matters) in the list passed as ``names`` parameter value. If parameter ``dictList`` is given then the list of dict will be extented with the values of the list (named or not).
 
 Example of uses of pyrata dedicated conversion methods: See the ``nltk.py`` scripts
