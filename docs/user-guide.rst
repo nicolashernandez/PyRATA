@@ -11,6 +11,63 @@ User guide
     :local:
 
 
+Brief introduction
+============================
+
+
+Traditional regular expression (RE) engines handle character strings; In other words, lists of character tokens.
+In Natural Language Processing, RE are used to define patterns which are used to recognized some phenomena in texts.
+They are the essence of the rule-based approach for analysing the texts.
+
+The data structure
+------------------
+
+But a character string is somehow a poor data structure. In the present work, we are dealing with lists of dict elements. The dict python type is a data structure to represent a set of name-value attributes. Right now we only handle primitive types as allowed values.
+The objective is to offer a language and an engine to define patterns aiming at matching (parts of) lists of featureset. 
+
+In the most common use case, a featureset list is a data structure used to represent a sentence as sequence of words, each word token coming with a set of features. 
+But it is not limited to the representation of sentences. It can also be used to represent a text, with the sentence as token unit. Each sentence with its own set of features.
+
+The API to process the data
+------------------
+
+The API is developed to be familiar for whom who develops with the python re module API. 
+
+The module defines several known functions such as `search`, `findall`, or `finditer`. The functions are also available for compiled regular expressions. The former take at least two arguments including the pattern to recognize and the data to explore (e.g. `re.search(pattern, data)`) while the latter take at least one, the data to explore (e.g. `compiledPattern.search(data)`).
+In addition to exploration methods, the module offers methods to modify the structure of the data either by substitution (`sub`) or update (`update`) or extension (`extend`) of the data feature structures.
+
+More named arguments (`lexicons`, `verbosity`) allows to set lexicons which can be used to define set of accepted values for a specified feature or the level of verbosity.
+
+### The language to express pattern
+
+A __pattern__ is made of one or several steps. A __step__ is, in its simplest form, the specification of a single constraint (*NAME OPERATOR VALUE*) that a data element should satisfy. For a given attribute name, you can specify its required exact value (with `=` *OPERATOR*), a regex definition of its value (`~` *OPERATOR*) or a list of possible values (`@` *OPERATOR*). A more complex step can be a _quantified step_, a _class step_, a _group step_, an _alternatives step_ or a combination of these various types.
+A __quantified step__ allows to set *optional* step (`?`), steps which should occurs *at least one* (`+`), or *zero or more* (`*`). 
+A __class step__ aims at specifing more than one constraints and conditions on them with *parenthesis* (`()`) and logical connectors such as *and* (`&`), *or* (`|`) and *not* (`!`). 
+A __group step__, surrounded by parenthesis  (`()`), is used to refer to and retrieve subparts of the pattern.
+An __alternatives steps__ defines the possible set of step sequences at a specific point of the pattern. 
+
+
+
+Alternatives
+------------------
+* [python re module](https://docs.python.org/3/library/re.html) python 3, PSF (open source) License
+* [python nltk chunk module] (http://www.nltk.org/_modules/nltk/chunk/regexp.html#RegexpChunkParser) python 3, Apache v2 
+.. [nltk.RegexpParser](https://gist.github.com/alexbowe/879414) ; http://nbviewer.jupyter.org/github/lukewrites/NP_chunking_with_nltk/blob/master/NP_chunking_with_the_NLTK.ipynb ; https://gist.github.com/alexbowe/879414
+* [clips pattern](http://www.clips.ua.ac.be/pattern)  python 2.6, BSD-3
+.. https://github.com/clips/pattern
+* [spaCy](https://github.com/explosion/spaCy) python 3, MIT
+* [GATE JAPE](https://gate.ac.uk/sale/tao/splitch8.html) Java 8, GNU
+* [Apache UIMA RUTA](https://uima.apache.org/ruta.html), JAVA 8, Apache v2
+.. * xpath from me over graph of objects
+.. * linguastream
+
+
+Limitations
+------------------
+
+* cannot handle overlapping annotations  
+
+
 Running pyrata (in console)
 ============================
 
