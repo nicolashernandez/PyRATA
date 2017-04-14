@@ -27,7 +27,7 @@ In short, PyRATA
 * is released under the **MIT Licence** which is *a short and simple permissive license*;
 * is *fun and easy to use* to explore data for research or pedagocial motivations, define machine learning features, formulate expert knowledge in a declarative way.
 
-See the *Quick overview* section below and the `user guide <docs/user-guide.rst>` for more details and examples.
+See the *Quick overview* section below and the `user guide <docs/user-guide.rst>`_ for more details and examples.
 
 Download and installation procedure
 ===========
@@ -64,7 +64,7 @@ Of course, as any python module you can barely copy the pyrata sub dir in your p
 Requirement
 ------------------------
 
-PyRATA use the [PLY](http://www.dabeaz.com/ply/ply.html "PLY") implementation of lex and yacc parsing tools for Python (version 3.10).
+PyRATA use the `PLY <http://www.dabeaz.com/ply/ply.html>`_ implementation of lex and yacc parsing tools for Python (version 3.10).
 
 You do not need to care about this stage if you performed the install procedure above.
 
@@ -131,5 +131,5 @@ To **find all the non-overlapping matches** of pattern in data, you will use the
     >>> pyrata_re.findall(pattern, data)
     >>> [[{'pos': 'JJ', 'raw': 'fast'}], [{'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}], [{'pos': 'JJ', 'raw': 'regular'}]]]
 
-More information in the `user guide <docs/user-guide.rst>`. 
+More information in the `user guide <docs/user-guide.rst>`_. 
 
