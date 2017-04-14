@@ -1,4 +1,5 @@
 .. http://www.sphinx-doc.org/en/stable/rest.html
+.. http://rst.ninjs.org/
 
 ********************
 User guide
@@ -6,7 +7,7 @@ User guide
 
 :Last Reviewed: 2017-04-17
 
-..contents:: Contents
+.. contents:: Contents
     :local:
 
 
@@ -15,27 +16,24 @@ Quick overview (in console)
 
 First run python
 
-.. highlight:: python
+.. code-block:: python
 
-    python3
+  python3
 
-Then import the main pyrata regular expression module:
-
-.. highlight:: python
+Then import the main pyrata regular expression module::
 
     import pyrata.re as pyrata_re
 
 Let's say you have a sentence in the pyrata data structure format, __a list of dict__. A dict is a map i.e. a set of features, eachone with a name and value (in our case with primitive types).
+::
 
-.. highlight:: python
+  data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
 
-    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
-
-There is __no requirement on the names of the features__.
+There is *no requirement on the names of the features*.
 
 By the way, you can also easily turn a sentence into the pyrata data structure, for example by doing:
 
-.. highlight:: python
+.. doctest ::
 
     >>> import nltk
     >>> sentence = "It is fast easy and funny to write regular expressions with Pyrata"
@@ -49,7 +47,7 @@ Regular expression methods to explore the data
 
 At this point you can use the regular expression methods available to explore the data. Let's say you want to search the advectives. By chance there is a property which specifies the part of speech of tokens, *pos*, the value of *pos* which stands for adjectives is *JJ*.
 
-.. function:: foo(x)
+.. code-block:: foo(x)
               foo(y, z)
    :module: some.module.name
 
