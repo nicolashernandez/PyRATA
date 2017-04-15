@@ -80,6 +80,21 @@ class Match(object):
     '''
     return self.groups[self.get_group_id(*argv)][Match.END]
 
+  def setStart(self, start, *argv):
+    '''
+    Set the indice of the start of the subdata matched by group; 
+    group default to zero (meaning the whole matched data).
+    '''
+    self.groups[self.get_group_id(*argv)][Match.START] = start
+
+  def setEnd(self, end, *argv):
+    '''
+    Set the indice of the end of the subdata matched by group; 
+    group default to zero (meaning the whole matched data).
+    '''
+    self.groups[self.get_group_id(*argv)][Match.END] = end
+       
+
   def __eq__(self, other):
     if other == None: 
       return False
@@ -109,6 +124,13 @@ class MatchesList(object):
 
   def append(self, match):
     self.matcheslist.append(match)
+
+  def extend(self, another_matcheslist):
+    self.matcheslist.extend(another_matcheslist)  
+
+  def delete(self, index):
+    del self.matcheslist[index]
+
 
   def group(self, *args):
     if len(self.matcheslist) == 0: 
@@ -180,28 +202,37 @@ def evaluate (lexer, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
   verbosity = 0
   if 'verbosity' in kwargs.keys():
     verbosity = kwargs['verbosity']
-  if verbosity >2:
-    print ('\t_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _')
+  #if verbosity >2:
+  #  print ('  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _')
 
   data_cursor_extension  = 1
   group_id = 0
+  r = None
 
   if not(isinstance(pattern_step, list)): 
     if verbosity >2:
-      print ('\tStarting the evaluation... of a pattern step single group=', pattern_step)
+      print ('      Evaluation starting... of a pattern step SINGLE GROUP=', pattern_step)
 
     lexer.lexer.data = [data[data_cursor]]
     lexer.lexer.data_cursor = 0
     lexer.lexer.pattern_cursor = 0
     e = SemanticStepParser(tokens=lexer.tokens, **kwargs)
     e.parser.parse(pattern_step, lexer.lexer) # removed tracking=True
+
+    #r = MatchesList()    
+    #r.append(Match(value=pattern_step, start=data_cursor, end=data_cursor+1))
+
+    #  print ('  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _')
+    if verbosity >2: 
+      print ('      Evaluation ending... of a pattern step SINGLE GROUP ; return r={}'.format(r))
+
   else:
     if verbosity >2:
-      print ('\tStarting the evaluation... of a pattern step made of alternative groups=')
-      print ('\t\t[')
+      print ('      Evaluation starting... of a pattern step ALTERNATIVE GROUPS=')
+      print ('        [')
       for g in pattern_step:
-        print ('\t\t\t{}'.format(g))
-      print ('\t\t]')
+        print ('          {}'.format(g))
+      print ('        ]')
     #print ('Debug: lexer.group_pattern_offsets_group_list=',lexer.lexer.group_pattern_offsets_group_list)
     #local_l = lexer l # defines a new reference
     local_l = Lexer(pattern="", lexicons=lexer.lexer.lexicons)
@@ -215,7 +246,7 @@ def evaluate (lexer, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
     #   then check
     while len(r) == 0 and group_id < len (pattern_step):
       if verbosity >2:
-        print ('\tSemantic parsing initialization of pattern_steps_group[{}]={}'.format(group_id, pattern_step[group_id]))
+        print ('      Evaluation starting... of group[{}]={}'.format(group_id, pattern_step[group_id]))
 
       local_l.lexTokenEndDict = lexer.lexTokenEndDict
 
@@ -258,14 +289,20 @@ def evaluate (lexer, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
       #print ('Debug: r={}'.format(r))
       #print ('Debug: r[0][0]={}'.format(r.group(0).group(0)))
       #print ('Debug: data_cursor_extension=',data_cursor_extension)
+      for m in r:
+        #print ('Debug: before update m={}'.format(m))
+        m.setStart(m.start() + data_cursor)
+        m.setEnd(m.end() + data_cursor)
+        #print ('Debug: after update m={}'.format(m))
     else:
       lexer.lexer.truth_value = False
 
-  if verbosity >2: 
-    print ('\tEnding the evaluation... of a pattern step')
-    print ('\t_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _')
+    if verbosity >2: 
+      print ('      Evaluation ending... of a pattern step ALTERNATIVE GROUPS ; return r={}'.format(r))
 
-  return lexer.lexer.truth_value, data_cursor_extension, len(pattern_step[group_id-1]) 
+  #  print ('  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _')
+
+  return lexer.lexer.truth_value, data_cursor_extension, len(pattern_step[group_id-1]), r 
 
 
 
@@ -280,14 +317,27 @@ def parse_semantic (compiledPattern, data, **kwargs):
     verbosity = kwargs['verbosity']
 
   if verbosity >1:
-    print ('\t________________________________________________')      
-    print ('\tStarting semantic parsing...')  
+    # print ('  ________________________________________________')      
+    print ('  Semantic parsing starting...')  
 
   l = compiledPattern.getLexer()
   pattern_data_start = 0
   data_cursor = 0
   pattern_cursor = 0
   pattern_steps = l.lexer.pattern_steps
+  # print ('# Revised syntactic structure parsed:')
+  # print ('Debug: pattern_steps=',pattern_steps)
+
+  # for s in pattern_steps:
+  #   print ('Debug: s=',s)
+  #   print ('Debug: s[0]=',s[0])
+  #   print ('Debug: s[1]=',s[1])    
+  #   if isinstance(s[1], list): 
+  #     print ('  [',s[0])
+  #     for g in s[1]:
+  #       print ('    {}'.format(g))
+  #     print ('  ]')
+  #   else: print ('  {}'.format(s))   
   group_pattern_offsets_group_list = l.lexer.group_pattern_offsets_group_list
 
   match_on_going = False    # a pattern is being recognized
@@ -296,6 +346,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
   group_end_index = []      # the end positions of each recognized group 
 
   matcheslist = MatchesList()         # list of matched data
+  temporary_matcheslist = MatchesList()         # list of matched data
 
   pattern_cursor_to_data_cursor = {} 
 
@@ -305,35 +356,46 @@ def parse_semantic (compiledPattern, data, **kwargs):
     quantifier, step = pattern_steps[pattern_cursor]
     # data_token = data[data_cursor]
     if verbosity >1:
-      # print ('\t------------------------------------------------')
-      print ('\t_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _')
-      print ('\tState: pattern_cursor="{}" quantifier="{}" pattern_step=[{}] data_cursor="{}" data_token="{}" '
-        .format(pattern_cursor, quantifier, step, data_cursor, data[data_cursor]))        
-      print ('\t_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _')
+      # print ('  ------------------------------------------------')
+      #print ('  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _')
+      #print ('  State data_cursor="{}" data_token="{}"  pattern_cursor="{}" quantifier="{}" pattern_step=[{}] '
+      #  .format(data_cursor, data[data_cursor], pattern_cursor, quantifier, step ))   
+
+      print ('  Exploring data[{}]="{}"  with pattern_steps[{}]="{}" and quantifier="{}"'
+        .format(data_cursor, data[data_cursor], pattern_cursor, step, quantifier))        
+      #print ('  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _')
 
     # step without quantifier
     if quantifier == None:
-      if verbosity >1: print ('\tEvaluating none_quantifier pattern_step')
-      step_evaluation, data_cursor_extension, pattern_cursor_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
+      if verbosity >1: print ('  Evaluating NONE_QUANTIFIER pattern_step')
+      step_evaluation, data_cursor_extension, pattern_cursor_extension, matcheslist_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
       if step_evaluation:
-        if verbosity >1: print ('\tEvaluation result: match pattern_step')        
+        if verbosity >1: print ('    Evaluation result: MATCH ')        
         # first pattern step matched
         if not(match_on_going):
-          if verbosity >1: print ('\tAction: start recognition and store the data_cursor as a start position')
+          if verbosity >1: print ('    Action: start recognition and store the data_cursor as a start position')
           group_start_index.append(data_cursor)
           match_on_going = True
+        if matcheslist_extension != None:
+          print ('Debug: extension of temporary_matcheslist with=',matcheslist_extension)  
+          temporary_matcheslist.extend(matcheslist_extension)
+          print ('Debug: temporary_matcheslist after extension=',temporary_matcheslist)  
+        else:
+          print ('Debug: no extension since matcheslist_extension=',matcheslist_extension)  
+
         pattern_cursor_to_data_cursor[pattern_cursor] = data_cursor  
         pattern_cursor += 1
       else:
         # abort recognition
-        if verbosity >1: print ('\tEvaluation result: unmatch pattern_step')
+        if verbosity >1: print ('    Evaluation result: UNMATCH')
         if match_on_going:
-          if verbosity >1: print ('\tAction: abort recognition')
+          if verbosity >1: print ('    Action: abort recognition')
           group_start_index.pop()
         match_on_going = False
         pattern_data_start = pattern_data_start+1
         pattern_cursor = 0
         pattern_cursor_to_data_cursor = {}
+        temporary_matcheslist = MatchesList()
         if l.lexer.pattern_must_match_data_start:
           break
 
@@ -342,135 +404,165 @@ def parse_semantic (compiledPattern, data, **kwargs):
     # optional step
     elif quantifier == '?':
       pattern_cursor_to_data_cursor[pattern_cursor] = data_cursor   
-      if verbosity >1: print ('\tEvaluating optional pattern_step')
-      step_evaluation, data_cursor_extension, pattern_cursor_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
+      if verbosity >1: print ('    Evaluating OPTION pattern_step')
+      step_evaluation, data_cursor_extension, pattern_cursor_extension, matcheslist_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
       if step_evaluation:
-        if verbosity >1: print ('\tEvaluation result: match optional pattern_step')
+        if verbosity >1: print ('    Evaluation OPTION result: MATCH ')
         # first pattern step matched
         if not(match_on_going):
-          if verbosity >1: print ('\tAction: start recognition and store the data_cursor as a start position')
+          if verbosity >1: print ('    Action: start recognition and store the data_cursor as a start position')
           match_on_going = True
           group_start_index.append(data_cursor)  
-        #pattern_cursor_to_data_cursor[pattern_cursor] = data_cursor   
+        #pattern_cursor_to_data_cursor[pattern_cursor] = data_cursor
+        if matcheslist_extension != None:
+          print ('Debug: extension of temporary_matcheslist with=',matcheslist_extension)  
+          temporary_matcheslist.extend(matcheslist_extension)
+          print ('Debug: temporary_matcheslist after extension=',temporary_matcheslist)         
         data_cursor += data_cursor_extension  
       else:
-        if verbosity >1: print ('\tEvaluation result: unmatch optional pattern_step')
+        if verbosity >1: print ('    Evaluation OPTION result: UNMATCH')
       pattern_cursor += 1 
 
     elif quantifier == '*':
       any_iter  = 0
       pattern_cursor_to_data_cursor[pattern_cursor] = data_cursor   
-      if verbosity >1: print ('\tEvaluating any pattern_step')
-      step_evaluation = step_evaluation, data_cursor_extension, pattern_cursor_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
+      if verbosity >1: print ('    Evaluating ANY pattern_step')
+      step_evaluation = step_evaluation, data_cursor_extension, pattern_cursor_extension, matcheslist_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
       while step_evaluation:
-        if verbosity >1: print ('\tEvaluation result: in any pattern_step "{}" iteration, match_on_going="{}", data_cursor="{}", data_token="{}"'
+        if verbosity >1: print ('    Evaluation result: in any pattern_step "{}" iteration, match_on_going="{}", data_cursor="{}", data_token="{}"'
           .format(any_iter, match_on_going, data_cursor, data[data_cursor]))
         if any_iter == 0:
           # first pattern step matched
           if not(match_on_going):
-            if verbosity >1: print ('\tAction: start recognition and store the data_cursor as a start position')
+            if verbosity >1: print ('    Action: start recognition and store the data_cursor as a start position')
             match_on_going = True
             group_start_index.append(data_cursor)   
           #pattern_cursor_to_data_cursor[pattern_cursor] = data_cursor
+        if matcheslist_extension != None:
+          print ('Debug: extension of temporary_matcheslist with=',matcheslist_extension)  
+          temporary_matcheslist.extend(matcheslist_extension)
+          print ('Debug: temporary_matcheslist after extension=',temporary_matcheslist)  
         data_cursor += data_cursor_extension 
         any_iter += 1
         # case where a complex pattern has one first part being recognized while the data ends
         if data_cursor >= len(data):
           break
 
-        step_evaluation, data_cursor_extension, pattern_cursor_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)  
+        step_evaluation, data_cursor_extension, pattern_cursor_extension, matcheslist_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)  
 
-      if verbosity >1: print ('\tEvaluation result: after any pattern_step evaluation : "{}" iteration, match_on_going="{}", data_cursor="{}", data_token="{}"'
+      if verbosity >1: print ('    Evaluation result: after ANY pattern_step evaluation : "{}" iteration, match_on_going="{}", data_cursor="{}", data_token="{}"'
           .format(any_iter, match_on_going, data_cursor, data[data_cursor] if data_cursor < len(data) else 'no-more'))
 
       pattern_cursor += 1 
 
       if any_iter > 0:
-        if verbosity >1: print ('\tEvaluation result: some data_token have been recognized')
+        if verbosity >1: print ('    Evaluation result: some data_token have been recognized')
         # case where *[ab]b
         if pattern_cursor < len(pattern_steps) :
           next_quantifier, next_step = pattern_steps[pattern_cursor]
-          if verbosity >1: print ('\tchecking the *[ab]b case: any_iter="{}", pattern_cursor="{}", next_step="{}", data_cursor="{}", data[data_cursor-1]="{}"'
+          if verbosity >1: print ('    checking the b*b case: any_iter="{}", pattern_cursor="{}", next_step="{}", data_cursor="{}", data[data_cursor-1]="{}"'
             .format(any_iter, pattern_cursor, next_step, data_cursor, data[data_cursor - 1]))
-          step_evaluation, data_cursor_extension, pattern_cursor_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor - 1, **kwargs)
+          step_evaluation, next_data_cursor_extension, next_pattern_cursor_extension, next_matcheslist_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor - 1, **kwargs)
           if any_iter > 0 and step_evaluation:
-            if verbosity >1: print ('\tAction: modify the cursor to face the case of *[ab]b')
+            if verbosity >1: print ('    Action: modify the cursor to face the case of b*b')
             data_cursor -= data_cursor_extension
+            if matcheslist_extension != None:
+              for i in len(matcheslist_extension):
+                temporary_matcheslist.delete(-1)
+
 
     elif quantifier == '+':
-      if verbosity >1: print ('\tEvaluating at_least_one pattern_step')
+      if verbosity >1: print ('    Evaluating AT_LEAST_ONE pattern_step')
       any_iter  = 0
-      step_evaluation = step_evaluation, data_cursor_extension, pattern_cursor_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
+      step_evaluation = step_evaluation, data_cursor_extension, pattern_cursor_extension, matcheslist_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
       while step_evaluation:
-        if verbosity >1: print ('\tEvaluation result: in at_least_one pattern_step "{}" iteration, match_on_going="{}", data_cursor="{}", data_token="{}"'
+        if verbosity >1: print ('    Evaluation result: in AT_LEAST_ONE pattern_step "{}" iteration, match_on_going="{}", data_cursor="{}", data_token="{}"'
             .format(any_iter, match_on_going, data_cursor, data[data_cursor]))
         if any_iter == 0:
           # first pattern step matched
           if not(match_on_going):
-            if verbosity >1: print ('\tAction: start recognition and store the data_cursor as a start position')
+            if verbosity >1: print ('    Action: start recognition and store the data_cursor as a start position')
             match_on_going = True
             group_start_index.append(data_cursor)
           pattern_cursor_to_data_cursor[pattern_cursor] = data_cursor      
+        if matcheslist_extension != None:
+          print ('Debug: extension of temporary_matcheslist with=',matcheslist_extension)  
+          temporary_matcheslist.extend(matcheslist_extension)
+          print ('Debug: temporary_matcheslist after extension=',temporary_matcheslist)  
         data_cursor += data_cursor_extension
         any_iter += 1
         # case where a complex pattern has one first part being recognized while the data ends
         if data_cursor >= len(data):
           break
-        step_evaluation, data_cursor_extension, pattern_cursor_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
+        step_evaluation, data_cursor_extension, pattern_cursor_extension, matcheslist_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
 
-      if verbosity >1: print ('\tEvaluation result: after at_least_one pattern_step evaluation : "{}" iteration, match_on_going="{}", data_cursor="{}", data_token="{}"'
+      if verbosity >1: print ('    Evaluation result: after AT_LEAST_ONE pattern_step evaluation : "{}" iteration, match_on_going="{}", data_cursor="{}", data_token="{}"'
           .format(any_iter, match_on_going, data_cursor, data[data_cursor] if data_cursor < len(data) else 'no-more'))
 
       if any_iter > 0: 
         pattern_cursor += 1 
-        if verbosity >1: print ('\tEvaluation result:some data_token have been recognized')
+        if verbosity >1: print ('    Evaluation result: some data_token have been recognized')
         # case where +[b]b to recognize bbb
         if any_iter > 1 and pattern_cursor < len(pattern_steps) : 
         # at least 2 iterations are required, since it is '+', we cannot modify the first one
           next_quantifier, next_step = pattern_steps[pattern_cursor]
-          step_evaluation, data_cursor_extension, pattern_cursor_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor - 1, **kwargs)
+          if verbosity >1: print ('    checking the b+b case: any_iter="{}", pattern_cursor="{}", next_step="{}", data_cursor="{}", data[data_cursor-1]="{}"'
+            .format(any_iter, pattern_cursor, next_step, data_cursor, data[data_cursor - 1]))          
+          step_evaluation, next_data_cursor_extension, next_pattern_cursor_extension, next_matcheslist_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor - 1, **kwargs)
           if any_iter > 0 and step_evaluation:
-            if verbosity >1: print ('\tmodify the cursors to face the case of *[ab]b')
+            if verbosity >1: print ('    modify the cursors to face the case of ab+b')
             data_cursor -= data_cursor_extension
+            if matcheslist_extension != None:
+              for i in len(matcheslist_extension):
+                temporary_matcheslist.delete(-1)
       else:
         # abort recognition
-        if verbosity >1: print ('\tEvaluation result: no data_token has been recognized')
+        if verbosity >1: print ('    Evaluation result: no data_token has been recognized')
         if match_on_going:
-          if verbosity >1: print ('\tAction: abort recognition')
+          if verbosity >1: print ('    Action: abort recognition')
           group_start_index.pop()
         match_on_going = False
         pattern_data_start = pattern_data_start+1
         pattern_cursor = 0
         data_cursor += 1
         pattern_cursor_to_data_cursor = {}
+        temporary_matcheslist = MatchesList()
         if l.lexer.pattern_must_match_data_start:
           break
   
 
 #   # a pattern has been recognized
     #if verbosity >2: 
-    #  print ('\t\tpattern_cursor="{}" quantifier="{}" pattern_step=[{}] len(pattern_steps)="{}" data_cursor="{}" data_token="{}" match_on_going="{}"'.format(pattern_cursor, quantifier, step, len(pattern_steps), data_cursor, data_token, match_on_going))        
+    #  print ('    pattern_cursor="{}" quantifier="{}" pattern_step=[{}] len(pattern_steps)="{}" data_cursor="{}" data_token="{}" match_on_going="{}"'.format(pattern_cursor, quantifier, step, len(pattern_steps), data_cursor, data_token, match_on_going))        
     if pattern_cursor >= len(pattern_steps):
       if match_on_going:
+        if verbosity >1: 
+          print ('  Semantic parsing result:') 
+          print ('    recognition of a whole pattern') 
+          print ('    store the data_cursor as a end position')
+          #print ('  create the Match(start={}, end={}, value={})'.format(start, end, data[start:end]))
         group_end_index.append(data_cursor)           
         start = group_start_index[len(group_start_index)-1]
         end = group_end_index[len(group_start_index)-1]
         pattern_cursor_to_data_cursor[pattern_cursor] = data_cursor 
         current_groups = []
+        print ('Debug: data_cursor=', data_cursor)
+        print ('Debug: pattern_cursor=', pattern_cursor)
         #if verbosity >2: 
-        #  print ('\tgroup_pattern_offsets_group_list=', group_pattern_offsets_group_list)
-        #  print ('\tpattern_cursor_to_data_cursor=', pattern_cursor_to_data_cursor)
+        #  print ('  group_pattern_offsets_group_list=', group_pattern_offsets_group_list)
+        #  print ('  pattern_cursor_to_data_cursor=', pattern_cursor_to_data_cursor)
         for s, e in group_pattern_offsets_group_list:
-          #current_groups.append([data[start:end], s, e])
+          print ('Debug: group_pattern_offsets_group_list=', group_pattern_offsets_group_list)
+          print ('Debug: pattern_cursor_to_data_cursor=', pattern_cursor_to_data_cursor)
+          print ('Debug: pattern_cursor_to_data_cursor[{}]={} pattern_cursor_to_data_cursor[{}]={}'.format(
+            s, pattern_cursor_to_data_cursor[s], e, pattern_cursor_to_data_cursor[e]))  
           current_groups.append([data[pattern_cursor_to_data_cursor[s]:pattern_cursor_to_data_cursor[e]], pattern_cursor_to_data_cursor[s], pattern_cursor_to_data_cursor[e]])
-          #print ('Debug: pattern_cursor_to_data_cursor[{}]={} pattern_cursor_to_data_cursor[{}]={}'.format(s, pattern_cursor_to_data_cursor[s], e, pattern_cursor_to_data_cursor[e]))  
-
+        if matcheslist_extension != None: 
+          for m in matcheslist_extension:
+            print ('Debug: m.group()={}, m.start()={}, m.end()={}'.format(m.group(), m.start(), m.end())) 
+            current_groups.append([m.group(), m.start(), m.end()])
         if verbosity >1: 
-          print ('\tSemantic parsing result:') 
-          print ('\t\trecognition of a whole pattern') 
-          print ('\t\tstore the data_cursor as a end position')
-          #print ('\tcreate the Match(start={}, end={}, value={})'.format(start, end, data[start:end]))
-          print ('\t\tcreate the Match(groups={})'.format(current_groups))
+          print ('    create the Match(groups={})'.format(current_groups))
         #print ('Debug: l.lexer.group_pattern_offsets_group_list=', l.lexer.group_pattern_offsets_group_list)
 
         #match = Match (start=start, end=end, value=data[start:end])
@@ -478,9 +570,19 @@ def parse_semantic (compiledPattern, data, **kwargs):
         #matcheslist.append(match)
         #print ('Debug: current_groups=', current_groups)
 
-
-        if not(l.lexer.pattern_must_match_data_end) or (l.lexer.pattern_must_match_data_end and data_cursor == len(data)): 
+        # FIXME !!!
+        if not(l.lexer.pattern_must_match_data_end) or (l.lexer.pattern_must_match_data_end and data_cursor == len(data)):
+          print ('Debug: creating the matcheslist corresponding to current_groups=',current_groups)
+          #print ('Debug: temporary_matcheslist=',temporary_matcheslist)
+          print ('Debug: matcheslist before append/extension=',matcheslist)
+          #if matcheslist_extension == None:  
           matcheslist.append(Match(groups=current_groups))
+          print ('Debug: matcheslist after append(current_group)=',matcheslist)
+          #else:
+          #if matcheslist_extension != None:   
+          #  matcheslist.extend(temporary_matcheslist)
+          #  print ('Debug: matcheslist after extend(temporary_matcheslist)=',matcheslist)
+
         
         # stop parsing after the first match or if findall but only possible match since the pattern_must_match_data_start !
         if l.lexer.re in ['search', 'match'] or l.lexer.pattern_must_match_data_start:  
@@ -488,7 +590,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
       else:
         # we are in the case of a pattern made of a single optional step which was not recognized
         # we have to step forward otherwise we fall in an infinite loop
-        if verbosity >1: print ('\tcase of a pattern made of a single optional step which was not recognized, we move forward data_cursor')
+        if verbosity >1: print ('  Case of a pattern made of a single optional step which was not recognized, we move forward data_cursor')
         data_cursor += 1
          
       pattern_data_start = data_cursor
@@ -497,11 +599,13 @@ def parse_semantic (compiledPattern, data, **kwargs):
       if l.lexer.pattern_must_match_data_start:
         break
     else: 
-      if verbosity >1: print ('\tSemantic parsing result:\n\t\tsome pattern recognition may be on going but none full form has been recognized after processing this pattern_step')
+      if verbosity >1: print ('  Semantic parsing result:\n    some pattern recognition may be on going but none full form has been recognized after processing this pattern_step')
   
+
   if verbosity >1:       
     #print('Debug: matcheslist=', matcheslist)
-    print ('\tEnding semantic parsing.')  
+    print ('  Ending semantic parsing.')  
+  print ('Debug: matcheslist=',matcheslist)
   return matcheslist
 
 

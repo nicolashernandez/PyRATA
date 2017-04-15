@@ -485,12 +485,17 @@ class TestPyrata(object):
     #pattern = 'raw="It" (raw="is" |fa="ke") (( pos="JJ"* (pos="JJ" raw="and"|fa="ke") (pos="JJ"|fa="ke") |fa="ke")|fa="ke") (raw="to"|fa="ke")'
     #pattern = 'raw="It" (raw="is"|fa="ke") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )|fa="ke") (raw="to"|fa="ke")'
     #pattern = 'raw="It" (raw="is"|fa="ke") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to"|fa="ke")'
-  
+    #pattern = 'raw="A" (raw="B") (( raw="C"* (raw="C" raw="D") (raw="E") )) (raw="F")'
+
     #pattern = '(raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    #data = [{'raw': 'A'}, {'raw': 'B'}, {'raw': 'C'}, {'raw': 'C'}, {'raw': 'D'}, {'raw': 'E'}, {'raw': 'F'}, {'raw': 'G'}, {'raw': 'H'}, {'raw': 'I'}, {'raw': 'J'},{'raw': 'K'}]
+
     expected = [[[{'pos': 'PRP', 'raw': 'It'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}], 0, 7], [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], [[{'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}], 3, 5], [[{'raw': 'funny', 'pos': 'JJ'}], 5, 6], [[{'raw': 'to', 'pos': 'TO'}], 6, 7]]
     #self.test(description, method, lexicons, pattern, data, expected, verbosity)  
-    result = pyrata.re.search(pattern, data, lexicons=lexicons, verbosity = verbosity).groups
+    result = pyrata.re.search(pattern, data, lexicons=lexicons, verbosity = verbosity)
+    print ('Debug: result=',result)
+    result = result.groups
 
     #print ('Debug: type(result)=',result)
     if verbosity >0:
@@ -1116,7 +1121,7 @@ class TestPyrata(object):
 
   def __init__(self):
 
-    myverbosity = 1
+    myverbosity = 2
     self.test_search_step_in_data(myverbosity)
     self.test_findall_step_in_data(myverbosity)
     self.test_finditer_step_in_data(myverbosity)
@@ -1184,8 +1189,8 @@ class TestPyrata(object):
 
 
     self.test_search_alternative_groups_in_data(myverbosity)
-    self.test_search_groups_wi_matched_quantifiers_in_data(myverbosity)
     self.test_search_alternatives_groups_wi_matched_quantifiers_in_data(myverbosity)
+    self.test_search_groups_wi_matched_quantifiers_in_data(myverbosity)
 
 
     

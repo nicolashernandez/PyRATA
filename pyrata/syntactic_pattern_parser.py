@@ -83,8 +83,8 @@ class SyntacticPatternParser(object):
     #
     if self.verbosity >2: 
       print ('# ----------------------------------')
-
-      print ('# Syntactic structure parsed:')
+      print ('# Syntactic structure parsed raw:',p.lexer.pattern_steps)
+      print ('# Syntactic structure parsed tree:')
       for s in p.lexer.pattern_steps:
         if isinstance(s[1], list): 
           print ('\t[',s[0])
@@ -256,7 +256,7 @@ class SyntacticPatternParser(object):
         # reset the counter of step groups
         p.lexer.step_group_class = []
         
-        #p.lexer.step_already_counted = 0 # FIXME
+       # p.lexer.step_already_counted = 0 # FIXME
         
 
       else:

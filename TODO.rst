@@ -16,11 +16,118 @@ The alternatives are specific steps made of lists of quantified steps. The depth
 
 But how to allow quantifiers on groups ? The solution seems to come to represent groups as embedded lists of quantified steps like alternatives...
 
+A|B, where A and B can be arbitrary REs, creates a regular expression that will match either A or B. An arbitrary number of REs can be separated by the '|' in this way. This can be used inside groups (see below) as well.
+
+# ----------------------------------
+Pattern:   raw="It" (raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")
+
+# Syntactic structure parsed:
+  [None, 'raw="It" ']
+  [None, 'raw="is"']
+  ['*', 'pos="JJ"']
+  [None, 'pos="JJ" ']
+  [None, 'raw="and"']
+  [None, 'pos="JJ"']
+  [None, 'raw="to"']
+('# Must start the data=\t', False)
+('# Must end the data=\t', False)
+('# Group_pattern_offsets_group_list=', [[1, 2], [3, 5], [5, 6], [2, 6], [2, 6], [6, 7], [0, 7]])
+('# Ordered group_pattern_offsets_group_list=', [[0, 7], [1, 2], [2, 6], [2, 6], [3, 5], [5, 6], [6, 7]])
+  group 0 = [[None, 'raw="It" '], [None, 'raw="is"'], ['*', 'pos="JJ"'], [None, 'pos="JJ" '], [None, 'raw="and"'], [None, 'pos="JJ"'], [None, 'raw="to"']]
+  group 1 = [[None, 'raw="is"']]
+  group 2 = [['*', 'pos="JJ"'], [None, 'pos="JJ" '], [None, 'raw="and"'], [None, 'pos="JJ"']]
+  group 3 = [['*', 'pos="JJ"'], [None, 'pos="JJ" '], [None, 'raw="and"'], [None, 'pos="JJ"']]
+  group 4 = [[None, 'pos="JJ" '], [None, 'raw="and"']]
+  group 5 = [[None, 'pos="JJ"']]
+  group 6 = [[None, 'raw="to"']]
+# ----------------------------------
+
+# ----------------------------------
+   Pattern:  (pos="IN") (raw="a" raw="tea" | raw="a" raw="cup" raw="of" raw="coffee" | raw="an" raw="orange" raw="juice" ) !pos=";"
+
+# Syntactic structure parsed:
+  [None, 'pos="IN"']
+  [ None
+    [[None, 'raw="a" '], [None, 'raw="tea" ']]
+    [[None, 'raw="a" '], [None, 'raw="cup" '], [None, 'raw="of" '], [None, 'raw="coffee" ']]
+    [[None, 'raw="an" '], [None, 'raw="orange" '], [None, 'raw="juice" ']]
+  ]
+  [None, '!pos=";"']
+# Must start the data=   False
+# Must end the data=   False
+# Group_pattern_offsets_group_list= [[0, 1], [1, 2], [0, 3]]
+# Ordered group_pattern_offsets_group_list= [[0, 3], [0, 1], [1, 2]]
+  group 0 = [[None, 'pos="IN"'], [None, [[[None, 'raw="a" '], [None, 'raw="tea" ']], [[None, 'raw="a" '], [None, 'raw="cup" '], [None, 'raw="of" '], [None, 'raw="coffee" ']], [[None, 'raw="an" '], [None, 'raw="orange" '], [None, 'raw="juice" ']]]], [None, '!pos=";"']]
+  group 1 = [[None, 'pos="IN"']]
+  group 2 = [[None, [[[None, 'raw="a" '], [None, 'raw="tea" ']], [[None, 'raw="a" '], [None, 'raw="cup" '], [None, 'raw="of" '], [None, 'raw="coffee" ']], [[None, 'raw="an" '], [None, 'raw="orange" '], [None, 'raw="juice" ']]]]]
+# ----------------------------------
 
 TODO list following a decreasing priority order.
 -------------------------------
 
 * take the pattern of the group test and try to design its embedded structure  
+
+  how to represent groups in that ? 
+  Dynamically when parsing the data. Each embedded list is a group. We do not use the group_list built at compilation time. But during the data parsing, at each recursive call of parsing semantic we build the groups.
+
+Pattern:   raw="It" (raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")
+[list-of
+  [quantified, step],
+  [quantified, [_alternative [_sequence-of [quantified, step]]]]
+]
+with step -> [quantified, [_alternative [_sequence-of [quantified, step]]]]
+
+
+self.getLexer().lexer.pattern_steps = [
+  [None, 'raw="It" '],
+  [None, [[[None, 'raw="is"']]]],
+  [None, [[
+    [None, [[ 
+      ['*', 'pos="JJ"'],
+      [None, [[
+        [None, 'pos="JJ" '], 
+        [None, 'raw="and"']]]],
+      [None, [[
+        [None, 'pos="JJ"']]]]]]]
+    ]]],  
+  [None, [[
+    [None, 'raw="to"']]]]
+]
+[
+  [None, 'raw="A" '],
+  [None, [[[None, 'raw="B"']]]],
+  [None, [[
+    [None, [[ 
+      ['*', 'raw="C"'],
+      [None, [[
+        [None, 'raw="C" '], 
+        [None, 'raw="D"']]]],
+      [None, [[
+        [None, 'raw="E"']]]]]]]
+    ]]],  
+  [None, [[
+    [None, 'raw="F"']]]]
+]
+
+pour remettre dans un état normal il faut rechanger des trucs 
+Dans syntactic_analysis dans re_method
+Dans semantic_analysis à la ligne : 
+ if not(l.lexer.pattern_must_match_data_end) or (l.lexer.pattern_must_match_data_end and data_cursor == len(data)):
+  avant il n'y avait pas l'extend
+    et le test me semble bancal if (len(matcheslist) ==0):
+          #if matcheslist_extension == None:  
+          j'hésite avec           #if matcheslist_extension == None:  
+      après avoir fait tourner la batterie de test j'obtiens des erreurs avec  #if (len(matcheslist) ==0): et non l'autre
+
+tester sans les groupes aussi
+ok jusqu'ici
+
+il faut prendre un exemple plus simple
+un groupe d'un step seul
+un groupe d'un step et un non groupe
+un groupe de deux step
+un embedded de groupes
+
 * run test group and compare the trace wi and without the line p.lexer.step_already_counted = 0 in p_step_group single make it works but fails for groups handling
 * (pos="VB" pos="DT"? pos="JJ"* pos="NN" pos="."|pos="FAKE")+ works but not (pos="VB" pos="DT"? pos="JJ"* pos="NN" pos=".")+ ; adding         p.lexer.step_already_counted = 0 in p_step_group single make it works but fails for groups handling
 
@@ -31,6 +138,7 @@ TODO list following a decreasing priority order.
 * api/engine implement the position (from which word token position we start to search) and the search for annotate (not finditer) 
 * communication update README with alternatives groups, ^$
 * api/engine module re implement match
+* api/engine the b*b case exploration in semantic_analysis ; currently check only the next step, but should explore as many as iter !
 * quality implement logging facility
 * communication packaging and distributing publish On PyPI
 * communication user/developer reorganize README into specific docs : quick overview vs user guide, developer guide, roadmap pages

@@ -39,13 +39,16 @@ Doing that, you will have access to the parser grammar present in the parser.out
 Group, chunk, alternatives
 -------------------------
 A __group__ is a mechanism to refer to some sub-parts of the pattern. Surrounding parenthesis are used to mark the wanted sub-parts. A sub-part of the pattern is a sequence of steps (at least one).
-A __chunk__ is 
+A __chunk__ is ...
 
 
 
 
 Implementing embedded groups (sequence of step tokens) 
 -------------------------
+
+::
+
    Production= (single_constraint->...) raw="is"
         Debug: step_already_counted=0
     Production= (step->...) raw="is"

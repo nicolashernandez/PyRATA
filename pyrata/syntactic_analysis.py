@@ -38,6 +38,58 @@ class CompiledPattern(object):
 
     self.getLexer().lexer.re = method
 
+    print ('# Syntactic structure parsed:')
+    for s in self.getLexer().lexer.pattern_steps:
+      if isinstance(s[1], list): 
+        print ('\t[',s[0])
+        for g in s[1]:
+          print ('\t\t{}'.format(g))
+        print ('\t]')
+      else: print ('\t{}'.format(s))
+    print ('# group_pattern_offsets_group_list=', self.getLexer().lexer.group_pattern_offsets_group_list)
+
+    # self.getLexer().lexer.group_pattern_offsets_group_list= [[0, 1]]
+    # # self.getLexer().lexer.pattern_steps = [ [None, 'raw="D"'] ]
+    # # self.getLexer().lexer.pattern_steps = [ [None, [[[None, 'raw="B"']]]] ]
+    # self.getLexer().lexer.pattern_steps = [ [None, [[[None, 'raw="D" '], 
+    #                                                   [None, 'raw="E"']]]] ]
+    # self.getLexer().lexer.group_pattern_offsets_group_list= [[0, 2]]
+    # self.getLexer().lexer.pattern_steps = [ [None, 'raw="D"'], 
+    #                                         [None, [[[None, 'raw="E"']]]] ]
+    #     [
+#   [None, 'raw="A" '],
+#   [None, [[[None, 'raw="B"']]]],
+#   [None, [[
+#     [None, [[ 
+#       ['*', 'raw="C"'],
+#       [None, [[
+#         [None, 'raw="C" '], 
+#         [None, 'raw="D"']]]],
+#       [None, [[
+#         [None, 'raw="E"']]]]]]]
+#     ]]],  
+#   [None, [[
+#     [None, 'raw="F"']]]]
+# ]
+
+
+    # self.getLexer().lexer.group_pattern_offsets_group_list= [[0, 1], [0, 1]]
+    # self.getLexer().lexer.pattern_steps = [ 
+    #   ['+', 
+    #       [[[None, 'pos="VB" '], ['?', 'pos="DT"'], ['*', 'pos="JJ"'], [None, 'pos="NN" '], [None, 'pos="."']]]
+    #   ] 
+    # ]
+ 
+    print ('# Revised syntactic structure parsed:')
+    for s in self.getLexer().lexer.pattern_steps:
+      if isinstance(s[1], list): 
+        print ('\t[',s[0])
+        for g in s[1]:
+          print ('\t\t{}'.format(g))
+        print ('\t]')
+      else: print ('\t{}'.format(s))
+    print ('# group_pattern_offsets_group_list=', self.getLexer().lexer.group_pattern_offsets_group_list)
+     
     #exit() # FIXME used to stop the parsing after the syntactic analysis (to see the parser.out or adapt the parser)
     #print ('Debug: compiledPattern=', self)
     r = pyrata.semantic_analysis.parse_semantic (self, data, **kwargs)
