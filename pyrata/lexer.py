@@ -197,6 +197,8 @@ class Lexer(object):
     
     self.lexer.step_group_class = []    # step_group_class list of alternatives
 
+    # buffer memory for syntax parser (to store the current parsing result when starting to parse another step for example)
+    self.lexer.buffer = None
 
   def build(self, pattern, **kwargs):
     """

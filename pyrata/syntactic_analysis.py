@@ -12,6 +12,22 @@ from pyrata.syntactic_pattern_parser import *
 import sys # for the function name
 import pyrata.semantic_analysis
 
+def printList(_depth, _list):
+  if isinstance(_list[0], list):
+    #if not(isinstance(s[1][0], list)):
+    #  print (_depth*' ', s[1]) 
+    print (_depth*' '+'[')
+    for l in _list:
+      printList (_depth+1, l)  
+    print (_depth*' '+'],', end='')
+  else:
+    if isinstance(_list[1], list):
+      print (_depth*' '+'[{},'.format(_list[0]))
+      printList (_depth+6, _list[1])    # [None, which is the maximal string
+      print (_depth*' '+'],')
+    else:   
+      print (_depth*' '+'{}'.format(_list))
+
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class CompiledPattern(object):
@@ -23,6 +39,7 @@ class CompiledPattern(object):
 
   def getLexer(self):
     return self.lexer
+
 
 
   # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -38,15 +55,17 @@ class CompiledPattern(object):
 
     self.getLexer().lexer.re = method
 
-    print ('# Syntactic structure parsed:')
-    for s in self.getLexer().lexer.pattern_steps:
-      if isinstance(s[1], list): 
-        print ('\t[',s[0])
-        for g in s[1]:
-          print ('\t\t{}'.format(g))
-        print ('\t]')
-      else: print ('\t{}'.format(s))
-    print ('# group_pattern_offsets_group_list=', self.getLexer().lexer.group_pattern_offsets_group_list)
+#    print ('# Syntactic structure parsed:')
+#    printList(0, self.getLexer().lexer.pattern_steps)
+#    pprint(self.getLexer().lexer.pattern_steps)
+    # for s in self.getLexer().lexer.pattern_steps:
+    #   if isinstance(s[1], list): 
+    #     print ('\t[',s[0])
+    #     for g in s[1]:
+    #       print ('\t\t{}'.format(g))
+    #     print ('\t]')
+    #   else: print ('\t{}'.format(s))
+#    print ('# group_pattern_offsets_group_list=', self.getLexer().lexer.group_pattern_offsets_group_list)
 
     # self.getLexer().lexer.group_pattern_offsets_group_list= [[0, 1]]
     # # self.getLexer().lexer.pattern_steps = [ [None, 'raw="D"'] ]
@@ -80,17 +99,20 @@ class CompiledPattern(object):
     #   ] 
     # ]
  
-    print ('# Revised syntactic structure parsed:')
-    for s in self.getLexer().lexer.pattern_steps:
-      if isinstance(s[1], list): 
-        print ('\t[',s[0])
-        for g in s[1]:
-          print ('\t\t{}'.format(g))
-        print ('\t]')
-      else: print ('\t{}'.format(s))
-    print ('# group_pattern_offsets_group_list=', self.getLexer().lexer.group_pattern_offsets_group_list)
-     
+#    self.getLexer().lexer.group_pattern_offsets_group_list= [[0, 7], [1, 2], [2, 6], [2, 6], [3, 5], [5, 6], [6, 7]]
+
     #exit() # FIXME used to stop the parsing after the syntactic analysis (to see the parser.out or adapt the parser)
+
+    # print ('# Revised syntactic structure parsed:')
+    # for s in self.getLexer().lexer.pattern_steps:
+    #   if isinstance(s[1], list): 
+    #     print ('\t[',s[0])
+    #     for g in s[1]:
+    #       print ('\t\t{}'.format(g))
+    #     print ('\t]')
+    #   else: print ('\t{}'.format(s))
+    # print ('# group_pattern_offsets_group_list=', self.getLexer().lexer.group_pattern_offsets_group_list)
+     
     #print ('Debug: compiledPattern=', self)
     r = pyrata.semantic_analysis.parse_semantic (self, data, **kwargs)
     return r

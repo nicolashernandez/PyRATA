@@ -9,6 +9,7 @@ from pyrata.lexer import *
 
 import re
 
+from pprint import pprint
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def get_current_pattern_step_offsets(p):
@@ -30,6 +31,31 @@ def get_current_pattern_step_offsets(p):
 def get_current_pattern_step(p, start, end):
   ''' surface form of the current parsed step'''
   return p.lexer.lexdata[start:end]
+
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def printList(_depth, _list):
+  if isinstance(_list[0], list):
+    #if not(isinstance(s[1][0], list)):
+    #  print (_depth*' ', s[1]) 
+    print (_depth*' '+'[')
+    for l in _list:
+      printList (_depth+1, l)  
+    print (_depth*' '+'],', end='')
+  else:
+    if isinstance(_list[1], list):
+      print (_depth*' '+'[{},'.format(_list[0]))
+      printList (_depth+6, _list[1])    # [None, which is the maximal string
+      print (_depth*' '+'],')
+    else:   
+      print (_depth*' '+'{}'.format(_list))
+
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+# wi less consumption memory http://stackoverflow.com/questions/6039103/counting-deepness-or-the-deepest-level-a-nested-list-goes-to
+def depth(l):
+    if isinstance(l, list):
+        return 1 + max(depth(item) for item in l)
+    else:
+        return 0
 
 
 
@@ -71,27 +97,34 @@ class SyntacticPatternParser(object):
     p.lexer.group_pattern_offsets_group_list.append([0, len(p.lexer.pattern_steps)])  
 
     #
+    p[0] = p[1]
     if len(p) == 3:
       if p[1] == '^':
-       p.lexer.pattern_must_match_data_start = True
+        p[0] = p[2]
+        p.lexer.pattern_must_match_data_start = True
       else:
-       p.lexer.pattern_must_match_data_end = True
+        p[0] = p[1]        
+        p.lexer.pattern_must_match_data_end = True
     elif len(p) == 4:
+      p[0] = p[2]          
       p.lexer.pattern_must_match_data_start = True
       p.lexer.pattern_must_match_data_end = True   
+    print('\treturn p[0]={}'.format(p[0]))
 
     #
-    if self.verbosity >2: 
+    if self.verbosity >1: 
       print ('# ----------------------------------')
-      print ('# Syntactic structure parsed raw:',p.lexer.pattern_steps)
+      #print ('# Syntactic structure parsed raw:',p.lexer.pattern_steps)
       print ('# Syntactic structure parsed tree:')
-      for s in p.lexer.pattern_steps:
-        if isinstance(s[1], list): 
-          print ('\t[',s[0])
-          for g in s[1]:
-            print ('\t\t{}'.format(g))
-          print ('\t]')
-        else: print ('\t{}'.format(s))
+      pprint(p.lexer.pattern_steps)
+      # for s in p.lexer.pattern_steps:
+      #   if isinstance(s[1], list): 
+      #     print ('\t[',s[0])
+      #     for g in s[1]:
+      #       print ('\t\t{}'.format(g))
+      #     print ('\t]')
+      #   else: print ('\t{}'.format(s))
+
       print ('# Must start the data=\t',p.lexer.pattern_must_match_data_start)
       print ('# Must end the data=\t',p.lexer.pattern_must_match_data_end)
 
@@ -125,13 +158,30 @@ class SyntacticPatternParser(object):
 
 # _______________________________________________________________
   def p_quantified_step_group_list(self, p): 
-    ''' quantified_step_group_list : quantified_step_group_list quantified_step_group
-                                    | quantified_step_group   '''
-    if self.verbosity >1:
-      if len(p) == 2:
+    ''' quantified_step_group_list : quantified_step_group 
+                                   | quantified_step_group_list quantified_step_group  '''
+    if len(p) == 2:
+      p[0] = p[1]
+      if self.verbosity >1:
         self.log(p, '(quantified_step_group_list->quantified_step_group)')
-      elif len(p) == 3:
+    elif len(p) == 3:
+      if self.verbosity >1:
         self.log(p, '(quantified_step_group_list->quantified_step_group_list quantified_step_group)')
+      #print ('Debug: p[1] =', p[1])
+      #print ('Debug: p[2] =', p[2])
+ #     print ('Debug: p.lexer.buffer=', p.lexer.buffer)
+      #print ('Debug: p[0] = [p[1], p[2]]')
+      #p[0] = p.lexer.buffer.append(p[2])  
+      if not(isinstance (p[1][0], list)):      # 2nd part of a steps sequence 
+        print ('Debug: 2nd part of a steps sequence ')
+        p[0] = [p[1], p[2]]
+      else:                                    # 3rd and more parts of a steps sequence
+        print ('Debug: 3rd and more parts of a steps sequence')
+        p[1].append(p[2])
+        p[0] = p[1]
+
+      #print ('Debug: p[0]=', p[0])
+      p.lexer.buffer = None
 
     # get the start and the end of the part of the pattern recognized by the current rule 
     step_start, step_end = get_current_pattern_step_offsets(p)
@@ -145,7 +195,9 @@ class SyntacticPatternParser(object):
         print ('\tset last_group_offsets_candidate wi lexdata from {} to {}'.format(step_start, step_end))    
     else:
       if self.verbosity >2:
-        print ('\tdo not set last_group_offsets_candidate wi lexdata from {} to {}'.format(step_start, step_end))    
+        print ('\tdo not set last_group_offsets_candidate wi lexdata from {} to {}'.format(step_start, step_end))
+       
+    print('\treturn p[0]={}'.format(p[0]))
 
 
 # _______________________________________________________________
@@ -162,7 +214,9 @@ class SyntacticPatternParser(object):
       elif len(p) == 3:
         self.log(p, '(quantified_step_group->step_group QUANTIFIER)')
 
-    if p.lexer.step_already_counted == 0:
+    # FIX and p[1] != [[]] is a fix, should probably be fixed at the p_step_group method
+    #if p.lexer.step_already_counted == 0 and p[1] != [[]]:
+    if True:
       if self.verbosity >2:
         print ('\tstep_not_counted i.e. step_already_counted == 0')
     # to prevent from duplicate step counting (wo then wi parenthesis), pattern_step storing... 
@@ -178,26 +232,19 @@ class SyntacticPatternParser(object):
       # store the step
       # quantifier=[None, '*', '+', '?'] not=[True, False] group=[True, False] p[1]
 
-
       if len(p) == 2:
-        p.lexer.pattern_steps.append([None, p[1]])
-        if self.verbosity >2:
-          print ('\tstore the compiled form in pattern_steps: [None, {}]'.format(p[1]))
+        p[0] = [None, p[1]]
       elif p[2] == '*':
-        p.lexer.pattern_steps.append(['*', p[1]])
-        if self.verbosity >2:
-          print ('\tstore the compiled form in pattern_steps: [*, {}]'.format(p[1]))
+        p[0] = ['*', p[1]]
       elif p[2] == '+':
-        p.lexer.pattern_steps.append(['+', p[1]])
-        if self.verbosity >2:
-          print ('\tstore the compiled form in pattern_steps: [+, {}]'.format(p[1]))
+        p[0] = ['+', p[1]]
       elif p[2] == '?':  
-        p.lexer.pattern_steps.append(['?', p[1]])
-        if self.verbosity >2:
-          print ('\tstore the compiled form in pattern_steps: [?, {}]'.format(p[1]))
+        p[0] = ['?', p[1]]
       else:
-        print ('Debug: should not be here p[2]=',p[2])
-
+        print ('Warning: syntactic_pattern_parser - p_quantified_step_group - should not be here p[2]=',p[2])
+      #p.lexer.pattern_steps.append(p[0])
+      #if self.verbosity >2:
+      #  print ('\tpattern_steps.appends = {}'.format(p[0]))
 
       # get the start and the end of the part of the pattern recognized by the current rule 
       step_start, step_end = get_current_pattern_step_offsets(p)
@@ -218,7 +265,12 @@ class SyntacticPatternParser(object):
     else:
       if self.verbosity >2:
         print ('\tstep_already_counted: consequently we do nothing')
-   
+
+    p.lexer.pattern_steps.append(p[0])
+    #if self.verbosity >2:
+    print ('\tappend pattern_steps = {}'.format(p[0]))       
+    print ('\treturn p[0]={}'.format(p[0]))
+ 
 
 # _______________________________________________________________
   def p_step_group(self,p):
@@ -230,72 +282,86 @@ class SyntacticPatternParser(object):
     step_start, step_end = get_current_pattern_step_offsets(p) 
     p[0] = get_current_pattern_step(p, step_start, step_end)
 
-    if len(p) == 2: self.log(p, '(step_group->step)')
-    elif len(p) == 3: self.log(p, '(step_group->NOT step_group)') 
+    if len(p) == 2: 
+      if self.verbosity >1:self.log(p, '(step_group->step)')
+    elif len(p) == 3: 
+      if self.verbosity >1:self.log(p, '(step_group->NOT step_group)') 
     elif len(p) == 4:
-      self.log(p, '(step_group->LPAREN step_group_class RPAREN)') 
-      
-      if len(p.lexer.step_group_class) == 1:
-        if self.verbosity >2:
-          print ('\tprocessing a step_group_class made only of a quantified_step_group_list (wo alternatives)')
-          print ('\tgroup detected from {} to {} step(s)'.format(p.lexer.last_group_offsets_candidate[0],p.lexer.last_group_offsets_candidate[1]))
-          print ('\treset the group counter step_group_class (used for alternatives) i.e. step_group_class=[]')
-        #print ('\tDebug: len(step_group_class)={} len(pattern_steps)={}'.format(len(p.lexer.step_group_class), len(p.lexer.pattern_steps)))
-        #print ('\tDebug: del from={} to={}'.format(p.lexer.step_group_class[0][0], p.lexer.step_group_class[-1][1]))
+      if self.verbosity >1:self.log(p, '(step_group->LPAREN step_group_class RPAREN)')
+      print ('Debug: depth={} ; p[2] = {} ; len(p[2]) = {}; len(p[2][0]) = {}; '.format(depth(p[2]), p[2],len(p[2]), len(p[2][0])))
+      p[0] = [p[2]]
 
-        # the rule which recognize a group matches so we definitively store the last couple of quantified step position 
-        # as a group (at least for the first position)
-        p.lexer.group_pattern_offsets_group_list.append([p.lexer.last_group_offsets_candidate[0],p.lexer.quantified_step_index])
-
-        # to process single group as list of alternatives groups ; step_group_class constains the offset of only one group
-        p[0] = [p.lexer.pattern_steps[s:e] for s, e in p.lexer.step_group_class]
-        #print('Debug: p[0]={}'.format(p[0]))
-        #print('Debug: step_group_class={}'.format(p.lexer.step_group_class))
-        #print('Debug: group_pattern_offsets_group_list={}'.format(p.lexer.group_pattern_offsets_group_list))
-
-        # reset the counter of step groups
-        p.lexer.step_group_class = []
-        
-       # p.lexer.step_already_counted = 0 # FIXME
-        
-
+      if isinstance (p[2][0][0], list): 
+      #if len(p[2]) >1:        # if we are dealing with alternatives 
+        print ('\twe are dealing with alternatives') 
+        p[0] = p[2]
       else:
-      #if True:
-        # alternative groups
-        if self.verbosity >2:
-          print ('\tprocessing a step_group_class made of quantified_step_group_list alternatives')
-          print ('\treset the step counter: step_already_counted=0')
+        print ('\twe are not dealing with alternatives p[1][0][0]=', p[2][0][0])
 
-        #  print('Debug: p_step_group wi len(p.lexer.step_group_class)={} !=1'.format(len(p.lexer.step_group_class)))
-        #exit()
-        
-        # add the current groups as a step
-        # FIXME this should be done in p_quantified_step_group
-        #p.lexer.pattern_steps.append([p.lexer.pattern_steps[s:e] for s, e in p.lexer.step_group_class])
-        p[0] = [p.lexer.pattern_steps[s:e] for s, e in p.lexer.step_group_class]
-        #print('Debug: p[0]={}'.format(p[0]))
+      # if len(p.lexer.step_group_class) == 1:
+      #   if self.verbosity >2:
+      #     print ('\tprocessing a step_group_class made only of a quantified_step_group_list (wo alternatives)')
+      #     print ('\tgroup detected from {} to {} step(s)'.format(p.lexer.last_group_offsets_candidate[0],p.lexer.last_group_offsets_candidate[1]))
+      #     print ('\treset the group counter step_group_class (used for alternatives) i.e. step_group_class=[]')
+      #   #print ('\tDebug: len(step_group_class)={} len(pattern_steps)={}'.format(len(p.lexer.step_group_class), len(p.lexer.pattern_steps)))
+      #   #print ('\tDebug: del from={} to={}'.format(p.lexer.step_group_class[0][0], p.lexer.step_group_class[-1][1]))
 
-        p.lexer.step_already_counted = 0
+      #   # the rule which recognize a group matches so we definitively store the last couple of quantified step position 
+      #   # as a group (at least for the first position)
+      #   p.lexer.group_pattern_offsets_group_list.append([p.lexer.last_group_offsets_candidate[0],p.lexer.quantified_step_index])
 
-        # print ('\tDebug: len(step_group_class)={} len(pattern_steps)={}'.format(len(p.lexer.step_group_class), len(p.lexer.pattern_steps)))
-        # print ('\tDebug: del from={} to={}'.format(p.lexer.step_group_class[0][0], p.lexer.step_group_class[-1][1]))
-        # remove the steps which were parts of alternatives 
-        # FIXME check when this is only a group but not alternatives
-        del p.lexer.pattern_steps[p.lexer.step_group_class[0][0]:p.lexer.step_group_class[-1][1]]
-        
-        # update index
-        # we reset all the steps made by each step of each alternative group 
-        # +1 because the list of alternatives groups worthes as a group and a step
-        p.lexer.quantified_step_index -= (p.lexer.step_group_class[-1][1] - p.lexer.step_group_class[0][0]) 
-        p.lexer.quantified_step_index += 1
-        
-        # declare the current step (list of alternative groups) as a group
-        p.lexer.group_pattern_offsets_group_list.append([p.lexer.quantified_step_index -1,p.lexer.quantified_step_index])
+      #   # to process single group as list of alternatives groups ; step_group_class constains the offset of only one group
+      #   p[0] = [p.lexer.pattern_steps[s:e] for s, e in p.lexer.step_group_class]
+      #   #print('Debug: p[0]={}'.format(p[0]))
+      #   #print('Debug: step_group_class={}'.format(p.lexer.step_group_class))
+      #   #print('Debug: group_pattern_offsets_group_list={}'.format(p.lexer.group_pattern_offsets_group_list))
 
-        # reset the counter of step groups
-        p.lexer.step_group_class = [] 
-        # print ('\tDebug: len(step_group_class)={} len(pattern_steps)={}'.format(len(p.lexer.step_group_class), len(p.lexer.pattern_steps)))
+      #   # reset the counter of step groups
+      #   p.lexer.step_group_class = []
         
+      #  # p.lexer.step_already_counted = 0 # FIXME
+        
+
+      # alternative groups
+      if self.verbosity >2:
+        print ('\tprocessing a step_group_class made of quantified_step_group_list alternatives')
+        print ('\tremove the steps which were parts of alternatives= {}'.format(p.lexer.pattern_steps[p.lexer.step_group_class[0][0]:p.lexer.step_group_class[-1][1]]))
+        print ('\tupdate quantified_step_index by decrementing it with len (parts of alternatives)+1')
+        print ('\tsignal that this current step should be appended to pattern_steps (step_already_counted=0)')
+
+      #  print('Debug: p_step_group wi len(p.lexer.step_group_class)={} !=1'.format(len(p.lexer.step_group_class)))
+      #exit()
+      
+      # # add the current alternatives as a step
+      # # FIXME this should be done in p_quantified_step_group
+      # #p.lexer.pattern_steps.append([p.lexer.pattern_steps[s:e] for s, e in p.lexer.step_group_class])
+      # p[0] = [p.lexer.pattern_steps[s:e] for s, e in p.lexer.step_group_class]
+      # #if p[0] != None:
+      # p.lexer.step_already_counted = 0
+
+      # # we reset all the steps made by each step of each alternative group 
+      
+      # # print ('\tDebug: len(step_group_class)={} len(pattern_steps)={}'.format(len(p.lexer.step_group_class), len(p.lexer.pattern_steps)))
+      # # print ('\tDebug: del from={} to={}'.format(p.lexer.step_group_class[0][0], p.lexer.step_group_class[-1][1]))
+      # # remove the steps which were parts of alternatives 
+      # # FIXME check when this is only a group but not alternatives
+      # del p.lexer.pattern_steps[p.lexer.step_group_class[0][0]:p.lexer.step_group_class[-1][1]]
+      
+      # # update index
+      # # +1 because the list of alternatives groups worthes as a group and a step
+      # p.lexer.quantified_step_index -= (p.lexer.step_group_class[-1][1] - p.lexer.step_group_class[0][0]) 
+      # p.lexer.quantified_step_index += 1
+      
+      # # declare the current step (list of alternative groups) as a group
+      # if self.verbosity >2:
+      #   print ('\tdeclare the current step (list of alternatives) as a group ; group_pattern_offsets_group_list.append =',[p.lexer.quantified_step_index -1,p.lexer.quantified_step_index])
+      # p.lexer.group_pattern_offsets_group_list.append([p.lexer.quantified_step_index -1,p.lexer.quantified_step_index])
+
+      # # reset the counter of step groups
+      # p.lexer.step_group_class = [] 
+      #   # print ('\tDebug: len(step_group_class)={} len(pattern_steps)={}'.format(len(p.lexer.step_group_class), len(p.lexer.pattern_steps)))
+    print('\treturn p[0]={}'.format(p[0]))
+
 # _______________________________________________________________
   def p_step_group_class(self,p):
     '''step_group_class : quantified_step_group_list
@@ -304,15 +370,49 @@ class SyntacticPatternParser(object):
 
     if len(p) == 2:
       self.log(p, '(step_group_class->quantified_step_group_list)')
+      #print ('Debug: len(p[1])=',len(p[1]))
+
+      if not(isinstance (p[1][0], list)):
+        p[0]=[p[1]]
+      else:
+        p[0]=p[1]
+
+      print('\tlen(p[0])=', len(p[0]))
+      #poped = p.lexer.pattern_steps.pop()
+      print('\tpop pattern_steps=',p.lexer.pattern_steps[len(p.lexer.pattern_steps)-len(p[0]):len(p.lexer.pattern_steps)])
+      del (p.lexer.pattern_steps[len(p.lexer.pattern_steps)-len(p[0]):len(p.lexer.pattern_steps)])
+
     else:
       self.log(p, '(step_group_class->step_group_class OR quantified_step_group_list)') 
- #     self.log(p, '(step_group_class->step_group_class OR quantified_step_group)') # HERE
+       #     self.log(p, '(step_group_class->step_group_class OR quantified_step_group)') # HERE
+      print ('Debug: p[1] = {} ; len(p[0]) = {}'.format(p[1],len(p[1])))
+      print ('Debug: p[3] = {} ; len(p[3]) = {}'.format(p[3],len(p[3])))
+
+      if not(isinstance (p[1][0][0], list)):  # 2nd part of an alternative
+        print ('Debug: 2nd part of an alternative')
+        if not(isinstance (p[3][0], list)) or len(p[3]) == 1:                      # 2nd part has only one step
+          print ('Debug: 2nd part has only one step')
+          p[0] = [p[1], [p[3]]]                     
+        else:                                   # 2nd part is a sequence of several steps
+          print ('Debug: 2nd part is a sequence of several steps')
+          p[0] = [p[1], p[3]] 
+      else:                                   # 3rd and more parts of an alternative
+        print ('Debug: 3rd and more parts of an alternative')
+        p[1].append(p[3])                     
+        p[0] = p[1]
+      #poped = p.lexer.pattern_steps.pop()
+      print('\tpop pattern_steps=',p.lexer.pattern_steps[len(p.lexer.pattern_steps)-len(p[3]):len(p.lexer.pattern_steps)])
+      del (p.lexer.pattern_steps[len(p.lexer.pattern_steps)-len(p[3]):len(p.lexer.pattern_steps)])
 
     # store the current group 
     p.lexer.step_group_class.append([p.lexer.last_group_offsets_candidate[0],p.lexer.last_group_offsets_candidate[1]])
     
     if self.verbosity >2:
-      print ('\tstore the current group from {} to {}'.format(p.lexer.last_group_offsets_candidate[0], p.lexer.last_group_offsets_candidate[1]))
+      print ('\tstore the current group offset from {} to {}'.format(p.lexer.last_group_offsets_candidate[0], p.lexer.last_group_offsets_candidate[1]))
+
+
+
+    print('\treturn p[0]={}'.format(p[0]))
  
 
 # _______________________________________________________________

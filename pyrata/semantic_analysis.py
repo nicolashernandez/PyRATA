@@ -13,12 +13,12 @@ import pyrata.syntactic_analysis
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class Match(object):
 
-  groups = []          # list of triplet (value, start, end) e.g. [[0, 1, [{'pos': 'JJ', 'raw': 'fast'}]]]
+  _groups = []          # list of triplet (value, start, end) e.g. [[[{'pos': 'JJ', 'raw': 'fast'}], 0, 1]]
   DEFAULT_GROUP_ID = 0
   (VALUE, START, END) = (0,1,2)
 
   def __init__(self, **kwargs):
-    self.groups = []
+    self._groups = []
     value = ''
     start = -1
     end = -1
@@ -29,22 +29,23 @@ class Match(object):
     if 'value' in kwargs.keys(): # MANDATORY
       value = kwargs['value']
     if 'groups' in kwargs.keys(): # MANDATORY
-      self.groups = kwargs['groups']  
-      #print ('Debug: groups=', self.groups)
+      self._groups = kwargs['groups']  
+      print ('Debug: groups=', self._groups)
       #print ('Debug: Match__init__:(start={}, end={}, value={})'.format(startPosition, endPosition, value))
     else:  
-      self.groups.append([value, start, end])
+      self._groups.append([value, start, end])
     #if  self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] == '' or self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] == -1 or self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END] == -1:   
     #  raise Exception('pyrata.re - attempt to create a Match object with incomplete informations')
     #print ('Debug: groups=', self.groups)
 
   def __repr__(self):
-    return '<pyrata.re Match object; span=('+str(self.start())+', '+str(self.end())+'), match="'+str(self.group())+'">'
+    #for v, s, e in self.groups
+    return '<pyrata.re Match object; groups='+str(self._groups)+'>' #span=('+str(self.start())+', '+str(self.end())+'), match="'+str(self.group())+'">'
 
   def get_group_id(self, *argv):
     if len(argv) > 0:
       group_id = argv[0]
-      if group_id > len(self.groups):
+      if group_id > len(self._groups):
         raise IndexError ('In Match - group() function - wrong index required')
     else:
       group_id = Match.DEFAULT_GROUP_ID
@@ -55,12 +56,12 @@ class Match(object):
     Returns the corresponding value of one subgroup of the match. 
     Default is 0. The whole match value.
     '''
-    return self.groups[self.get_group_id(*argv)][Match.VALUE]
+    return self._groups[self.get_group_id(*argv)][Match.VALUE]
 
   def groups (self):
     '''Return a tuple containing all the subgroups of the match, from 0. 
     In python re it is from 1 up to however many groups are in the pattern. '''
-    return self.groups
+    return self._groups
     # if len(self.groups) > 0:
     #   return self.groups[1:len(self.groups)]   
     # else:
@@ -71,34 +72,34 @@ class Match(object):
     Return the indices of the start of the subdata matched by group; 
     group default to zero (meaning the whole matched data).
     '''
-    return self.groups[self.get_group_id(*argv)][Match.START]
+    return self._groups[self.get_group_id(*argv)][Match.START]
 
   def end(self, *argv):
     '''
     Return the indices of the end of the subdata matched by group; 
     group default to zero (meaning the whole matched data).
     '''
-    return self.groups[self.get_group_id(*argv)][Match.END]
+    return self._groups[self.get_group_id(*argv)][Match.END]
 
   def setStart(self, start, *argv):
     '''
     Set the indice of the start of the subdata matched by group; 
     group default to zero (meaning the whole matched data).
     '''
-    self.groups[self.get_group_id(*argv)][Match.START] = start
+    self._groups[self.get_group_id(*argv)][Match.START] = start
 
   def setEnd(self, end, *argv):
     '''
     Set the indice of the end of the subdata matched by group; 
     group default to zero (meaning the whole matched data).
     '''
-    self.groups[self.get_group_id(*argv)][Match.END] = end
+    self._groups[self.get_group_id(*argv)][Match.END] = end
        
 
   def __eq__(self, other):
     if other == None: 
       return False
-    if self.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] == other.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] and self.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] == other.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] and self.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END] == other.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END]:
+    if self._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] == other._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] and self._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] == other._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] and self._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END] == other._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END]:
       return True
       return True
     return False  
@@ -106,17 +107,18 @@ class Match(object):
   def __ne__(self, other):
     if other == None: 
       return True   
-    if self.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] == other.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] and self.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] == other.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] and self.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END] == other.groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END]:
+    if self._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] == other._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] and self._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] == other._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] and self._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END] == other._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END]:
       return False
     return True  
 
-  #def __len__(self):
-  #  return len(self.matcheslist)    
+  def __len__(self):
+    print ('Debug: groups=', self.groups)
+    return len(self._groups) 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class MatchesList(object):
 
-  current = 0
+  current = -1
   matcheslist = []
 
   def __init__(self, **kwargs):
@@ -124,6 +126,7 @@ class MatchesList(object):
 
   def append(self, match):
     self.matcheslist.append(match)
+    #print ('Debug: matcheslist=',self.matcheslist)
 
   def extend(self, another_matcheslist):
     self.matcheslist.extend(another_matcheslist)  
@@ -156,7 +159,7 @@ class MatchesList(object):
       raise StopIteration
     else:
       self.current += 1
-    return self.matcheslist[self.current - 1]   
+    return self.matcheslist[self.current]   
 
   def __len__(self):
     return len(self.matcheslist)
@@ -290,9 +293,13 @@ def evaluate (lexer, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
       #print ('Debug: r[0][0]={}'.format(r.group(0).group(0)))
       #print ('Debug: data_cursor_extension=',data_cursor_extension)
       for m in r:
-        #print ('Debug: before update m={}'.format(m))
-        m.setStart(m.start() + data_cursor)
-        m.setEnd(m.end() + data_cursor)
+        for g_id in range(len(m._groups)):
+          print ('Debug: g=',m._groups[g_id])
+          m.setStart(m.start(g_id) + data_cursor, g_id)
+          m.setEnd(m.end(g_id) + data_cursor, g_id)
+          print ('      update m={} from=[{}, {}] to [{}, {}]'.format(m.group(g_id), m.start(g_id), m.end(g_id), m.start(g_id)+ data_cursor, m.end(g_id) + data_cursor))
+ #       m.setStart(m.start() + data_cursor)
+ #       m.setEnd(m.end() + data_cursor)
         #print ('Debug: after update m={}'.format(m))
     else:
       lexer.lexer.truth_value = False
@@ -316,15 +323,16 @@ def parse_semantic (compiledPattern, data, **kwargs):
   if 'verbosity' in kwargs.keys():
     verbosity = kwargs['verbosity']
 
-  if verbosity >1:
-    # print ('  ________________________________________________')      
-    print ('  Semantic parsing starting...')  
+ 
 
   l = compiledPattern.getLexer()
   pattern_data_start = 0
   data_cursor = 0
   pattern_cursor = 0
   pattern_steps = l.lexer.pattern_steps
+  if verbosity >1:
+    # print ('  ________________________________________________')      
+    print ('  Starting semantic parsing of pattern_steps=', pattern_steps) 
   # print ('# Revised syntactic structure parsed:')
   # print ('Debug: pattern_steps=',pattern_steps)
 
@@ -361,13 +369,13 @@ def parse_semantic (compiledPattern, data, **kwargs):
       #print ('  State data_cursor="{}" data_token="{}"  pattern_cursor="{}" quantifier="{}" pattern_step=[{}] '
       #  .format(data_cursor, data[data_cursor], pattern_cursor, quantifier, step ))   
 
-      print ('  Exploring data[{}]="{}"  with pattern_steps[{}]="{}" and quantifier="{}"'
+      print ('    Exploring data[{}]="{}"  with pattern_steps[{}]="{}" and quantifier="{}"'
         .format(data_cursor, data[data_cursor], pattern_cursor, step, quantifier))        
       #print ('  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _')
 
     # step without quantifier
     if quantifier == None:
-      if verbosity >1: print ('  Evaluating NONE_QUANTIFIER pattern_step')
+      if verbosity >1: print ('    Evaluating NONE_QUANTIFIER pattern_step')
       step_evaluation, data_cursor_extension, pattern_cursor_extension, matcheslist_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
       if step_evaluation:
         if verbosity >1: print ('    Evaluation result: MATCH ')        
@@ -377,11 +385,11 @@ def parse_semantic (compiledPattern, data, **kwargs):
           group_start_index.append(data_cursor)
           match_on_going = True
         if matcheslist_extension != None:
-          print ('Debug: extension of temporary_matcheslist with=',matcheslist_extension)  
+          print ('    extend temporary_matcheslist with=',matcheslist_extension)  
           temporary_matcheslist.extend(matcheslist_extension)
-          print ('Debug: temporary_matcheslist after extension=',temporary_matcheslist)  
+          print ('    temporary_matcheslist after extension=',temporary_matcheslist)  
         else:
-          print ('Debug: no extension since matcheslist_extension=',matcheslist_extension)  
+          print ('    no extension since matcheslist_extension=',matcheslist_extension)  
 
         pattern_cursor_to_data_cursor[pattern_cursor] = data_cursor  
         pattern_cursor += 1
@@ -537,8 +545,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
     if pattern_cursor >= len(pattern_steps):
       if match_on_going:
         if verbosity >1: 
-          print ('  Semantic parsing result:') 
-          print ('    recognition of a whole pattern') 
+          print ('    a pattern has been recognized=', pattern_steps) 
           print ('    store the data_cursor as a end position')
           #print ('  create the Match(start={}, end={}, value={})'.format(start, end, data[start:end]))
         group_end_index.append(data_cursor)           
@@ -546,23 +553,49 @@ def parse_semantic (compiledPattern, data, **kwargs):
         end = group_end_index[len(group_start_index)-1]
         pattern_cursor_to_data_cursor[pattern_cursor] = data_cursor 
         current_groups = []
-        print ('Debug: data_cursor=', data_cursor)
-        print ('Debug: pattern_cursor=', pattern_cursor)
+#        print ('Debug: data_cursor=', data_cursor)
+#        print ('Debug: pattern_cursor=', pattern_cursor)
         #if verbosity >2: 
         #  print ('  group_pattern_offsets_group_list=', group_pattern_offsets_group_list)
         #  print ('  pattern_cursor_to_data_cursor=', pattern_cursor_to_data_cursor)
         for s, e in group_pattern_offsets_group_list:
-          print ('Debug: group_pattern_offsets_group_list=', group_pattern_offsets_group_list)
-          print ('Debug: pattern_cursor_to_data_cursor=', pattern_cursor_to_data_cursor)
-          print ('Debug: pattern_cursor_to_data_cursor[{}]={} pattern_cursor_to_data_cursor[{}]={}'.format(
-            s, pattern_cursor_to_data_cursor[s], e, pattern_cursor_to_data_cursor[e]))  
+#          print ('Debug: group_pattern_offsets_group_list=', group_pattern_offsets_group_list)
+#          print ('Debug: pattern_cursor_to_data_cursor=', pattern_cursor_to_data_cursor)
+#          print ('Debug: pattern_cursor_to_data_cursor[{}]={} pattern_cursor_to_data_cursor[{}]={}'.format(
+#            s, pattern_cursor_to_data_cursor[s], e, pattern_cursor_to_data_cursor[e]))  
+          print ('    append from group_pattern_offsets_group_list to current_groups: value={} start={} end={}'.format(
+            data[pattern_cursor_to_data_cursor[s]:pattern_cursor_to_data_cursor[e]],  pattern_cursor_to_data_cursor[s], pattern_cursor_to_data_cursor[e]))            
           current_groups.append([data[pattern_cursor_to_data_cursor[s]:pattern_cursor_to_data_cursor[e]], pattern_cursor_to_data_cursor[s], pattern_cursor_to_data_cursor[e]])
-        if matcheslist_extension != None: 
-          for m in matcheslist_extension:
-            print ('Debug: m.group()={}, m.start()={}, m.end()={}'.format(m.group(), m.start(), m.end())) 
-            current_groups.append([m.group(), m.start(), m.end()])
-        if verbosity >1: 
-          print ('    create the Match(groups={})'.format(current_groups))
+
+        # FIXME Here we have to iterate over the group of the current Match
+        if temporary_matcheslist != None:
+          print ('    Debug: temporary_matcheslist=', temporary_matcheslist)
+          for _m in temporary_matcheslist:
+            print ('    Debug: _m=', _m)
+
+#           print ('    Debug: temporary_matcheslist.group()=', temporary_matcheslist.group())
+
+#            if temporary_matcheslist.group() != None:
+            if _m != None:
+
+              #print ('    Debug: type (temporary_matcheslist.group())=',str(type(temporary_matcheslist.group())))
+              #print ('    Debug: len(temporary_matcheslist.group())=', len(temporary_matcheslist.group(0)))
+              #temporary_matcheslist.group()._groups
+              #print ('    Debug: temporary_matcheslist.group()._groups=', temporary_matcheslist.group()._groups)
+
+              #print ('    Debug: type (temporary_matcheslist.group().groups())=',str(type(temporary_matcheslist.group().groups())))
+
+              #print ('    Debug: temporary_matcheslist.group().groups()=',temporary_matcheslist.group().groups())
+              #for m in temporary_matcheslist:
+              #  print ('    append from temporary_matcheslist to current_groups: value={} start={} end={}'.format(m.group(), m.start(), m.end())) 
+              #  current_groups.append([m.group(), m.start(), m.end()])
+              #for m in temporary_matcheslist.group()._groups:
+              for g in _m._groups:
+                print ('    append from temporary_matcheslist to current_groups: value={} start={} end={}'
+                  .format(g[Match.VALUE], g[Match.START], g[Match.END])) 
+                current_groups.append([g[Match.VALUE], g[Match.START], g[Match.END]])
+                      #if verbosity >1: 
+        #  print ('    create the Match(groups={})'.format(current_groups))
         #print ('Debug: l.lexer.group_pattern_offsets_group_list=', l.lexer.group_pattern_offsets_group_list)
 
         #match = Match (start=start, end=end, value=data[start:end])
@@ -570,14 +603,15 @@ def parse_semantic (compiledPattern, data, **kwargs):
         #matcheslist.append(match)
         #print ('Debug: current_groups=', current_groups)
 
-        # FIXME !!!
         if not(l.lexer.pattern_must_match_data_end) or (l.lexer.pattern_must_match_data_end and data_cursor == len(data)):
-          print ('Debug: creating the matcheslist corresponding to current_groups=',current_groups)
+          print ('    create the Match corresponding to current_groups=',current_groups)
           #print ('Debug: temporary_matcheslist=',temporary_matcheslist)
-          print ('Debug: matcheslist before append/extension=',matcheslist)
-          #if matcheslist_extension == None:  
+          #print ('    before append to matcheslist=',matcheslist)
+          #if matcheslist_extension == None:
+          print ('    matcheslist before appending=',matcheslist)
+ 
           matcheslist.append(Match(groups=current_groups))
-          print ('Debug: matcheslist after append(current_group)=',matcheslist)
+          print ('    append to matcheslist') #=',matcheslist)
           #else:
           #if matcheslist_extension != None:   
           #  matcheslist.extend(temporary_matcheslist)
@@ -599,13 +633,12 @@ def parse_semantic (compiledPattern, data, **kwargs):
       if l.lexer.pattern_must_match_data_start:
         break
     else: 
-      if verbosity >1: print ('  Semantic parsing result:\n    some pattern recognition may be on going but none full form has been recognized after processing this pattern_step')
-  
+      if verbosity >1: print ('  Exploration of data[{}]="{}" with pattern_steps[{}]="{}" does not lead to the recognition of a whole pattern (a recognition may be ongoing)')
+        
 
   if verbosity >1:       
     #print('Debug: matcheslist=', matcheslist)
-    print ('  Ending semantic parsing.')  
-  print ('Debug: matcheslist=',matcheslist)
+    print ('  Ending semantic parsing with returning matcheslist=',matcheslist)  
   return matcheslist
 
 

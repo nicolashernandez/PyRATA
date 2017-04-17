@@ -93,6 +93,7 @@ self.getLexer().lexer.pattern_steps = [
   [None, [[
     [None, 'raw="to"']]]]
 ]
+
 [
   [None, 'raw="A" '],
   [None, [[[None, 'raw="B"']]]],
@@ -128,6 +129,127 @@ un groupe d'un step et un non groupe
 un groupe de deux step
 un embedded de groupes
 
+Actuellement le parser sémantique fonctionne
+je suis sur l'analyseur syntaxique
+p_step_group produit comme si tout était des alternatives groups
+test_search_groups_in_data produit un groupe de list qui ne correspond pas à la réalité et des éléments vides.
+# group_pattern_offsets_group_list= [[0, 7], [1, 2], [3, 4], [4, 5], [4, 5], [6, 7], [6, 7]]
+
+syntactic analysis m'aide à debugger
+
+    pattern = '(raw="is") ' 
+# Revised syntactic structure parsed:
+  [ None
+    [[None, 'raw="is"']]
+  ]
+# group_pattern_offsets_group_list= [[0, 1], [0, 1]]
+
+  Production= (single_constraint->...) raw="is"
+  Production= (step->...) raw="is"
+  Production= (step_group->step) raw="is"
+  Production= (quantified_step_group->step_group) raw="is"
+  Production= (quantified_step_group_list->quantified_step_group) raw="is"
+
+  Production= (expression->...) raw="is"
+
+
+  Production= (single_constraint->...) raw="is"
+  Production= (step->...) raw="is"
+  Production= (step_group->step) raw="is"
+  Production= (quantified_step_group->step_group) raw="is"
+  Production= (quantified_step_group_list->quantified_step_group) raw="is"
+
+  Production= (step_group_class->quantified_step_group_list) raw="is"
+  Production= (step_group->LPAREN step_group_class RPAREN) (raw="is")
+  Production= (quantified_step_group->step_group) (raw="is")
+  Production= (quantified_step_group_list->quantified_step_group) (raw="is")
+
+  Production= (expression->...) (raw="is")
+
+A nouveau dans semantic parsing
+
+je ne sais pas si il faut que 
+* dans syntactic_pattern_parser je fournisse une liste correcte de self.getLexer().lexer.group_pattern_offsets_group_list 
+  et en même temps dans semantic_analysis je mette correctement à jour pattern_cursor_to_data_cursor
+* ou bien si dans semantic_analysis je veille à ce que les groups embedded soient correctement ajoutés (attention il faut garder group_pattern_offsets_group_list au moins pour le groupe d'ensemble ou bien trouver une alternative...)  
+
+
+j'ai travaillé sur la seconde option. Le groupe d'ensemble est bien conservé. 
+Le test avec  (raw="is") (pos="JJ") FAILS
+En fait on dirait que dès qu'il y a un 2e groupe cela ne capture pas...
+C'est fait. un for qui manquait...
+
+Expected groups:   
+[
+[[{'raw': 'It', 'pos': 'PRP'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}], 0, 7],
+[[{'raw': 'is', 'pos': 'VBZ'}], 1, 2],
+[[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6],
+[[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6],
+[[{'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}], 3, 5],
+[[{'raw': 'funny', 'pos': 'JJ'}], 5, 6], 
+[[{'raw': 'to', 'pos': 'TO'}], 6, 7]]
+
+Recognized groups:   
+[
+[[{'raw': 'It', 'pos': 'PRP'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}], 0, 7], 
+[[{'raw': 'is', 'pos': 'VBZ'}], 1, 2],
+[[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6],
+[[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 0, 4],
+[[{'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}], 1, 3], 
+[[{'raw': 'funny', 'pos': 'JJ'}], 3, 4],
+[[{'raw': 'to', 'pos': 'TO'}], 6, 7]]
+
+
+[[[{'raw': 'It', 'pos': 'PRP'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}], 0, 7], 
+[[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], 
+[[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], 
+[[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 4, 8],
+[[{'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}], 4, 8], 
+[[{'raw': 'funny', 'pos': 'JJ'}], 4, 8], 
+[[{'raw': 'to', 'pos': 'TO'}], 6, 7]]
+
+corrigé
+
+maintenant il reste les alternatives
+je reprendrai via syntactic_pattern_parser et l'exemple avec group pour vérifier que la structure se construit buit
+
+test_search_alternative_groups_in_data
+
+il semble qu'il y ait des del qui ne font pas
+
+ca a l'air d^etre réglé
+
+après
+    pattern = 'raw="It" (raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")'
+tester
+    pattern = 'raw="It" (raw="is") (( (pos="JJ"* pos="JJ") raw="and" (pos="JJ") )) (raw="to")'
+
+Debug: p[2] = [[None, 'raw="is" '], [None, [[[None, 'pos="JJ"']]]]]
+  we are dealing with alternatives
+Debug: p[2] = [[[None, 'raw="is" ']], [None, 'pos="JJ"']]
+
+when this is a sequence (raw="is" pos="JJ")
+wo fix: normal behavior:
+Debug: p[2] = [[None, 'raw="is" '], [None, 'pos="JJ"']] ; len(p[2]) = 2; len(p[2][0]) = 2; 
+  return p[0]=[[[None, 'raw="is" '], [None, 'pos="JJ"']]]
+
+with fix: wrong behavior 
+Debug: p[2] = [[None, 'raw="is" '], [None, 'pos="JJ"']] ; len(p[2]) = 2; len(p[2][0]) = 2; 
+Debug: p[2] = [[None, 'raw="is" '], [None, 'pos="JJ"']] ; len(p[2]) = 2; len(p[2][0]) = 2; 
+  we are dealing with alternatives
+  return p[0]=[[None, 'raw="is" '], [None, 'pos="JJ"']]
+
+when this is an alternative (raw="is"|pos="JJ")
+with fix:
+Debug: p[2] = [[[None, 'raw="is"']], [[None, 'pos="JJ"']]] ; len(p[2]) = 2; len(p[2][0]) = 1; 
+
+  we are dealing with alternatives
+  return p[0]=[[[None, 'raw="is"']], [None, 'pos="JJ"']]
+
+
+
+
+* éclater en autant de test les groups, rename syntactic_analysis en compiled_semantic_analysis ou un truc comme ca
 * run test group and compare the trace wi and without the line p.lexer.step_already_counted = 0 in p_step_group single make it works but fails for groups handling
 * (pos="VB" pos="DT"? pos="JJ"* pos="NN" pos="."|pos="FAKE")+ works but not (pos="VB" pos="DT"? pos="JJ"* pos="NN" pos=".")+ ; adding         p.lexer.step_already_counted = 0 in p_step_group single make it works but fails for groups handling
 

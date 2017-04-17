@@ -481,21 +481,89 @@ class TestPyrata(object):
     description = 'test_search_groups_in_data'
     method = 'search'
     lexicons = {}
-    pattern = 'raw="It" (raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")'
+    #pattern = '(raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")'
+
     #pattern = 'raw="It" (raw="is" |fa="ke") (( pos="JJ"* (pos="JJ" raw="and"|fa="ke") (pos="JJ"|fa="ke") |fa="ke")|fa="ke") (raw="to"|fa="ke")'
     #pattern = 'raw="It" (raw="is"|fa="ke") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )|fa="ke") (raw="to"|fa="ke")'
     #pattern = 'raw="It" (raw="is"|fa="ke") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to"|fa="ke")'
     #pattern = 'raw="A" (raw="B") (( raw="C"* (raw="C" raw="D") (raw="E") )) (raw="F")'
+    
+    pattern = 'raw="is"'                     # [None, 'raw="is"']
+    expected = [[[{'pos': 'VBZ', 'raw': 'is'}], 1, 2]]
 
-    #pattern = '(raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")'
+    pattern = '(raw="is")'                   # [None, [[[None, 'raw="is"']]]]
+    expected = [[[{'pos': 'VBZ', 'raw': 'is'}], 1, 2], [[{'pos': 'VBZ', 'raw': 'is'}], 1, 2]]
+    
+    pattern = '(((raw="is")))'               # [None, [[[None, [[[None, [[[None, 'raw="is"']]]]]]]]]]   
+    expected = [[[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'is', 'pos': 'VBZ'}], 0, 1], [[{'raw': 'is', 'pos': 'VBZ'}], 0, 1]]
+    
+    pattern = 'raw="is" pos="JJ" pos="JJ"'   # [[None, 'raw="is" '], [None, 'pos="JJ" '], [None, 'pos="JJ"']]
+    expected = [[[{'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}], 1, 4]]
+    
+    pattern = 'raw="is" (pos="JJ") pos="JJ"' # [[None, 'raw="is" '], [None, [[[None, 'pos="JJ"']]]], [None, 'pos="NN"']]
+    expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}], 1, 4], [[{'raw': 'fast', 'pos': 'JJ'}], 2, 3]]
+
+    pattern = 'raw="is" (pos="JJ") ((pos="JJ"))' # 
+    expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}], 1, 4], [[{'raw': 'fast', 'pos': 'JJ'}], 2, 3], [[{'raw': 'easy', 'pos': 'JJ'}], 3, 4], [[{'raw': 'easy', 'pos': 'JJ'}], 3, 4] ]
+
+    pattern = '(raw="is" pos="JJ")'          # [None, [[[None, 'raw="is" '], [None, 'pos="JJ"']]]]
+    expected = [[[{'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}], 1, 3], [[{'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}], 1, 3]]
+
+    pattern = '(raw="is"|pos="JJ")'          # [None, [[[None, 'raw="is" '], [None, 'pos="JJ"']]]]
+    expected = [[[{'pos': 'VBZ', 'raw': 'is'}], 1, 2], [[{'pos': 'VBZ', 'raw': 'is'}], 1, 2]]
+
+    pattern = '(raw="is") (pos="JJ")'        # [[None, [[[None, 'raw="is"']]]], [None, [[[None, 'pos="JJ"']]]]]
+    expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3], [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'fast', 'pos': 'JJ'}], 2, 3]]
+    
+    pattern = '(raw="is" (pos="JJ"))'        # [None, [[[None, 'raw="is" '], [None, [[[None, 'pos="JJ"']]]]]]]
+    expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3], [[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3], [[{'raw': 'fast', 'pos': 'JJ'}], 2, 3]]
+
+    pattern = '(raw="is" pos="JJ"|raw="is" )'          # [None, [[[None, 'raw="is" '], [None, 'pos="JJ"']]]]
+    expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3], [[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3]]
+
+    pattern = '(raw="is" pos="NN"|raw="is" pos="JJ")'          # [None, [[[None, 'raw="is" '], [None, 'pos="JJ"']]]]
+    expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3], [[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3]]
+
+    pattern = '(raw="is" pos="NN"|raw="is" pos="NN"|raw="is" pos="JJ")'          # [None, [[[None, 'raw="is" '], [None, 'pos="JJ"']]]]
+    expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3], [[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3]]
+
+    pattern = 'raw="It" (raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")'
+    expected = [[[{'pos': 'PRP', 'raw': 'It'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}], 0, 7], [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], [[{'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}], 3, 5], [[{'raw': 'funny', 'pos': 'JJ'}], 5, 6], [[{'raw': 'to', 'pos': 'TO'}], 6, 7]]
+    #self.getLexer().lexer.group_pattern_offsets_group_list= [[0, 7], [1, 2], [2, 6], [2, 6], [3, 5], [5, 6], [6, 7]]
+
+    pattern = 'raw="It" (raw="is") (( (pos="JJ"* pos="JJ") raw="and" (pos="JJ") )) (raw="to")'
+    expected = [[[{'raw': 'It', 'pos': 'PRP'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}], 0, 7], 
+      [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], 
+      [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], 
+      [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], 
+      [[{'raw': 'fast', 'pos': 'JJ'}, {'pos': 'JJ', 'raw': 'easy'}], 2, 4], 
+      [[{'raw': 'funny', 'pos': 'JJ'}], 5, 6], 
+      [[{'raw': 'to', 'pos': 'TO'}], 6, 7]]
+    
+  # [[[{'raw': 'It', 'pos': 'PRP'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}], 0, 7], 
+  # [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], 
+  # [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6],
+  # [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], 
+  # [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}], 2, 4],
+  # [[{'raw': 'funny', 'pos': 'JJ'}], 5, 6],
+  # [[{'raw': 'to', 'pos': 'TO'}], 6, 7]]
+
+    # test only the compilation stage
+    #pattern = 'raw="A" (raw="B") (( raw="C"* (raw="C" raw="D") (raw="E") )) (raw="F")'
+
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
     #data = [{'raw': 'A'}, {'raw': 'B'}, {'raw': 'C'}, {'raw': 'C'}, {'raw': 'D'}, {'raw': 'E'}, {'raw': 'F'}, {'raw': 'G'}, {'raw': 'H'}, {'raw': 'I'}, {'raw': 'J'},{'raw': 'K'}]
 
-    expected = [[[{'pos': 'PRP', 'raw': 'It'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}], 0, 7], [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], [[{'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}], 3, 5], [[{'raw': 'funny', 'pos': 'JJ'}], 5, 6], [[{'raw': 'to', 'pos': 'TO'}], 6, 7]]
+
+
+
     #self.test(description, method, lexicons, pattern, data, expected, verbosity)  
     result = pyrata.re.search(pattern, data, lexicons=lexicons, verbosity = verbosity)
+    #print ('Debug: type(result)=',type(result))
+    #print ('Debug: type(result.groups)=',type(result.groups()))
     print ('Debug: result=',result)
-    result = result.groups
+    
+    result = result.groups()
 
     #print ('Debug: type(result)=',result)
     if verbosity >0:
@@ -850,7 +918,7 @@ class TestPyrata(object):
       print ('================================================')
     description = 'test_search_alternative_groups_in_data'
     method = 'search'
-    group = [1]
+    #group = [1]
     lexicons = {}
     pattern = '(raw="a" raw="cup" raw="of" raw="coffee")'
     pattern = '(raw="a" raw="cup" raw="of" raw="coffee" | raw="a" raw="tea" )' # Error: syntactic parsing error - unexpected token type="NAME" with value="raw" at position 54. Search an error before this point.
@@ -858,11 +926,27 @@ class TestPyrata(object):
 
     pattern = '((raw="of" raw="coffee") | (raw="of" raw="tea" ))'
     pattern = '(raw="of" raw="coffee" | raw="of" raw="tea" )'
-    pattern = '(pos="IN") (raw="a" raw="tea" | raw="a" raw="cup" raw="of" raw="coffee" | raw="an" raw="orange" raw="juice" ) !pos=";"'
+
+    pattern = '(raw="a" raw="the")'  # [None, [[[None, 'raw="a" '], [None, 'raw="the"']]]]
+    group_id = 0
+
+    pattern = '(raw="a"|raw="the")'  # [None, [ [[None, 'raw="a" ']], [[None, 'raw="the"']] ]]
+    expected =  [[{'pos': 'DT', 'raw': 'a'}], 1, 2]
+
+    #pattern = '(raw="a" raw="cup"|raw="the")'  # [None, [ [[None, 'raw="a" ']], [[None, 'raw="the"']] ]]
+    #pattern = '(raw="the"|raw="a" raw="cup" raw="of")'  # [None, [ [[None, 'raw="a" ']], [[None, 'raw="the"']] ]]
+
+
+    #pattern = '(pos="IN") (raw="a" raw="tea" | raw="a" raw="cup" raw="of" raw="coffee" | raw="an" raw="orange" raw="juice" ) !pos=";"'
+    #group_id = 2
+    #expected = [[{'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'cup'}, {'pos': 'IN', 'raw': 'of'}, {'pos': 'NN', 'raw': 'coffee'}], 1, 5]
+    #self.test(description, method, lexicons, pattern, data, expected, verbosity)  
 
     #pattern = '((raw="a" raw="cup" raw="of" raw="coffee")*| (raw="a" raw="tea" ))+'
 
     #pattern = '(raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")'
+
+
     data = [ {'raw':'Over', 'pos':'IN'},
       {'raw':'a', 'pos':'DT' }, 
       {'raw':'cup', 'pos':'NN' },
@@ -874,14 +958,13 @@ class TestPyrata(object):
       {'raw':'told', 'pos':'VBD'},
       {'raw':'his', 'pos':'PRP$'}, 
       {'raw':'story', 'pos':'NN'} ]
-    expected = [[{'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'cup'}, {'pos': 'IN', 'raw': 'of'}, {'pos': 'NN', 'raw': 'coffee'}], 1, 5]
-        #self.test(description, method, lexicons, pattern, data, expected, verbosity)  
-    expected = [[{'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'cup'}, {'pos': 'IN', 'raw': 'of'}, {'pos': 'NN', 'raw': 'coffee'}], 1, 5]
 
     result = pyrata.re.search(pattern, data, lexicons=lexicons, verbosity = verbosity)
-    if result != None: result = result.groups[2] #group(2)
+    print ('Debug: type(result)=',type(result))
+    print ('Debug: result=',result)
 
-    #print ('Debug: type(result)=',result)
+    if result != None: result = result._groups[group_id] #group(2)
+
     if verbosity >0:
       print ()
       print ('Test:\t', description)
@@ -1187,10 +1270,10 @@ class TestPyrata(object):
     self.test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data(myverbosity)
     self.test_annotate_default_action_extend_default_group_iob_True_annotation_sequence_by_one_dict_in_data(myverbosity)
 
+    self.test_search_groups_wi_matched_quantifiers_in_data(myverbosity)
 
     self.test_search_alternative_groups_in_data(myverbosity)
     self.test_search_alternatives_groups_wi_matched_quantifiers_in_data(myverbosity)
-    self.test_search_groups_wi_matched_quantifiers_in_data(myverbosity)
 
 
     
