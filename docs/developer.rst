@@ -42,10 +42,70 @@ A __group__ is a mechanism to refer to some sub-parts of the pattern. Surroundin
 A __chunk__ is ...
 
 
+Syntactic pattern parsing
+-------------------------------
+Initialy I wanted
+* records the groups
+* keeps trace of their offsets
+* because of cycle among the parsing rules, have a processing counter (indeed a form and a group of the form should have the same offsets and the same step index)
+
+All these problems were solved by adopting an embedding structure (the position of the embedding in the sup-list gives the offset of the group).
+
+
+
+
+
+The compiled pattern structure
+-------------------------------
+
+The result of the compilation stage (aka the syntactic_pattern_parser analysis) is a tree, that represents  sequence of steps, groups and alternatives, and the specification of the pattern borders.
+
+Steps, groups and alternatives can be quantified. An alternative is a group too (can be refered) and has to be marked by parenthesis.
+Alternatives should not admit sub-groups (though the grammar allows it) since depending on the match of alternative option the sub group will not be systematically availlable. 
+.. so this is not allowed: A|B, where A and B can be arbitrary REs, creates a regular expression that will match either A or B. An arbitrary number of REs can be separated by the '|' in this way. This can be used inside groups (see below) as well.
+
+
+a list of steps
+
+a step could be simple i.e. can be a list made of a quantifier and step constraints as String 
+::
+  
+Pattern:   raw="It" (raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")
+CompiledPattern.pattern_steps = [
+  [None, 'raw="It" '],
+  [None, [[[None, 'raw="is"']]]],
+  [None, [[
+    [None, [[ 
+      ['*', 'pos="JJ"'],
+      [None, [[
+        [None, 'pos="JJ" '], 
+        [None, 'raw="and"']]]],
+      [None, [[
+        [None, 'pos="JJ"']]]]]]]
+    ]]],  
+  [None, [[
+    [None, 'raw="to"']]]]
+]
+
+or a step can be more complex to represent a quantified alternatives 
+
+TODO take the log of the test from group test to explain the embeddings
+
+  [list-of
+    [quantified, step],
+    [quantifier, [_alternatives-list-of [_sequence-of [quantifier, step]]]]
+  
+  with step can be simple or [quantified, [_alternative [_sequence-of [quantified, step]]]]
+
+The procedure to develop and debug the group, alternative was take the pattern of the group test and try to design its embedded structure  
+
+Pour ne produire que la compilation alors activate the exit in syntactic_analysis dans re_method
 
 
 Implementing embedded groups (sequence of step tokens) 
 -------------------------
+
+DEPRECATED
 
 ::
 
@@ -97,10 +157,20 @@ Without a correct management of step sequences as token, some issues can be enco
 Motivation for handling chunks and alternatives 
 -------------------------
 
-  NP: {<DT|JJ|NN.*>+}          # Chunk sequences of DT, JJ, NN :      can   extend pattern='pos~"DT|JJ|NN.*"+' annotation={'chunk1':'NP'} iob = True 
-  PP: {<IN><NP>}               # Chunk prepositions followed by NP :  may   extend pattern='pos="IN" chunk1-"NP"' annotation={'chunk2':'PP'} iob = True 
-  VP: {<VB.*><NP|PP|CLAUSE>+$} # Chunk verbs and their arguments :    might extend pattern='pos~"VB.*" (chunk1-"NP"|chunk2-"PP"|chunk3-"CLAUSE")+$' annotation={'chunk4':'VP'} iob = True
-  CLAUSE: {<NP><VP>}           # Chunk NP, VP                         might extend pattern='chunk1-"NP" chunk4-"VP"' annotation={'chunk3':'CLAUSE'} iob = True
+  NP: {<DT|JJ|NN.*>+}          # Chunk sequences of DT, JJ, NN :      can   
+    extend pattern='pos~"DT|JJ|NN.*"+' annotation={'ch1':'NP'} iob = True 
+  
+  PP: {<IN><NP>}               # Chunk prepositions followed by NP :  may   
+    extend pattern='pos="IN" ch1-"NP"' annotation={'ch2':'PP'} iob = True 
+           pattern='pos="IN" (ch1="B-NP" ch1="B-NP"*)"
+
+  VP: {<VB.*><NP|PP|CLAUSE>+$} # Chunk verbs and their arguments :    might 
+    extend pattern='pos~"VB.*" (ch1-"NP"|ch2-"PP"|ch3-"CLAUSE")+$' annotation={'ch4':'VP'} iob = True
+           pattern='pos~"VB.*" (ch1="B-NP" ch1="B-NP"*|ch2="B-PP" ch2="B-PP"*|ch3="B-CLAUSE" ch3="B-CLAUSE"*)+$'
+
+  CLAUSE: {<NP><VP>}           # Chunk NP, VP                         might 
+    extend pattern='ch1-"NP" ch4-"VP"' annotation={'ch3':'CLAUSE'} iob = True
+           pattern='(ch1="B-NP" ch1="B-NP"*) (ch4="B-VP" ch4="B-VP"*)'
 
   Since various type of chunks are related by hierachical relation, they should be considered at various levels and so we introduced various feature names for this purpose. When it is not flat structure, ...
 

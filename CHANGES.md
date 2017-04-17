@@ -1,6 +1,16 @@
 Revision History
 ================
 
+v0.3.1 (April 17, 2017)
+---------------------
+* adoption of a pattern compiled tree structure to represent sequences of quantified steps, quantified groups and alternatives
+* syntactic_pattern_parser supplies a pattern compiled tree structure
+* semantic_analysis consumes a pattern compiled tree structure
+* using logging module for syntactic_pattern_parser and semantic_analysis
+* renamed semantic_analysis into semantic_pattern_parser
+* renamed syntactic_analysis.py into compiled_pattern_re
+* deprecated verbosity argument
+
 v0.3.0 (April 14, 2017)
 ---------------------
 * File creation of CHANGES.md 

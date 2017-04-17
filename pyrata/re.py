@@ -5,9 +5,11 @@
 # 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+import logging
+
 from pyrata.lexer import *
-import pyrata.syntactic_analysis
-import pyrata.semantic_analysis
+import pyrata.compiled_pattern_re
+import pyrata.semantic_pattern_parser
 
 (PREFIX_BEGIN, PREFIX_INSIDE, PREFIX_OTHER) = ('B-', 'I-', 'O-')
 
@@ -23,9 +25,9 @@ def compile (pattern, **kwargs):
   if 'verbosity' in kwargs.keys():
     verbosity = kwargs['verbosity']
 
-  l = pyrata.syntactic_analysis.parse_syntactic(pattern, **kwargs)
+  l = pyrata.compiled_pattern_re.parse_syntactic(pattern, **kwargs)
 
-  return pyrata.syntactic_analysis.CompiledPattern(lexer=l, **kwargs)
+  return pyrata.compiled_pattern_re.CompiledPattern(lexer=l, **kwargs)
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -46,10 +48,10 @@ def search (pattern, data, **kwargs):
 
   method = 'search'
   if verbosity >1:
-      print (1*'  ','Method:\t', method) 
-      print (1*'  ','Lexicons:\t', lexicons)       
-      print (1*'  ','Pattern:\t', pattern)
-      print (1*'  ','Data:\t\t', data)  
+      print ('  ','Method:\t', method) 
+      print ('  ','Lexicons:\t', lexicons)       
+      print ('  ','Pattern:\t', pattern)
+      print ('  ','Data:\t\t', data)  
   ''' -.- /log -.- '''
 
   # lexicons are passed by parameters via kwargs

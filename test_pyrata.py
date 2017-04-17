@@ -5,9 +5,9 @@
 # SET in the __init__, uncomment the test to perform and set the verbosity  (0 None 1 global 2 verbose) 
 # 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
+import logging
 import pyrata.re
-import pyrata.semantic_analysis
+import pyrata.semantic_pattern_parser
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # 
@@ -53,9 +53,15 @@ class TestPyrata(object):
       raise Exception('wrong method to test')
     #print('Result:',l.lexer.finalresult,'; start:',l.lexer.groupstartindex,'; end:',l.lexer.groupendindex)
     #if debug:
+
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+
     if verbosity >0:
-      print ()
-      print ('Test:\t', description)
       print ('Method:\t', method) 
       if action != '': print ('Action:\t', action) 
       if lexicons != {}: print ('Lexicons:\t', lexicons)       
@@ -68,12 +74,10 @@ class TestPyrata(object):
     if result == expected:
       if verbosity >0:
         print ('Result:\tSUCCESS')
-      self.testSuccess += 1
     else:
       if verbosity >0:
         print ('Result:\tFAIL') 
         #exit()
-    self.testCounter +=1
 
     if verbosity >0:
       print ()
@@ -111,11 +115,11 @@ class TestPyrata(object):
     lexicons = {}
     pattern = 'pos="JJ"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
-    matcheslist = pyrata.semantic_analysis.MatchesList()  
-    matcheslist.append(pyrata.semantic_analysis.Match (start=2, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}]))
-    matcheslist.append(pyrata.semantic_analysis.Match (start=3, end=4, value=[{'pos': 'JJ', 'raw': 'easy'}]))
-    matcheslist.append(pyrata.semantic_analysis.Match (start=5, end=6, value=[{'pos': 'JJ', 'raw': 'funny'}]))
-    matcheslist.append(pyrata.semantic_analysis.Match (start=8, end=9, value=[{'pos': 'JJ', 'raw': 'regular'}]))
+    matcheslist = pyrata.semantic_pattern_parser.MatchesList()  
+    matcheslist.append(pyrata.semantic_pattern_parser.Match (start=2, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}]))
+    matcheslist.append(pyrata.semantic_pattern_parser.Match (start=3, end=4, value=[{'pos': 'JJ', 'raw': 'easy'}]))
+    matcheslist.append(pyrata.semantic_pattern_parser.Match (start=5, end=6, value=[{'pos': 'JJ', 'raw': 'funny'}]))
+    matcheslist.append(pyrata.semantic_pattern_parser.Match (start=8, end=9, value=[{'pos': 'JJ', 'raw': 'regular'}]))
     expected = matcheslist
     self.test(description, method, lexicons, pattern, data, expected, verbosity)
 
@@ -561,14 +565,20 @@ class TestPyrata(object):
     result = pyrata.re.search(pattern, data, lexicons=lexicons, verbosity = verbosity)
     #print ('Debug: type(result)=',type(result))
     #print ('Debug: type(result.groups)=',type(result.groups()))
-    print ('Debug: result=',result)
+    #print ('Debug: result=',result)
     
     result = result.groups()
 
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+    
+
     #print ('Debug: type(result)=',result)
     if verbosity >0:
-      print ()
-      print ('Test:\t', description)
       print ('Method:\t', method) 
       print ('Lexicons:\t', lexicons)       
       print ('Pattern:\t', pattern)
@@ -578,11 +588,9 @@ class TestPyrata(object):
     if result == expected:
       if verbosity >0:
         print ('Result:\tSUCCESS')
-      self.testSuccess += 1
     else:
       if verbosity >0:
         print ('Result:\tFAIL')
-    self.testCounter +=1
 
     if verbosity >0:
       print ()
@@ -610,9 +618,18 @@ class TestPyrata(object):
       {'raw':'story', 'pos':'NN'} ]
     expected = [{'pos': 'IN', 'raw': 'Over'}, {'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'smurf'}, {'pos': 'IN', 'raw': 'of'}, {'pos': 'NN', 'raw': 'smurf'}, {'pos': ',', 'raw': ','}, {'pos': 'NN', 'raw': 'smurf'}, {'pos': 'NN', 'raw': 'smurf'}, {'pos': 'VBD', 'raw': 'told'}, {'pos': 'PRP$', 'raw': 'his'}, {'pos': 'NN', 'raw': 'smurf'}]
     result = pyrata.re.annotate(pattern, annotation, data, verbosity = verbosity)
+ 
+
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+    
+
     if verbosity >0:
       print ()
-      print ('Test:\t', description)
       print ('Method:\t', method)
       print ('Action:\t', 'default (i.e. sub)')
       print ('Pattern:\t', pattern)
@@ -622,14 +639,14 @@ class TestPyrata(object):
       print ('Data:\t\t', data)
       print ('Expected:\t', expected)
       print ('Result:\t\t', result) 
+
+
     if result == expected:
       if verbosity >0:
         print ('Result:\tSUCCESS')
-      self.testSuccess += 1
     else:
       if verbosity >0:
         print ('Result:\tFAIL')
-    self.testCounter +=1
 
     if verbosity >0:
       print ()
@@ -960,14 +977,22 @@ class TestPyrata(object):
       {'raw':'story', 'pos':'NN'} ]
 
     result = pyrata.re.search(pattern, data, lexicons=lexicons, verbosity = verbosity)
-    print ('Debug: type(result)=',type(result))
-    print ('Debug: result=',result)
+    #print ('Debug: type(result)=',type(result))
+    #print ('Debug: result=',result)
 
     if result != None: result = result._groups[group_id] #group(2)
 
+
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+
+
     if verbosity >0:
-      print ()
-      print ('Test:\t', description)
+
       print ('Method:\t', method) 
       print ('Lexicons:\t', lexicons)       
       print ('Pattern:\t', pattern)
@@ -977,11 +1002,9 @@ class TestPyrata(object):
     if result == expected:
       if verbosity >0:
         print ('Result:\tSUCCESS')
-      self.testSuccess += 1
     else:
       if verbosity >0:
         print ('Result:\tFAIL')
-    self.testCounter +=1
 
     if verbosity >0:
       print ()
@@ -1012,10 +1035,15 @@ class TestPyrata(object):
     result = pyrata.re.search(pattern, data, lexicons=lexicons, verbosity = verbosity)
     if result != None: result = result.groups[2] #group(2)
 
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+
     #print ('Debug: type(result)=',result)
     if verbosity >0:
-      print ()
-      print ('Test:\t', description)
       print ('Method:\t', method) 
       print ('Lexicons:\t', lexicons)       
       print ('Pattern:\t', pattern)
@@ -1025,11 +1053,9 @@ class TestPyrata(object):
     if result == expected:
       if verbosity >0:
         print ('Result:\tSUCCESS')
-      self.testSuccess += 1
     else:
       if verbosity >0:
         print ('Result:\tFAIL')
-    self.testCounter +=1
 
     if verbosity >0:
       print ()
@@ -1094,10 +1120,15 @@ class TestPyrata(object):
     result = pyrata.re.search(pattern, data, lexicons=lexicons, verbosity = verbosity)
     if result != None: result = result.group(0) #group(2)
 
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+
     #print ('Debug: type(result)=',result)
     if verbosity >0:
-      print ()
-      print ('Test:\t', description)
       print ('Method:\t', method) 
       print ('Lexicons:\t', lexicons)       
       print ('Pattern:\t', pattern)
@@ -1107,11 +1138,9 @@ class TestPyrata(object):
     if result == expected:
       if verbosity >0:
         print ('Result:\tSUCCESS')
-      self.testSuccess += 1
     else:
       if verbosity >0:
         print ('Result:\tFAIL')
-    self.testCounter +=1
 
     if verbosity >0:
       print ()
@@ -1176,27 +1205,167 @@ class TestPyrata(object):
     result = pyrata.re.search(pattern, data, lexicons=lexicons, verbosity = verbosity)
     if result != None: result = result.group(0) #group(2)
 
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+    
     #print ('Debug: type(result)=',result)
     if verbosity >0:
-      print ()
-      print ('Test:\t', description)
+      #print ()
+      #print ('Test:\t', description)
       print ('Method:\t', method) 
       print ('Lexicons:\t', lexicons)       
       print ('Pattern:\t', pattern)
       print ('Data:\t\t', data)
       print ('Expected groups:\t', expected)
       print ('Recognized groups:\t', result) 
+
     if result == expected:
       if verbosity >0:
         print ('Result:\tSUCCESS')
-      self.testSuccess += 1
     else:
       if verbosity >0:
         print ('Result:\tFAIL')
-    self.testCounter +=1
 
     if verbosity >0:
       print ()
+
+
+  def test_clause(self):
+    # http://www.nltk.org/book/ch07.html # Building Nested Structure with Cascaded Chunkers
+    sentence = [("Mary", "NN"), ("saw", "VBD"), ("the", "DT"), ("cat", "NN"),
+      ("sit", "VB"), ("on", "IN"), ("the", "DT"), ("mat", "NN")]
+    sentence = [("John", "NNP"), ("thinks", "VBZ"), ("Mary", "NN"), ("saw", "VBD"), ("the", "DT"), ("cat", "NN"), ("sit", "VB"), ("on", "IN"), ("the", "DT"), ("mat", "NN")]
+    data = [{'raw':w, 'pos':p} for (w, p) in sentence]
+    print ('Debug:', data)
+
+    # NP: {<DT|JJ|NN.*>+}          # Chunk sequences of DT, JJ, NN :      can   
+    # extend pattern='pos~"DT|JJ|NN.*"+' annotation={'ch1':'NP'} iob = True 
+    method = 'annotate'
+    action = 'extend'
+    group = [0]
+    iob = True
+    pattern = 'pos~"DT|JJ|NN.*"+'
+    annotation = {'ch1':'NP'}
+    result_NP = pyrata.re.annotate (pattern, annotation, data, group, action, iob)
+    print ('Debug: ch1 NP=',result_NP)
+
+    #PP: {<IN><NP>}               # Chunk prepositions followed by NP :  may   
+    #extend pattern='pos="IN" ch1-"NP"' annotation={'ch2':'PP'} iob = True 
+    #       pattern='pos="IN" (ch1="B-NP" ch1="I-NP"*)"
+    pattern = 'pos="IN" (ch1="B-NP" ch1="I-NP"*)'
+    annotation = {'ch2':'PP'}
+    result_PP = pyrata.re.annotate (pattern, annotation, result_NP, group, action, iob)
+    print ('Debug: ch2 PP=',result_PP)
+
+    # VP: {<VB.*><NP|PP|CLAUSE>+$} # Chunk verbs and their arguments :    might 
+    # extend pattern='pos~"VB.*" (ch1-"NP"|ch2-"PP"|ch3-"CLAUSE")+$' annotation={'ch4':'VP'} iob = True
+     #       pattern='pos~"VB.*" (ch1="B-NP" ch1="I-NP"*|ch2="B-PP" ch2="I-PP"*|ch3="B-CLAUSE" ch3="I-CLAUSE"*)+$'
+    pattern = 'pos~"VB.*" (ch1="B-NP" ch1="I-NP"*|ch2="B-PP" ch2="I-PP"*|ch3="B-CLAUSE" ch3="I-CLAUSE"*)+$' 
+    annotation = {'ch4':'VP'}
+    result_VP = pyrata.re.annotate (pattern, annotation, result_PP, group, action, iob)
+    print ('Debug: ch4 VP=',result_VP)
+
+
+    # CLAUSE: {<NP><VP>}           # Chunk NP, VP                         might 
+    #extend pattern='ch1-"NP" ch4-"VP"' annotation={'ch3':'CLAUSE'} iob = True
+    #        pattern='(ch1="B-NP" ch1="B-NP"*) (ch4="B-VP" ch4="I-VP"*)'
+    pattern = '(ch1="B-NP" ch1="I-NP"*) (ch4="B-VP" ch4="I-VP"*)'
+    annotation = {'ch3':'CLAUSE'}
+    result_CLAUSE = pyrata.re.annotate (pattern, annotation, result_VP, group, action, iob)
+    print ('Debug: ch3 CLAUSE=',result_CLAUSE)
+
+    # loop 2
+    pattern = 'pos~"VB.*" (ch3="B-CLAUSE" ch3="I-CLAUSE"*)+$' # it is not an OR all inclusive it is the first presented which match ch1="B-NP" ch1="I-NP"*|ch2="B-PP" ch2="I-PP"*|
+    annotation = {'ch5':'VP'}
+    result_VP = pyrata.re.annotate (pattern, annotation, result_PP, group, action, iob)
+    print ('Debug: ch5 (loop 2) VP=',result_VP)
+
+    pattern = '(ch1="B-NP" ch1="I-NP"*) (ch5="B-VP" ch5="I-VP"*)'
+    annotation = {'ch6':'CLAUSE'}
+    result_CLAUSE = pyrata.re.annotate (pattern, annotation, result_VP, group, action, iob)
+    print ('Debug: ch6 (loop 2) CLAUSE=',result_CLAUSE)
+
+# Debug: [{'raw': 'Mary', 'pos': 'NN'}, {'raw': 'saw', 'pos': 'VBD'}, {'raw': 'the', 'pos': 'DT'}, {'raw': 'cat', 'pos': 'NN'}, {'raw': 'sit', 'pos': 'VB'}, {'raw': 'on', 'pos': 'IN'}, {'raw': 'the', 'pos': 'DT'}, {'raw': 'mat', 'pos': 'NN'}]
+# Debug: ch1 NP= [{'ch1': 'B-NP', 'raw': 'Mary', 'pos': 'NN'}, {'raw': 'saw', 'pos': 'VBD'}, {'ch1': 'B-NP', 'raw': 'the', 'pos': 'DT'}, {'ch1': 'I-NP', 'raw': 'cat', 'pos': 'NN'}, {'raw': 'sit', 'pos': 'VB'}, {'raw': 'on', 'pos': 'IN'}, {'ch1': 'B-NP', 'raw': 'the', 'pos': 'DT'}, {'ch1': 'I-NP', 'raw': 'mat', 'pos': 'NN'}]
+# Debug: ch2 PP= [{'ch1': 'B-NP', 'raw': 'Mary', 'pos': 'NN'}, {'raw': 'saw', 'pos': 'VBD'}, {'ch1': 'B-NP', 'raw': 'the', 'pos': 'DT'}, {'ch1': 'I-NP', 'raw': 'cat', 'pos': 'NN'}, {'raw': 'sit', 'pos': 'VB'}, {'raw': 'on', 'pos': 'IN', 'ch2': 'B-PP'}, {'ch1': 'B-NP', 'raw': 'the', 'pos': 'DT', 'ch2': 'I-PP'}, {'ch1': 'I-NP', 'raw': 'mat', 'pos': 'NN', 'ch2': 'I-PP'}]
+# Debug: ch4 VP= [{'ch1': 'B-NP', 'raw': 'Mary', 'pos': 'NN'}, {'raw': 'saw', 'pos': 'VBD'}, {'ch1': 'B-NP', 'raw': 'the', 'pos': 'DT'}, {'ch1': 'I-NP', 'raw': 'cat', 'pos': 'NN'}, {'ch4': 'B-VP', 'raw': 'sit', 'pos': 'VB'}, {'ch4': 'I-VP', 'raw': 'on', 'pos': 'IN', 'ch2': 'B-PP'}, {'ch4': 'I-VP', 'ch1': 'B-NP', 'raw': 'the', 'pos': 'DT', 'ch2': 'I-PP'}, {'ch4': 'I-VP', 'ch1': 'I-NP', 'raw': 'mat', 'pos': 'NN', 'ch2': 'I-PP'}]
+# [{'ch1': 'B-NP', 'raw': 'Mary', 'pos': 'NN'}, 
+# {'raw': 'saw', 'pos': 'VBD'}, 
+# {'ch1': 'B-NP', 'raw': 'the', 'pos': 'DT'}, {'ch1': 'I-NP', 'raw': 'cat', 'pos': 'NN'}, 
+# {'ch4': 'B-VP', 'raw': 'sit', 'pos': 'VB'}, 
+# {'ch4': 'I-VP', 'raw': 'on', 'pos': 'IN', 'ch2': 'B-PP'}, 
+# {'ch4': 'I-VP', 'ch1': 'B-NP', 'raw': 'the', 'pos': 'DT', 'ch2': 'I-PP'}, 
+# {'ch4': 'I-VP', 'ch1': 'I-NP', 'raw': 'mat', 'pos': 'NN', 'ch2': 'I-PP'}]
+
+# Debug: ch3 CLAUSE= [{'pos': 'NN', 'raw': 'Mary', 'ch1': 'B-NP'}, {'pos': 'VBD', 'raw': 'saw'}, {'pos': 'DT', 'raw': 'the', 'ch1': 'B-NP', 'ch3': 'B-CLAUSE'}, {'pos': 'NN', 'raw': 'cat', 'ch1': 'I-NP', 'ch3': 'I-CLAUSE'}, {'pos': 'VB', 'raw': 'sit', 'ch4': 'B-VP', 'ch3': 'I-CLAUSE'}, {'pos': 'IN', 'raw': 'on', 'ch2': 'B-PP', 'ch3': 'I-CLAUSE', 'ch4': 'I-VP'}, {'ch2': 'I-PP', 'ch4': 'I-VP', 'ch3': 'I-CLAUSE', 'pos': 'DT', 'raw': 'the', 'ch1': 'B-NP'}, {'ch2': 'I-PP', 'ch4': 'I-VP', 'ch3': 'I-CLAUSE', 'pos': 'NN', 'raw': 'mat', 'ch1': 'I-NP'}]
+# (S
+#   (NP Mary/NN)
+#   saw/VBD
+#   (CLAUSE
+#     (NP the/DT cat/NN)
+#     (VP sit/VB (PP on/IN (NP the/DT mat/NN)))))
+
+# [{'pos': 'NN', 'raw': 'Mary', 'ch1': 'B-NP'}, 
+# {'pos': 'VBD', 'raw': 'saw'}, 
+# {'pos': 'DT', 'raw': 'the', 'ch1': 'B-NP', 'ch3': 'B-CLAUSE'}, 
+# {'pos': 'NN', 'raw': 'cat', 'ch1': 'I-NP', 'ch3': 'I-CLAUSE'}, 
+# {'pos': 'VB', 'raw': 'sit', 'ch4': 'B-VP', 'ch3': 'I-CLAUSE'}, 
+# {'pos': 'IN', 'raw': 'on', 'ch2': 'B-PP', 'ch3': 'I-CLAUSE', 'ch4': 'I-VP'},
+# {'ch2': 'I-PP', 'ch4': 'I-VP', 'ch3': 'I-CLAUSE', 'pos': 'DT', 'raw': 'the', 'ch1': 'B-NP'}, 
+# {'ch2': 'I-PP', 'ch4': 'I-VP', 'ch3': 'I-CLAUSE', 'pos': 'NN', 'raw': 'mat', 'ch1': 'I-NP'}]
+
+#Debug: ch4 (loop 2) VP= [{'raw': 'Mary', 'ch1': 'B-NP', 'pos': 'NN'}, {'raw': 'saw', 'pos': 'VBD'}, {'ch3': 'B-CLAUSE', 'raw': 'the', 'ch1': 'B-NP', 'pos': 'DT'}, {'ch3': 'I-CLAUSE', 'raw': 'cat', 'ch1': 'I-NP', 'pos': 'NN'}, {'ch3': 'I-CLAUSE', 'raw': 'sit', 'ch4': 'B-VP', 'pos': 'VB'}, {'ch3': 'I-CLAUSE', 'raw': 'on', 'ch4': 'I-VP', 'ch2': 'B-PP', 'pos': 'IN'}, {'ch3': 'I-CLAUSE', 'raw': 'the', 'ch2': 'I-PP', 'ch4': 'I-VP', 'pos': 'DT', 'ch1': 'B-NP'}, {'ch3': 'I-CLAUSE', 'raw': 'mat', 'ch2': 'I-PP', 'ch4': 'I-VP', 'pos': 'NN', 'ch1': 'I-NP'}]
+#Debug: ch3 (loop 2) CLAUSE= [{'raw': 'Mary', 'ch1': 'B-NP', 'pos': 'NN'}, {'raw': 'saw', 'pos': 'VBD'}, {'ch3': 'B-CLAUSE', 'raw': 'the', 'ch1': 'B-NP', 'pos': 'DT'}, {'ch3': 'I-CLAUSE', 'raw': 'cat', 'ch1': 'I-NP', 'pos': 'NN'}, {'ch3': 'I-CLAUSE', 'raw': 'sit', 'ch4': 'B-VP', 'pos': 'VB'}, {'ch3': 'I-CLAUSE', 'raw': 'on', 'ch4': 'I-VP', 'ch2': 'B-PP', 'pos': 'IN'}, {'ch3': 'I-CLAUSE', 'raw': 'the', 'ch2': 'I-PP', 'ch4': 'I-VP', 'pos': 'DT', 'ch1': 'B-NP'}, {'ch3': 'I-CLAUSE', 'raw': 'mat', 'ch2': 'I-PP', 'ch4': 'I-VP', 'pos': 'NN', 'ch1': 'I-NP'}]
+
+# [{'raw': 'Mary', 'ch1': 'B-NP', 'pos': 'NN'}, 
+# {'raw': 'saw', 'pos': 'VBD'}, 
+# {'ch3': 'B-CLAUSE', 'raw': 'the', 'ch1': 'B-NP', 'pos': 'DT'}, 
+# {'ch3': 'I-CLAUSE', 'raw': 'cat', 'ch1': 'I-NP', 'pos': 'NN'}, 
+# {'ch3': 'I-CLAUSE', 'raw': 'sit', 'ch4': 'B-VP', 'pos': 'VB'}, 
+# {'ch3': 'I-CLAUSE', 'raw': 'on', 'ch4': 'I-VP', 'ch2': 'B-PP', 'pos': 'IN'}, 
+# {'ch3': 'I-CLAUSE', 'raw': 'the', 'ch2': 'I-PP', 'ch4': 'I-VP', 'pos': 'DT', 'ch1': 'B-NP'}, 
+# {'ch3': 'I-CLAUSE', 'raw': 'mat', 'ch2': 'I-PP', 'ch4': 'I-VP', 'pos': 'NN', 'ch1': 'I-NP'}]
+
+# sentence 2
+#Debug: [{'pos': 'NNP', 'raw': 'John'}, {'pos': 'VBZ', 'raw': 'thinks'}, {'pos': 'NN', 'raw': 'Mary'}, {'pos': 'VBD', 'raw': 'saw'}, {'pos': 'DT', 'raw': 'the'}, {'pos': 'NN', 'raw': 'cat'}, {'pos': 'VB', 'raw': 'sit'}, {'pos': 'IN', 'raw': 'on'}, {'pos': 'DT', 'raw': 'the'}, {'pos': 'NN', 'raw': 'mat'}]
+#Debug: ch1 NP= [{'pos': 'NNP', 'ch1': 'B-NP', 'raw': 'John'}, {'pos': 'VBZ', 'raw': 'thinks'}, {'pos': 'NN', 'ch1': 'B-NP', 'raw': 'Mary'}, {'pos': 'VBD', 'raw': 'saw'}, {'pos': 'DT', 'ch1': 'B-NP', 'raw': 'the'}, {'pos': 'NN', 'ch1': 'I-NP', 'raw': 'cat'}, {'pos': 'VB', 'raw': 'sit'}, {'pos': 'IN', 'raw': 'on'}, {'pos': 'DT', 'ch1': 'B-NP', 'raw': 'the'}, {'pos': 'NN', 'ch1': 'I-NP', 'raw': 'mat'}]
+#Debug: ch2 PP= [{'pos': 'NNP', 'ch1': 'B-NP', 'raw': 'John'}, {'pos': 'VBZ', 'raw': 'thinks'}, {'pos': 'NN', 'ch1': 'B-NP', 'raw': 'Mary'}, {'pos': 'VBD', 'raw': 'saw'}, {'pos': 'DT', 'ch1': 'B-NP', 'raw': 'the'}, {'pos': 'NN', 'ch1': 'I-NP', 'raw': 'cat'}, {'pos': 'VB', 'raw': 'sit'}, {'pos': 'IN', 'ch2': 'B-PP', 'raw': 'on'}, {'pos': 'DT', 'ch1': 'B-NP', 'ch2': 'I-PP', 'raw': 'the'}, {'pos': 'NN', 'ch1': 'I-NP', 'ch2': 'I-PP', 'raw': 'mat'}]
+#Debug: ch4 VP= [{'pos': 'NNP', 'ch1': 'B-NP', 'raw': 'John'}, {'pos': 'VBZ', 'raw': 'thinks'}, {'pos': 'NN', 'ch1': 'B-NP', 'raw': 'Mary'}, {'pos': 'VBD', 'raw': 'saw'}, {'pos': 'DT', 'ch1': 'B-NP', 'raw': 'the'}, {'pos': 'NN', 'ch1': 'I-NP', 'raw': 'cat'}, {'pos': 'VB', 'raw': 'sit', 'ch4': 'B-VP'}, {'pos': 'IN', 'ch2': 'B-PP', 'raw': 'on', 'ch4': 'I-VP'}, {'pos': 'DT', 'ch1': 'B-NP', 'ch2': 'I-PP', 'raw': 'the', 'ch4': 'I-VP'}, {'pos': 'NN', 'ch1': 'I-NP', 'ch2': 'I-PP', 'raw': 'mat', 'ch4': 'I-VP'}]
+#Debug: ch3 CLAUSE= [{'pos': 'NNP', 'ch1': 'B-NP', 'raw': 'John'}, {'pos': 'VBZ', 'raw': 'thinks'}, {'pos': 'NN', 'ch1': 'B-NP', 'raw': 'Mary'}, {'pos': 'VBD', 'raw': 'saw'}, {'pos': 'DT', 'ch1': 'B-NP', 'raw': 'the', 'ch3': 'B-CLAUSE'}, {'pos': 'NN', 'ch1': 'I-NP', 'raw': 'cat', 'ch3': 'I-CLAUSE'}, {'pos': 'VB', 'raw': 'sit', 'ch3': 'I-CLAUSE', 'ch4': 'B-VP'}, {'pos': 'IN', 'ch2': 'B-PP', 'raw': 'on', 'ch3': 'I-CLAUSE', 'ch4': 'I-VP'}, {'ch1': 'B-NP', 'ch2': 'I-PP', 'ch3': 'I-CLAUSE', 'ch4': 'I-VP', 'pos': 'DT', 'raw': 'the'}, {'ch1': 'I-NP', 'ch2': 'I-PP', 'ch3': 'I-CLAUSE', 'ch4': 'I-VP', 'pos': 'NN', 'raw': 'mat'}]
+#Debug: ch5 (loop 2) VP= [{'ch1': 'B-NP', 'raw': 'John', 'pos': 'NNP'}, {'raw': 'thinks', 'pos': 'VBZ'}, {'ch1': 'B-NP', 'raw': 'Mary', 'pos': 'NN'}, {'raw': 'saw', 'pos': 'VBD'}, {'ch1': 'B-NP', 'raw': 'the', 'pos': 'DT', 'ch3': 'B-CLAUSE'}, {'ch1': 'I-NP', 'raw': 'cat', 'pos': 'NN', 'ch3': 'I-CLAUSE'}, {'ch4': 'B-VP', 'raw': 'sit', 'ch5': 'B-VP', 'pos': 'VB', 'ch3': 'I-CLAUSE'}, {'ch4': 'I-VP', 'pos': 'IN', 'ch2': 'B-PP', 'raw': 'on', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE'}, {'ch4': 'I-VP', 'ch1': 'B-NP', 'pos': 'DT', 'ch2': 'I-PP', 'raw': 'the', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE'}, {'ch4': 'I-VP', 'ch1': 'I-NP', 'pos': 'NN', 'ch2': 'I-PP', 'raw': 'mat', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE'}]
+#Debug: ch6 (loop 2) CLAUSE= [{'ch1': 'B-NP', 'raw': 'John', 'pos': 'NNP'}, {'raw': 'thinks', 'pos': 'VBZ'}, {'ch1': 'B-NP', 'raw': 'Mary', 'pos': 'NN'}, {'raw': 'saw', 'pos': 'VBD'}, {'ch1': 'B-NP', 'raw': 'the', 'ch6': 'B-CLAUSE', 'pos': 'DT', 'ch3': 'B-CLAUSE'}, {'ch1': 'I-NP', 'raw': 'cat', 'ch6': 'I-CLAUSE', 'pos': 'NN', 'ch3': 'I-CLAUSE'}, {'ch4': 'B-VP', 'pos': 'VB', 'ch6': 'I-CLAUSE', 'raw': 'sit', 'ch5': 'B-VP', 'ch3': 'I-CLAUSE'}, {'ch4': 'I-VP', 'ch6': 'I-CLAUSE', 'pos': 'IN', 'ch2': 'B-PP', 'raw': 'on', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE'}, {'ch4': 'I-VP', 'ch1': 'B-NP', 'ch6': 'I-CLAUSE', 'pos': 'DT', 'ch2': 'I-PP', 'raw': 'the', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE'}, {'ch4': 'I-VP', 'ch1': 'I-NP', 'ch6': 'I-CLAUSE', 'pos': 'NN', 'ch2': 'I-PP', 'raw': 'mat', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE'}]
+#Debug: ch5 (loop 2) VP= [{'ch1': 'B-NP', 'pos': 'NNP', 'raw': 'John'}, {'pos': 'VBZ', 'raw': 'thinks'}, {'ch1': 'B-NP', 'pos': 'NN', 'raw': 'Mary'}, {'ch5': 'B-VP', 'pos': 'VBD', 'raw': 'saw'}, {'ch1': 'B-NP', 'ch3': 'B-CLAUSE', 'pos': 'DT', 'raw': 'the', 'ch5': 'I-VP'}, {'ch1': 'I-NP', 'ch3': 'I-CLAUSE', 'pos': 'NN', 'raw': 'cat', 'ch5': 'I-VP'}, {'ch3': 'I-CLAUSE', 'pos': 'VB', 'raw': 'sit', 'ch4': 'B-VP', 'ch5': 'I-VP'}, {'ch2': 'B-PP', 'pos': 'IN', 'raw': 'on', 'ch4': 'I-VP', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE'}, {'ch1': 'B-NP', 'ch2': 'I-PP', 'pos': 'DT', 'raw': 'the', 'ch4': 'I-VP', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE'}, {'ch1': 'I-NP', 'ch2': 'I-PP', 'pos': 'NN', 'raw': 'mat', 'ch4': 'I-VP', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE'}]
+#Debug: ch6 (loop 2) CLAUSE= [{'ch1': 'B-NP', 'pos': 'NNP', 'raw': 'John'}, {'pos': 'VBZ', 'raw': 'thinks'}, {'ch1': 'B-NP', 'pos': 'NN', 'raw': 'Mary', 'ch6': 'B-CLAUSE'}, {'ch5': 'B-VP', 'pos': 'VBD', 'raw': 'saw', 'ch6': 'I-CLAUSE'}, {'ch1': 'B-NP', 'ch5': 'I-VP', 'pos': 'DT', 'ch3': 'B-CLAUSE', 'raw': 'the', 'ch6': 'I-CLAUSE'}, {'ch1': 'I-NP', 'ch5': 'I-VP', 'pos': 'NN', 'ch3': 'I-CLAUSE', 'raw': 'cat', 'ch6': 'I-CLAUSE'}, {'ch5': 'I-VP', 'pos': 'VB', 'ch3': 'I-CLAUSE', 'ch4': 'B-VP', 'raw': 'sit', 'ch6': 'I-CLAUSE'}, {'ch2': 'B-PP', 'pos': 'IN', 'raw': 'on', 'ch4': 'I-VP', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE', 'ch6': 'I-CLAUSE'}, {'ch1': 'B-NP', 'ch2': 'I-PP', 'pos': 'DT', 'raw': 'the', 'ch4': 'I-VP', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE', 'ch6': 'I-CLAUSE'}, {'ch1': 'I-NP', 'ch2': 'I-PP', 'pos': 'NN', 'raw': 'mat', 'ch4': 'I-VP', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE', 'ch6': 'I-CLAUSE'}]
+
+
+# (S
+#   (NP John/NNP)
+#   thinks/VBZ
+#   (CLAUSE
+#     (NP Mary/NN)
+#     (VP
+#       saw/VBD
+#       (CLAUSE
+#         (NP the/DT cat/NN)
+#         (VP sit/VB (PP on/IN (NP the/DT mat/NN)))))))
+
+# [{'ch1': 'B-NP', 'pos': 'NNP', 'raw': 'John'}, 
+# {'pos': 'VBZ', 'raw': 'thinks'}, 
+# {'ch1': 'B-NP', 'pos': 'NN', 'raw': 'Mary', 'ch6': 'B-CLAUSE'}, 
+# {'ch5': 'B-VP', 'pos': 'VBD', 'raw': 'saw', 'ch6': 'I-CLAUSE'}, 
+# {'ch1': 'B-NP', 'ch5': 'I-VP', 'pos': 'DT', 'ch3': 'B-CLAUSE', 'raw': 'the', 'ch6': 'I-CLAUSE'}, 
+# {'ch1': 'I-NP', 'ch5': 'I-VP', 'pos': 'NN', 'ch3': 'I-CLAUSE', 'raw': 'cat', 'ch6': 'I-CLAUSE'}, 
+# {'ch5': 'I-VP', 'pos': 'VB', 'ch3': 'I-CLAUSE', 'ch4': 'B-VP', 'raw': 'sit', 'ch6': 'I-CLAUSE'}, 
+# {'ch2': 'B-PP', 'pos': 'IN', 'raw': 'on', 'ch4': 'I-VP', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE', 'ch6': 'I-CLAUSE'}, 
+# {'ch1': 'B-NP', 'ch2': 'I-PP', 'pos': 'DT', 'raw': 'the', 'ch4': 'I-VP', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE', 'ch6': 'I-CLAUSE'}, 
+# {'ch1': 'I-NP', 'ch2': 'I-PP', 'pos': 'NN', 'raw': 'mat', 'ch4': 'I-VP', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE', 'ch6': 'I-CLAUSE'}]
+
+    self.testCounter +=1
+
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # Declare here all the tests you want to run
@@ -1204,79 +1373,79 @@ class TestPyrata(object):
 
   def __init__(self):
 
-    myverbosity = 2
-    self.test_search_step_in_data(myverbosity)
-    self.test_findall_step_in_data(myverbosity)
-    self.test_finditer_step_in_data(myverbosity)
+    myverbosity = 0
+    # self.test_search_step_in_data(myverbosity)
+    # self.test_findall_step_in_data(myverbosity)
+    # self.test_finditer_step_in_data(myverbosity)
 
-    self.test_search_step_absent_in_data(myverbosity)
-    self.test_findall_step_absent_in_data(myverbosity)
+    # self.test_search_step_absent_in_data(myverbosity)
+    # self.test_findall_step_absent_in_data(myverbosity)
 
-    self.test_search_class_step_in_data(myverbosity)
-    self.test_search_rich_class_step_in_data(myverbosity)
+    # self.test_search_class_step_in_data(myverbosity)
+    # self.test_search_rich_class_step_in_data(myverbosity)
 
-    self.test_findall_regex_step_in_data(myverbosity)
-    self.test_findall_lexicon_step_in_data(myverbosity)
-    self.test_findall_undefined_lexicon_step_in_data(myverbosity)
+    # self.test_findall_regex_step_in_data(myverbosity)
+    # self.test_findall_lexicon_step_in_data(myverbosity)
+    # self.test_findall_undefined_lexicon_step_in_data(myverbosity)
 
-    self.test_findall_multiple_lexicon_step_in_data(myverbosity)
+    # self.test_findall_multiple_lexicon_step_in_data(myverbosity)
 
-    self.test_search_optional_step_in_data(myverbosity)
-    self.test_findall_optional_step_in_data(myverbosity)
+    # self.test_search_optional_step_in_data(myverbosity)
+    # self.test_findall_optional_step_in_data(myverbosity)
     
-    self.test_findall_step_step_in_data(myverbosity)
+    # self.test_findall_step_step_in_data(myverbosity)
 
-    self.test_findall_optional_step_step_in_data(myverbosity)
-    self.test_findall_any_step_step_in_data(myverbosity)
-    self.test_findall_at_least_one_step_step_in_data(myverbosity)
+    # self.test_findall_optional_step_step_in_data(myverbosity)
+    # self.test_findall_any_step_step_in_data(myverbosity)
+    # self.test_findall_at_least_one_step_step_in_data(myverbosity)
 
-    self.test_findall_any_step_step_nbar_in_data(myverbosity)
-    self.test_findall_at_least_one_step_step_nbar_in_data(myverbosity)
+    # self.test_findall_any_step_step_nbar_in_data(myverbosity)
+    # self.test_findall_at_least_one_step_step_nbar_in_data(myverbosity)
 
-    self.test_findall_step_step_partially_matched_in_data_ending(myverbosity)
-    self.test_findall_optional_step_step_partially_matched_in_data_ending(myverbosity)
-    self.test_findall_any_step_step_partially_matched_in_data_ending(myverbosity)
-    self.test_findall_at_least_one_step_step_partially_matched_in_data_ending(myverbosity)
+    # self.test_findall_step_step_partially_matched_in_data_ending(myverbosity)
+    # self.test_findall_optional_step_step_partially_matched_in_data_ending(myverbosity)
+    # self.test_findall_any_step_step_partially_matched_in_data_ending(myverbosity)
+    # self.test_findall_at_least_one_step_step_partially_matched_in_data_ending(myverbosity)
 
-    self.test_findall_step_at_least_one_not_step_step_in_data(myverbosity)
-    self.test_findall_step_present_optional_step_step_in_data(myverbosity)
-    self.test_findall_step_absent_optional_step_step_in_data(myverbosity)
+    # self.test_findall_step_at_least_one_not_step_step_in_data(myverbosity)
+    # self.test_findall_step_present_optional_step_step_in_data(myverbosity)
+    # self.test_findall_step_absent_optional_step_step_in_data(myverbosity)
 
-    self.test_findall_step_optional_step_in_data(myverbosity)
-    self.test_findall_step_any_step_in_data(myverbosity)
-    self.test_findall_step_optinal_step_optional_step_step_in_data(myverbosity)
+    # self.test_findall_step_optional_step_in_data(myverbosity)
+    # self.test_findall_step_any_step_in_data(myverbosity)
+    # self.test_findall_step_optinal_step_optional_step_step_in_data(myverbosity)
 
-    self.test_findall_step_any_not_step1_step1_in_data(myverbosity)
+    # self.test_findall_step_any_not_step1_step1_in_data(myverbosity)
 
-    self.test_pattern_starting_with_the_first_token_of_data_present_as_expected_in_data(myverbosity)
-    self.test_pattern_ending_with_the_last_token_of_data_present_as_expected_in_data(myverbosity)
-    self.test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_present_as_expected_in_data(myverbosity)
-    self.test_pattern_starting_with_the_first_token_of_data_not_present_as_expected_in_data(myverbosity)
-    self.test_pattern_ending_with_the_last_token_of_data_not_present_as_expected_in_data(myverbosity)
-    self.test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_not_present_as_expected_in_data(myverbosity)
-
-
-    self.test_search_groups_in_data(myverbosity)
-
-    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_in_data(myverbosity)
-    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_not_in_data(myverbosity)
-    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_pattern_sequence_to_annotation_step_in_data(myverbosity)
-    self.test_annotate_default_action_sub_group_one_default_iob_annotation_dict_pattern_in_data(myverbosity)
-    self.test_annotate_default_action_sub_default_group_default_iob_annotation_empty_in_data(myverbosity)
+    # self.test_pattern_starting_with_the_first_token_of_data_present_as_expected_in_data(myverbosity)
+    # self.test_pattern_ending_with_the_last_token_of_data_present_as_expected_in_data(myverbosity)
+    # self.test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_present_as_expected_in_data(myverbosity)
+    # self.test_pattern_starting_with_the_first_token_of_data_not_present_as_expected_in_data(myverbosity)
+    # self.test_pattern_ending_with_the_last_token_of_data_not_present_as_expected_in_data(myverbosity)
+    # self.test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_not_present_as_expected_in_data(myverbosity)
 
 
-    self.test_annotate_default_action_update_default_group_default_iob_annotation_dict_pattern_in_data(myverbosity)
-    self.test_annotate_default_action_extend_default_group_default_iob_annotation_dict_pattern_in_data(myverbosity)
-    self.test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data(myverbosity)
-    self.test_annotate_default_action_extend_default_group_iob_True_annotation_sequence_by_one_dict_in_data(myverbosity)
+    # self.test_search_groups_in_data(myverbosity)
 
-    self.test_search_groups_wi_matched_quantifiers_in_data(myverbosity)
-
-    self.test_search_alternative_groups_in_data(myverbosity)
-    self.test_search_alternatives_groups_wi_matched_quantifiers_in_data(myverbosity)
+    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_in_data(myverbosity)
+    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_not_in_data(myverbosity)
+    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_pattern_sequence_to_annotation_step_in_data(myverbosity)
+    # self.test_annotate_default_action_sub_group_one_default_iob_annotation_dict_pattern_in_data(myverbosity)
+    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_empty_in_data(myverbosity)
 
 
-    
+    # self.test_annotate_default_action_update_default_group_default_iob_annotation_dict_pattern_in_data(myverbosity)
+    # self.test_annotate_default_action_extend_default_group_default_iob_annotation_dict_pattern_in_data(myverbosity)
+    # self.test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data(myverbosity)
+    # self.test_annotate_default_action_extend_default_group_iob_True_annotation_sequence_by_one_dict_in_data(myverbosity)
+
+    # self.test_search_groups_wi_matched_quantifiers_in_data(myverbosity)
+
+    # self.test_search_alternative_groups_in_data(myverbosity)
+    # self.test_search_alternatives_groups_wi_matched_quantifiers_in_data(myverbosity)
+
+
+    self.test_clause()
 
     #self.test_search_any_class_step_error_step_in_data(myverbosity)
 
@@ -1287,6 +1456,11 @@ class TestPyrata(object):
 # Run all the tests
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 if __name__ == '__main__':
+
+
+
+#  logging.basicConfig(format='%(levelname)s:\t%(message)s', filename='test_pyrata.py.log', level=logging.DEBUG)
+  logging.basicConfig(format='%(levelname)s:\t%(message)s', filename='test_pyrata.py.log', level=logging.INFO)
 
   tests = TestPyrata()
   
