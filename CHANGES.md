@@ -1,6 +1,14 @@
 Revision History
 ================
 
+
+v0.3.2 (April 22, 2017)
+---------------------
+* added the chunk operator (as a re rewritting rule)
+* revised user-guide (group, alternative, chunk, ^$, compiled sections)
+* added more tests
+
+
 v0.3.1 (April 17, 2017)
 ---------------------
 * first upload on pypi server
@@ -12,8 +20,6 @@ v0.3.1 (April 17, 2017)
 * renamed syntactic_analysis.py into compiled_pattern_re
 * added the chunk operator (as a re rewritting rule)
 * deprecated verbosity argument
-* revised user-guide (group, alternative, chunk, ^$, compiled sections)
-* added more tests
 
 v0.3.0 (April 14, 2017)
 ---------------------
