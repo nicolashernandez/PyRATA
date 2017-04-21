@@ -1,0 +1,2 @@
+include README.rst CHANGES.md LICENSE test_pyrata.py
+recursive-include docs user-guide.rst

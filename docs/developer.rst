@@ -1,7 +1,11 @@
 Last version of this document is April 14 2017
 
-Syntactic parsing
----------------------
+
+A look at the grammar...
+------------------
+ ... for whom who are interested in ...
+
+:: 
 
     Rule 0     S' -> expression
     Rule 1     expression -> <empty>
@@ -30,7 +34,8 @@ Syntactic parsing
     Rule 24    constraint_class_part -> NOT constraint_class
     Rule 25    single_constraint -> NAME EQ VALUE
     Rule 26    single_constraint -> NAME MATCH VALUE
-    Rule 27    single_constraint -> NAME IN VALUE
+    Rule 27    single_constraint -> NAME IN VALUE 
+    Rule 27    single_constraint -> NAME CHUNK VALUE 
 
 
 When debugging or making the syntactic pattern parser evolve, edit syntactic_analysis re_method and uncomment the exit() line to force the program interruption.
@@ -101,6 +106,16 @@ The procedure to develop and debug the group, alternative was take the pattern o
 
 Pour ne produire que la compilation alors activate the exit in syntactic_analysis dans re_method
 
+
+    pattern_steps -> [ part_of_pattern_steps_list ]
+    part_of_pattern_steps_list -> step
+    part_of_pattern_steps_list -> part_of_pattern_steps_list step
+    step -> [QUANTIFIER simple_step]
+    step -> [QUANTIFIER [complex_step]]
+    complex_step ->  part_of_alternatives_list s 
+
+    Rule 6     quantified_step_group_list -> quantified_step_group_list quantified_step_group
+    Rule 7     quantified_step_group_list -> quantified_step_group
 
 Implementing embedded groups (sequence of step tokens) 
 -------------------------
@@ -192,3 +207,46 @@ reporting-parse-errors-from-ply-to-caller-of-parser
 * Warning: ihm when copying the grammar in the console, do not insert whitespace ahead
 * code separate lexer, syntactic parser and semantic parser in distinct files http://www.dabeaz.com/ply/ply.html#ply_nn34 
 * fix parsing bug with pos~"VB." *[!raw="to"] raw="to", +[pos~"NN.*" | pos="JJ"] pos~"NN.*", *[pos~"NN.*" | pos="JJ"] pos~"NN.*", 
+
+
+
+Achieved
+=============================
+Done...
+
+Grammar
+-------------------------------
+
+* implement sequence parsing
+* implement CLASS OF tokens (parsing and semantic analysis with logical and/or/not operators and parenthesis)
+* implement quantifier AT_LEAST_ONE
+* implement quantifier OPTIONAL
+* implement quantifier ANY
+* implement surface EQ comparison operator for atomic constraint 
+* implement list inclusion operator for atomic constraint 
+* implement REGEX comparison operator for atomic constraint 
+* implement groups
+* implement operator to search the pattern from the begining ^ and/or to the end $
+* implement alternatives groups
+
+API and regex engine
+-------------------------------
+
+* module re implement search
+* module re implement findall
+* module re implement finditer
+* module re implement compile
+* module re compiled re object implement
+* module nltk implement methods to turn nltk structures (POS tagging, chunking Tree and IOB) into the pyrata data structure 
+* make modular pyrata_re _syntactic_parser and semantic_parser : creation of syntactic_analysis, syntactic_pattern_parser, semantic_analysis, semantic_step_parser,
+* module re implement CRUD operations on data such as sub, update and extend features -- kind of annotation method -- (optionally in a BIO style)
+
+
+Communication and code quality
+-------------------------------
+
+* write README with short description, installation, quick overview sections
+* home made debugging solution for users when writting patterns (e.g. using an attribute name not existing in the data) ; wirh verbosity levels
+* a test file 
+* packaging and distributing package the project (python module, structure, licence wi copyright notice, gitignore)
+* packaging and distributing configure the project 

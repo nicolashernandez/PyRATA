@@ -108,11 +108,12 @@ class Match(object):
     return False  
    
   def __ne__(self, other):
-    if other == None: 
-      return True   
-    if self._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] == other._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] and self._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] == other._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] and self._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END] == other._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END]:
-      return False
-    return True  
+    return not (self == other)
+    # if other == None: 
+    #   return True   
+    # if self._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] != other._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] or self._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] != other._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] or self._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END] != other._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END]:
+    #   return True
+    # return False  
 
   def __len__(self):
     #logging.debug  ('groups=', self.groups)

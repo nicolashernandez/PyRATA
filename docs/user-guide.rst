@@ -11,9 +11,11 @@ User guide
     :local:
 
 
+In addition to this current documentation, you may have look at ``test_pyrata.py`` to see the implemented examples and more.
+
+
 Brief introduction
 ============================
-
 
 Traditional regular expression (RE) engines handle character strings; In other words, lists of character tokens.
 In Natural Language Processing, RE are used to define patterns which are used to recognized some phenomena in texts.
@@ -166,17 +168,11 @@ An example of pyrata data structure with chunks annotated in IOB tagged format i
 
     >>> data = [{'pos': 'NNP', 'chunk': 'B-PERSON', 'raw': 'Mark'}, {'pos': 'NNP', 'chunk': 'I-PERSON', 'raw': 'Zuckerberg'}, {'pos': 'VBZ', 'chunk': 'O', 'raw': 'is'}, {'pos': 'VBG', 'chunk': 'O', 'raw': 'working'}, {'pos': 'IN', 'chunk': 'O', 'raw': 'at'}, {'pos': 'NNP', 'chunk': 'B-ORGANIZATION', 'raw': 'Facebook'}, {'pos': 'NNP', 'chunk': 'I-ORGANIZATION', 'raw': 'Corp'}, {'pos': '.', 'chunk': 'O', 'raw': '.'}] 
 
+    >>> pattern = 'chunk-"PERSON"'
+    >>> pyrata_re.search(pattern, data)
+    <pyrata.re Match object; groups=[[[{'pos': 'NNP', 'raw': 'Mark', 'chunk': 'B-PERSON'}, {'pos': 'NNP', 'raw': 'Zuckerberg', 'chunk': 'I-PERSON'}], 0, 2], [[{'pos': 'NNP', 'raw': 'Mark', 'chunk': 'B-PERSON'}, {'pos': 'NNP', 'raw': 'Zuckerberg', 'chunk': 'I-PERSON'}], 0, 2]]>
 
-.. warning:: 
-
-  This subsubsection is incomplete. **TODO**
-
-..  
-    chunk-"PERSON" [pos~"VB"]* FIXME
-    pos="IN" chunk."ORGANIZATION" FIXME
-
-    Before introducing the chunk operator: introduce the annotate methods
-
+``chunk-"PERSON"`` can be substitute literaly with ``(chunk="B-PERSON" chunk="I-PERSON"*)``. That's why the Match object contains two groups.
 
 
 Class of step
@@ -185,13 +181,12 @@ Class of step
 A **class of step** is a step definition made of a combination of single constraints that a data element should check. The definition is marked by *squared brackets* (``[...]``). *Logical operators* (and ``&``, or ``|`` and not ``!``) and *parenthesis* are available to combine the constraints.
 
 .. doctest ::
+    >>> data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    >>> pyrata_re.findall('[(pos="NNS" | pos="NNP") & !raw="expressions"]', data)
+    [[{'pos': 'NNP', 'raw': 'Pyrata'}]]
 
-    >>> pyrata_re.findall('[(pos="NNS" | pos="NNP") & !raw="pattern"]', data)
-    [[{'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'NNP', 'raw': 'Pyrata'}]]
 
-
-Consequently ``[pos="NNS" | pos="NNP"]``, ``pos~"NN[SP]"`` and 'pos~"(NNS|NNP)"' are equivalent forms. They may not have the same processing time.
-
+Consequently ``[pos="NNS" | pos="NNP"]``, ``pos~"NN[SP]"`` and 'pos~"(NNS|NNP)"' are equivalent (give the same result). They may not have the same processing time.
 
 Sequence of steps
 ------------------
@@ -208,9 +203,14 @@ You can search a **sequence of steps**, for example an adjective (tagged *JJ*) f
 Start and End of data Anchors
 ------
 
-To specify that a pattern should **match from the begining  and/or to the end of a data structure**, you can used the anchors ``^`` and ``$`` respectively to the set the start or the end of the pattern relatively to the processed data.
+To specify that a pattern should **match from the begining and/or to the end of a data structure**, you can use the anchors ``^`` and ``$`` respectively to the set the start or the end of the pattern relatively to the processed data.
 
-**TODO** give an example.
+.. doctest ::
+
+    >>> pattern = '^raw="It" !foo="bar"+'
+    >>> pyrata_re.search(pattern, data)
+    <pyrata.re Match object; groups=[[[{'raw': 'It', 'pos': 'PRP'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}, {'raw': 'write', 'pos': 'VB'}, {'raw': 'regular', 'pos': 'JJ'}, {'raw': 'expressions', 'pos': 'NNS'}, {'raw': 'with', 'pos': 'IN'}, {'raw': 'Pyrata', 'pos': 'NNP'}], 0, 12]]>
+   
 
 
 Step quantifiers (*at_least_one, any, optional*)
@@ -265,7 +265,9 @@ Currently no **wildcard character** is implemented but you can easily simulate i
 Groups
 ------
 
-In order to **retrieve the contents a specific part of a match, groups can be defined with parenthesis** which indicate the start and end of a group.
+In order to **retrieve the contents a specific part of a match, groups can be defined with parenthesis** which indicate the start and end of a group. 
+
+The ``search`` method, like ``finditer``, returns match objects. Only one for the search method, the first one, if it exists at least one. A match object contains by default one group, the zero group, which can be refered by ``.group(0)``. If groups are defined in the pattern by mean of parenthesis, then they are also indexed. A group is described is described by a value, the covered data, and a pair of offsets. 
 
 .. doctest ::
 
@@ -273,19 +275,139 @@ In order to **retrieve the contents a specific part of a match, groups can be de
     >>> pyrata_re.search('raw="is" (!raw="to"+) raw="to"', [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]).group(1)
     [{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}]
 
-Have a look at test_pyrata to see a more complex example of groups use.
+Or a more complex example with many more groups and embedded groups:
+
+.. doctest ::
+
+    >>> pattern = 'raw="It" (raw="is") (( (pos="JJ"* pos="JJ") raw="and" (pos="JJ") )) (raw="to")'
+    >>> data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    >>> pyrata_re.search(pattern, data)
+    <pyrata.re Match object; groups=[[[{'raw': 'It', 'pos': 'PRP'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}], 0, 7], [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}], 2, 4], [[{'raw': 'funny', 'pos': 'JJ'}], 5, 6], [[{'raw': 'to', 'pos': 'TO'}], 6, 7]]>
+
+
+Groups can be quantified like in the following example:
+
+.. doctest ::
+
+    >>> pattern = '(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos=".")+'
+    >>> data = [ {'raw':'Choose', 'pos':'VB'},
+      {'raw':'Life', 'pos':'NN' }, 
+      {'raw':'.', 'pos':'.' },
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'job', 'pos':'NN'},
+      {'raw':'.', 'pos':'.'}, 
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'career', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'family', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'fucking', 'pos':'JJ'}, 
+      {'raw':'big', 'pos':'JJ'},             
+      {'raw':'television', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'}  
+      ]
+    >>> quantified_group = pyrata_re.search(pattern, data)
+    >>> quantified_group
+    >>> <pyrata.re Match object; groups=[[[{'pos': 'VB', 'raw': 'Choose'}, {'pos': 'NN', 'raw': 'Life'}, {'pos': '.', 'raw': '.'}, {'pos': 'VB', 'raw': 'Choose'}, {'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'job'}, {'pos': '.', 'raw': '.'}, {'pos': 'VB', 'raw': 'Choose'}, {'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'career'}, {'pos': '.', 'raw': '.'}, {'pos': 'VB', 'raw': 'Choose'}, {'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'family'}, {'pos': '.', 'raw': '.'}, {'pos': 'VB', 'raw': 'Choose'}, {'pos': 'DT', 'raw': 'a'}, {'pos': 'JJ', 'raw': 'fucking'}, {'pos': 'JJ', 'raw': 'big'}, {'pos': 'NN', 'raw': 'television'}, {'pos': '.', 'raw': '.'}], 0, 21], [[{'pos': 'VB', 'raw': 'Choose'}, {'pos': 'NN', 'raw': 'Life'}, {'pos': '.', 'raw': '.'}], 0, 3], [[{'pos': 'VB', 'raw': 'Choose'}, {'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'job'}, {'pos': '.', 'raw': '.'}], 3, 7], [[{'pos': 'VB', 'raw': 'Choose'}, {'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'career'}, {'pos': '.', 'raw': '.'}], 7, 11], [[{'pos': 'VB', 'raw': 'Choose'}, {'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'family'}, {'pos': '.', 'raw': '.'}], 11, 15], [[{'pos': 'VB', 'raw': 'Choose'}, {'pos': 'DT', 'raw': 'a'}, {'pos': 'JJ', 'raw': 'fucking'}, {'pos': 'JJ', 'raw': 'big'}, {'pos': 'NN', 'raw': 'television'}, {'pos': '.', 'raw': '.'}], 15, 21]]>
+
+*Choose Life. Choose a job. Choose a career. Choose a family. Choose a fucking big television.*
+
 
 Alternatives
 ------
 
-.. warning:: 
+Alternatives are a list of possible steps sequences which can occur at a given step. As a group the list is delimited by parenthesis while the options are delimited by a pipe ``|`` symbol. The options should be ordered. the first match leads the engine to pursue its analysis. There is no backtracking.
 
-  This subsubsection is incomplete. **TODO**
+.. doctest ::
+
+    >>> pattern = '(pos="IN") (raw="a" raw="tea" | raw="a" raw="cup" raw="of" raw="coffee" | raw="an" raw="orange" raw="juice" ) (!pos=";")'
+    >>> data = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' }, 
+      {'raw':'cup', 'pos':'NN' },
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP'}, 
+      {'raw':'Stone', 'pos':'NNP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$'}, 
+      {'raw':'story', 'pos':'NN'} ]
+    >>>pyrata_re.search(pattern, data).group(2)
+    [{'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'cup'}, {'pos': 'IN', 'raw': 'of'}, {'pos': 'NN', 'raw': 'coffee'}]
+
+Groups can be embedded in alternatives:
+
+.. doctest ::
+
+    >>> pattern = '(pos="IN") (raw="a" (raw="tea") | raw="a" (raw="cup" raw="of" raw="coffee") | raw="an" (raw="orange" raw="juice") ) (!pos=";")'
+    >>> pyrata_re.search(pattern, data).group(3)
+    [{'pos': 'NN', 'raw': 'cup'}, {'pos': 'IN', 'raw': 'of'}, {'pos': 'NN', 'raw': 'coffee'}]
+
+The opposite is less true... 
+2017-04-22 *Warning*: unexpected compilation results will be obtained if you embed an alternative in a group.  
+
+
+Alternatives can be quantified.
+
+.. doctest ::
+
+    >>> pattern = '(pos="VB" !pos="NN"* raw="Life" pos="."| pos="VB" !pos="NN"* raw="job" pos="."|pos="VB" !pos="NN"* raw="career" pos="."|pos="VB" !pos="NN"* raw="family" pos="."|pos="VB" !pos="NN"* raw="television" pos=".")+'
+    >>> data = [ {'raw':'Choose', 'pos':'VB'},
+      {'raw':'Life', 'pos':'NN' }, 
+      {'raw':'.', 'pos':'.' },
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'job', 'pos':'NN'},
+      {'raw':'.', 'pos':'.'}, 
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'career', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'family', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'fucking', 'pos':'JJ'}, 
+      {'raw':'big', 'pos':'JJ'},             
+      {'raw':'television', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'}  
+      ]
+    >>> quantified_alternatives = pyrata_re.search(pattern, data)
+    >>> quantified_alternatives
+    >>> <pyrata.re Match object; groups=[[[{'pos': 'VB', 'raw': 'Choose'}, {'pos': 'NN', 'raw': 'Life'}, {'pos': '.', 'raw': '.'}, {'pos': 'VB', 'raw': 'Choose'}, {'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'job'}, {'pos': '.', 'raw': '.'}, {'pos': 'VB', 'raw': 'Choose'}, {'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'career'}, {'pos': '.', 'raw': '.'}, {'pos': 'VB', 'raw': 'Choose'}, {'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'family'}, {'pos': '.', 'raw': '.'}, {'pos': 'VB', 'raw': 'Choose'}, {'pos': 'DT', 'raw': 'a'}, {'pos': 'JJ', 'raw': 'fucking'}, {'pos': 'JJ', 'raw': 'big'}, {'pos': 'NN', 'raw': 'television'}, {'pos': '.', 'raw': '.'}], 0, 21], [[{'pos': 'VB', 'raw': 'Choose'}, {'pos': 'NN', 'raw': 'Life'}, {'pos': '.', 'raw': '.'}], 0, 3], [[{'pos': 'VB', 'raw': 'Choose'}, {'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'job'}, {'pos': '.', 'raw': '.'}], 3, 7], [[{'pos': 'VB', 'raw': 'Choose'}, {'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'career'}, {'pos': '.', 'raw': '.'}], 7, 11], [[{'pos': 'VB', 'raw': 'Choose'}, {'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'family'}, {'pos': '.', 'raw': '.'}], 11, 15], [[{'pos': 'VB', 'raw': 'Choose'}, {'pos': 'DT', 'raw': 'a'}, {'pos': 'JJ', 'raw': 'fucking'}, {'pos': 'JJ', 'raw': 'big'}, {'pos': 'NN', 'raw': 'television'}, {'pos': '.', 'raw': '.'}], 15, 21]]>
+
+Again *Choose Life. Choose a job. Choose a career. Choose a family. Choose a fucking big television.*
+
 
 Regular expression methods 
 =====================
 
 The regular expression available methods offer multiple ways of exploring the data. 
+
+Assuming the following data:
+
+.. doctest ::
+
+  >>> data = [{'pos': 'PRP', 'raw': 'It'}, 
+    {'pos': 'VBZ', 'raw': 'is'}, 
+    {'pos': 'JJ', 'raw': 'fast'}, 
+    {'pos': 'JJ', 'raw': 'easy'}, 
+    {'pos': 'CC', 'raw': 'and'}, 
+    {'pos': 'JJ', 'raw': 'funny'}, 
+    {'pos': 'TO', 'raw': 'to'}, 
+    {'pos': 'VB', 'raw': 'write'}, 
+    {'pos': 'JJ', 'raw': 'regular'}, 
+    {'pos': 'NNS', 'raw': 'expressions'}, 
+    {'pos': 'IN', 'raw': 'with'},
+    {'pos': 'NNP', 'raw': 'Pyrata'}]
 
 Let's say you want to search the adjectives. By chance there is a property which specifies the part of speech of tokens, *pos*, the value of *pos* which stands for adjectives is *JJ*.
 
@@ -305,6 +427,14 @@ To get the **value of the match**:
 
     >>> pyrata_re.search('pos="JJ"', data).group()
     >>> [{'raw': 'fast', 'pos': 'JJ'}]
+
+
+This default match is known as the **zero group**:
+
+.. doctest ::
+
+    >>> pyrata_re.search('pos="JJ"', data).group(0)
+    >>> [{'raw': 'fast', 'pos': 'JJ'}]
     
 To get the **value of the start and the end**:
 
@@ -314,6 +444,7 @@ To get the **value of the start and the end**:
     >>> 2
     >>> pyrata_re.search('pos="JJ"', data).end()
     >>> 3
+
 
 
 
@@ -343,9 +474,76 @@ To **get an iterator yielding match objects** over all non-overlapping matches f
     <pyrata_re Match object; span=(8, 9), match="[{'pos': 'JJ', 'raw': 'regular'}]">
 
 
+Match and MatchesList objects
+-------------------------
+
+A **Match** is an object which is created when a pattern matching occurs. With the ``search`` method, only the first one is considered. With the ``finditer`` method, all the occurrences of the pattern will lead to the creation of a Match. For, ``finditer`` the Matches are appended to an object which lists all the Matches, namely a **MatchesList**.
+
+Comparison operators and the ``len`` method on Match objects are available:
+
+.. doctest ::
+
+    >>> m1 = pyrata_re.search('pos="JJ"', data)
+    <pyrata.re Match object; groups=[[[{'raw': 'fast', 'pos': 'JJ'}], 2, 3]]>
+
+The Match object contains the value of instanciated pattern and its offsets in data.
+
+.. doctest ::
+
+    >>> m2 = pyrata_re.search('pos="JJ"', data)
+    >>> m3 = pyrata_re.search('pos="NN"', data)
+    >>> if m1 == m2: print ('True')
+    ... 
+    True
+
+If none group is specified then the result of the comparison between the zero groups is returned with ``eq`` and ``ne`` operators.
+
+.. doctest ::
+
+    >>> if m1 != m3: print ('True')
+    ... 
+    True
+    >>> len(m1)
+    >>> 1
+    >>> m4 = pyrata_re.search('(pos="JJ")+', data)
+    >>> m4  
+    <pyrata.re Match object; groups=[[[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}], 2, 4], [[{'raw': 'fast', 'pos': 'JJ'}], 2, 3], [[{'raw': 'easy', 'pos': 'JJ'}], 3, 4]]>
+
+In addition to the default zero group, the pattern defined a group which has two instances because of the quantifier.
+
+.. doctest ::
+
+    >>> len(m4)
+    >>> 3   # 
+    
+Comparison operators and the ``len`` method on MatchesList objects are available:
+
+.. doctest ::
+
+    >>> ml1 = pyrata_re.finditer('pos="JJ"', data)    
+    >>> ml2 = pyrata_re.finditer('pos="JJ"', data)
+    >>> ml3 = pyrata_re.finditer('pos="NN"', data)
+
+.. doctest ::
+
+    >>> if ml1 == ml2: print ('True')
+    ... 
+    True
+    >>> if ml1 != ml3: print ('True')
+    ... 
+    True
+    >>> len(ml1)
+    >>> 4
+
+
+The previous tests can be performed with the two Matches objects created above from the *Trainspotting* data i.e. ``quantified_group`` and ``quantified_alternatives``.
+
 
 Debugging a pattern
 ------------------
+
+**Deprecated**
+
 To **understand the process of a pyrata_re method**, specify a **verbosity degree** to it (*0 None, 1 +Parsing Warning and Error, 2 +syntactic and semantic parsing logs, 3 +More parsing informations*):
 
 Here some syntactic problems examples: 
@@ -367,7 +565,7 @@ Compiled regular expression
 
 **Compiled regular expression objects** support the following methods ``search``, ``findall`` and ``finditer``. It follows the same API as [Python re](https://docs.python.org/3/library/re.html#re.regex.search) but uses a sequence of features set instead of a string.
 
-Below an example of use for ``findall``
+Below an example of use with the ``findall`` method
 
 .. doctest ::
 
@@ -375,6 +573,33 @@ Below an example of use for ``findall``
     >>> compiled_re = pyrata_re.compile('pos~"JJ"* pos~"NN."')
     >>> compiled_re.findall(data)
     [[{'raw': 'regular', 'pos': 'JJ'}, {'raw': 'expressions', 'pos': 'NNS'}], [{'raw': 'Pyrata', 'pos': 'NNP'}]]
+
+A compiled regular expression object is made of the pattern steps, the specification of having to start/end with the data and the lexicons which are used in its steps.
+
+.. doctest ::
+
+    >>> compiled_re
+    <pyrata.syntactic_pattern_parser CompiledPattern object; 
+    starts_wi_data="False"
+    ends_wi_data="False"
+    lexicon="dict_keys([])"
+    pattern_steps="
+    [['*', 'pos~"JJ"'], [None, 'pos~"NN."']]">
+
+Here the representation of a more complex compiled pattern: 
+
+.. doctest ::
+
+    pyrata_re.compile('raw="a"? (pos~"JJ" pos~"JJ")* (pos="NNS"|pos="NNP")+')
+    <pyrata.syntactic_pattern_parser CompiledPattern object; 
+    starts_wi_data="False"
+    ends_wi_data="False"
+    lexicon="dict_keys([])"
+    pattern_steps="
+    [['?', 'raw="a"'], ['+', [[[None, 'pos="NNS"']], [[None, 'pos="NNP"']]]]]">
+
+A compiled regular expression is made of a list of quantified steps. A quantified step is a quantifier with either a simple or complex step. A simple step is combination of one or several single contraints (e.g. a class step). A complex step is a list of alternatives, themself being a sequence of quantified steps.
+
 
 Data Feature structure modification methods
 ====================================

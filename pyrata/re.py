@@ -6,6 +6,7 @@
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 import logging
+import re
 
 from pyrata.lexer import *
 import pyrata.compiled_pattern_re
@@ -13,7 +14,16 @@ import pyrata.semantic_pattern_parser
 
 (PREFIX_BEGIN, PREFIX_INSIDE, PREFIX_OTHER) = ('B-', 'I-', 'O-')
 
-    
+   
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def normalize_chunk_operator (pattern, **kwargs):    
+  '''
+  Here is a trick. The chunk operator does not exist. 
+  It is turn into a specific sequence of steps with equal operators.
+  Indeed 'ch-"NP"' is rewritten in '(ch="B-NP" ch="I-NP"*)'
+  '''
+  return re.sub('([a-zA-Z_][a-zA-Z0-9_]*)-\"(([^\\\n]|(\\.))*?)\"', '(\g<1>="B-\g<2>" \g<1>="I-\g<2>"*)', pattern) 
+
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def compile (pattern, **kwargs):    
   """ 
@@ -25,7 +35,7 @@ def compile (pattern, **kwargs):
   if 'verbosity' in kwargs.keys():
     verbosity = kwargs['verbosity']
 
-  l = pyrata.compiled_pattern_re.parse_syntactic(pattern, **kwargs)
+  l = pyrata.compiled_pattern_re.parse_syntactic(normalize_chunk_operator(pattern), **kwargs)
 
   return pyrata.compiled_pattern_re.CompiledPattern(lexer=l, **kwargs)
 

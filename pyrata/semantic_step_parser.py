@@ -4,6 +4,7 @@
 # The current parser is used to evaluate the semantic of a given pattern step
 # 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+import logging
 import ply.yacc as yacc
 from pyrata.lexer import *
 
@@ -112,6 +113,9 @@ class SemanticStepParser(object):
           p[0] =  (p.lexer.data[p.lexer.data_cursor][attName] in p.lexer.lexicons[attValue])
         else:
           p[0] = False  
+      elif operator == '-':
+        # TODO 
+        logging.warn('operator CHUNK not implemented yet. Manually replace `ch-"NN"` by `(ch="B-NN" ch="I-NN"*)` ')
       # should not enter here, because it would mean that the parser encountered an unknown operator    
       else:
         p[0] = False

@@ -1,9 +1,9 @@
 ***************
 PyRATA
 ***************
+.. https://img.shields.io/badge/release-pyrata-brightgreen.svg
 
-
-.. image:: https://img.shields.io/badge/release-pyrata-brightgreen.svg
+.. image:: https://img.shields.io/badge/pyrata-0.3.1-brightgreen.svg
     :target: https://github.com/nicolashernandez/PyRATA/releases
     :alt: Current Release Version    
 
@@ -18,7 +18,7 @@ Features
 ===========
 In short, PyRATA 
 
-* provides **regular expression matching methods over** more complex structures than a list of characters (string), namely a **sequence of features set** (i.e. list of dict in python jargon);
+* provides **regular expression (re) matching methods over** more complex structures than a list of characters (string), namely a **sequence of features set** (i.e. list of dict in python jargon);
 * in addition to the re methods, it provides **modification methods to replace, update or extend (sub-parts of) the data structure** itself (also named *annotation*) ;
 * offers a **similar re API to the python re module** in order not to disturb python re users;
 * defines a pattern matching language whose **syntax follows the Perl regexes** de facto standard;
@@ -32,10 +32,17 @@ See the *Quick overview* section below and the `user guide <docs/user-guide.rst>
 Download and installation procedure
 ===========
 
-Right now pyrata is not published on PyPI, so the procedure to use it is the following:
-
-Download or clone pyrata
+The simplest way
 ------------------------
+Right now pyrata is `published on PyPI <https://testpypi.python.org/pypi/PyRATA>`_, so the simplest procedure to install is to type in a console:
+
+::
+
+    sudo pip3 install pyrata
+
+Alternatively you can manually 
+------------------------
+
 Download the latest PyRATA release
     
 ::
@@ -51,9 +58,6 @@ or clone it
     git clone https://github.com/nicolashernandez/PyRATA.git
     cd pyrata/
 
-Installation
-------------------------
-
 Then install pyrata 
 ::
 
@@ -66,12 +70,13 @@ Requirement
 
 PyRATA use the `PLY <http://www.dabeaz.com/ply/ply.html>`_ implementation of lex and yacc parsing tools for Python (version 3.10).
 
-You do not need to care about this stage if you performed the install procedure above.
+You do not need to care about this stage if you performed the pip3 install procedure above.
 
-If you do not properly install pyrata, you will have to manually install ply.
+If you do not properly install pyrata, you will have to manually install ply (or download it manually to copy it in your local working dir).
 ::
 
     sudo pip3 install ply
+
 
 Run tests (optional)
 ------------------------
@@ -79,13 +84,14 @@ Run tests (optional)
 ::
     python3 test_pyrata.py
 
-Only one test should fail. The one named ``test_search_any_class_step_error_step_in_data``. It is due to a ``syntactic parsing error - unexpected token type="NAME" with value="pos" at position 35. Search an error before this point.`` So far the process of a pattern is not stopped when it encounters a parsing error, we would like to prevent this behavior (expected result). So the current obtained result differs from the one expected, and consequently gives a fail.
+The test named ``test_search_any_class_step_error_step_in_data`` may fail. It is due to a ``syntactic parsing error - unexpected token type="NAME" with value="pos" at position 35. Search an error before this point.`` So far the process of a pattern is not stopped when it encounters a parsing error, we would like to prevent this behavior (expected result). So the current obtained result differs from the one expected, and consequently gives a fail.
 
 
 Quick overview (in console)
 ==================
 
 First run python
+
 ::
 
     python3

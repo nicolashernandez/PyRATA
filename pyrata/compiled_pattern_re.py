@@ -122,6 +122,11 @@ class CompiledPattern(object):
     raise Exception ('Not implemented yet')
 
 
+  # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  def __repr__(self):
+    return '<pyrata.syntactic_pattern_parser CompiledPattern object; \n\tstarts_wi_data="'+str(self.getLexer().lexer.pattern_must_match_data_start)+      '"\n\tends_wi_data="'+str(self.getLexer().lexer.pattern_must_match_data_end)+      '"\n\tlexicon="'+str(self.getLexer().lexer.lexicons.keys())        +'"\n\tpattern_steps="\n'+  pformat(self.getLexer().lexer.pattern_steps)+      '\n">'
+
+
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def parse_syntactic(pattern, **kwargs):
 

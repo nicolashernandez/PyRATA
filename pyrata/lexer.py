@@ -41,7 +41,8 @@ class Lexer(object):
     'ATLEASTONE',
     'ANY',
     'BEFORE_FIRST_TOKEN',
-    'AFTER_LAST_TOKEN',   
+    'AFTER_LAST_TOKEN',
+    'CHUNK'   
     )
 # EOI end of instruction
 #    ,'IS',
@@ -59,6 +60,7 @@ class Lexer(object):
   t_EQ  = r'='
   t_MATCH  = r'\~'
   t_IN  = r'\@'
+  t_CHUNK = r'-'
   #t_QUOTE  = r'"'
   t_AND  = r'&'
   t_OR  = r'\|'
