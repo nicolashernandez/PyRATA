@@ -39,7 +39,7 @@ Download and installation procedure
 
 The simplest way
 ------------------------
-Right now pyrata is `published on PyPI <https://testpypi.python.org/pypi/PyRATA>`_, so the simplest procedure to install is to type in a console:
+Right now pyrata is `published on PyPI <https://pypi.python.org/pypi/PyRATA>`_, so the simplest procedure to install is to type in a console:
 
 ::
 
