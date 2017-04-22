@@ -5,7 +5,7 @@
 User guide
 ********************
 
-:Last Reviewed: 2017-04-17
+:Last Reviewed: 2017-04-22
 
 .. contents:: Contents
     :local:
