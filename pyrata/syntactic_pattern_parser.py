@@ -91,8 +91,7 @@ class SyntacticPatternParser(object):
        expression : quantified_step_group_list AFTER_LAST_TOKEN
        expression : BEFORE_FIRST_TOKEN quantified_step_group_list AFTER_LAST_TOKEN'''
     
-    if self.verbosity >1:
-      log(p, '(expression->...)')
+    log(p, '(expression->...)')
 
     # add the step range from 0 to the last pattern step as the initial group 0
     p.lexer.group_pattern_offsets_group_list.append([0, len(p.lexer.pattern_steps)])  
@@ -256,23 +255,23 @@ class SyntacticPatternParser(object):
     '''constraint_class : constraint_class AND constraint_class_part
             | constraint_class OR constraint_class_part 
             | constraint_class_part ''' 
-    if self.verbosity >1:
-      log(p, '(constraint_class->...)')  
+    
+    log(p, '(constraint_class->...)')  
 # _______________________________________________________________
   def p_constraint_class_part(self,p):
     '''constraint_class_part : single_constraint
                     | LPAREN constraint_class RPAREN  
                     | NOT constraint_class '''
-    if self.verbosity >1:
-      log(p, '(constraint_class_part->...)')  
+    
+    log(p, '(constraint_class_part->...)')  
 
 # _______________________________________________________________
   def p_single_constraint(self,p):
     '''single_constraint : NAME EQ VALUE 
                           | NAME MATCH VALUE
                           | NAME IN VALUE'''
-    if self.verbosity >1:
-      log(p, '(single_constraint->...)')  
+    
+    log(p, '(single_constraint->...)')  
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -281,14 +280,14 @@ class SyntacticPatternParser(object):
 
   def p_error(self,p):
     if not p:
-      if self.verbosity >2: 
-        logging.info("Pattern syntaxically parsed.")
+       
+      logging.info("Pattern syntaxically parsed.")
       return
 
-      # http://www.dabeaz.com/ply/ply.html#ply_nn26 6.8.2
-      # Read ahead looking for a closing ';'
-    if self.verbosity >0: 
-      warnings.warn('syntactic parsing error - unexpected token type="{}" with value="{}" at position {}. Search an error before this point.'.format(p.type, p.value, p.lexer.lexpos))
+    # http://www.dabeaz.com/ply/ply.html#ply_nn26 6.8.2
+     # Read ahead looking for a closing ';'
+
+    logging.warning('syntactic parsing error - unexpected token type="{}" with value="{}" at position {}. Search an error before this point.'.format(p.type, p.value, p.lexer.lexpos))
     while True:
       tok = self.parser.token()             # Get the next token
       if not tok: 

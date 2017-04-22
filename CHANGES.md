@@ -2,6 +2,12 @@ Revision History
 ================
 
 
+v0.3.3 ()
+---------------------
+* fixed logging issues (output syntactic parsing problem and removing old verbosity facility) 
+* revised user-guide (logging)
+
+
 v0.3.2 (April 22, 2017)
 ---------------------
 * added the chunk operator (as a re rewritting rule)

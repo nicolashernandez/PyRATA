@@ -250,3 +250,22 @@ Communication and code quality
 * a test file 
 * packaging and distributing package the project (python module, structure, licence wi copyright notice, gitignore)
 * packaging and distributing configure the project 
+
+
+Debugging a pattern
+------------------
+
+**Deprecated**
+
+To **understand the process of a pyrata_re method**, specify a **verbosity degree** to it (*0 None, 1 +Parsing Warning and Error, 2 +syntactic and semantic parsing logs, 3 +More parsing informations*):
+
+Here some syntactic problems examples: 
+
+.. doctest ::
+
+    >>> pyrata_re.findall('*pos="JJ" [(pos="NNS" | pos="NNP")]', data, verbosity=1)
+    Error: syntactic parsing error - unexpected token type="ANY" with value="*" at position 1. Search an error before this point.
+
+    >>> pyrata_re.findall('pos="JJ"* bla bla [(pos="NNS" | pos="NNP")]', data, verbosity=1)
+    Error: syntactic parsing error - unexpected token type="NAME" with value="bla" at position 17. Search an error before this point.
+

@@ -539,22 +539,69 @@ Comparison operators and the ``len`` method on MatchesList objects are available
 The previous tests can be performed with the two Matches objects created above from the *Trainspotting* data i.e. ``quantified_group`` and ``quantified_alternatives``.
 
 
-Debugging a pattern
+Debugging the pattern compilation or the pattern matching
 ------------------
 
-**Deprecated**
+PyRATA uses the `python logging facility<https://docs.python.org/3/howto/logging.html>`_. 
+.. https://docs.python.org/3/library/logging.html
 
-To **understand the process of a pyrata_re method**, specify a **verbosity degree** to it (*0 None, 1 +Parsing Warning and Error, 2 +syntactic and semantic parsing logs, 3 +More parsing informations*):
-
-Here some syntactic problems examples: 
+To **understand the process of a pyrata_re method either at the compilation or matching stage**, first import the logging module:
 
 .. doctest ::
 
-    >>> pyrata_re.findall('*pos="JJ" [(pos="NNS" | pos="NNP")]', data, verbosity=1)
-    Error: syntactic parsing error - unexpected token type="ANY" with value="*" at position 1. Search an error before this point.
+    >>> import pyrata.re as pyrata_re
+    >>> import logging
 
-    >>> pyrata_re.findall('pos="JJ"* bla bla [(pos="NNS" | pos="NNP")]', data, verbosity=1)
-    Error: syntactic parsing error - unexpected token type="NAME" with value="bla" at position 17. Search an error before this point.
+Set the loggging filename, optionally the logging format of messages, and the logging level:   
+* ``logging.DEBUG`` For very detailed output for diagnostic purposes (10)
+* ``logging.INFO`` Report events that occur during normal operation of a program (e.g. for status monitoring or fault investigation) (20)
+* ``logging.WARNING`` Issue a warning regarding a particular runtime event (30)
+DEBUG is more verbose than WARNING. WARNING will only report syntactic parsing problems.
+
+.. doctest ::
+
+    >>> logging.basicConfig(format='%(levelname)s:\t%(message)s', filename='mypyrata.log', level=logging.INFO)
+
+.. logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL
+
+Now you can just run a compilation process
+
+.. doctest :: 
+
+    >>> pyrata_re.compile ('pos~"JJ"* pos~"NN."')
+
+or any matching process (which encompasses a compilation process):
+
+.. doctest :: 
+
+    >>> data = [{'pos': 'PRP', 'raw': 'It'}, 
+    {'pos': 'VBZ', 'raw': 'is'}, 
+    {'pos': 'JJ', 'raw': 'fast'}, 
+    {'pos': 'JJ', 'raw': 'easy'}, 
+    {'pos': 'CC', 'raw': 'and'}, 
+    {'pos': 'JJ', 'raw': 'funny'}, 
+    {'pos': 'TO', 'raw': 'to'}, 
+    {'pos': 'VB', 'raw': 'write'}, 
+    {'pos': 'JJ', 'raw': 'regular'}, 
+    {'pos': 'NNS', 'raw': 'expressions'}, 
+    {'pos': 'IN', 'raw': 'with'},
+    {'pos': 'NNP', 'raw': 'Pyrata'}]
+    >>> pyrata_re.findall ('pos="JJ" [(pos="NNS" | pos="NNP")]', data, verbosity=1)
+
+And observe the logging file in the current directory.
+
+To dynamically change the log level without restarting the application, just type:
+
+    >>> logging.getLogger().setLevel(logging.DEBUG)
+
+Log messages are incrementally appended at the end of the previous one.
+
+.. Syntactic problems are reported in INFO and DEBUG examples such as a star at the beggining of the pattern or unexpected token in the pattern: 
+
+..    >>> pyrata_re.findall('*pos="JJ" [(pos="NNS" | pos="NNP")]', data)
+..    Error: syntactic parsing error - unexpected token type="ANY" with value="*" at position 1. Search an error before this point.
+..  >>> pyrata_re.findall('pos="JJ"* bla bla [(pos="NNS" | pos="NNP")]', data)
+..    Error: syntactic parsing error - unexpected token type="NAME" with value="bla" at position 17. Search an error before this point.
 
 
 

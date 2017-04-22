@@ -2,7 +2,7 @@
 # Nicolas Hernandez 2017
 # 
 #
-# SET in the __init__, uncomment the test to perform and set the verbosity  (0 None 1 global 2 verbose) 
+# SET in the __init__, uncomment the test to perform and set the verbosity 
 # 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import logging
