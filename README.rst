@@ -3,12 +3,17 @@ PyRATA
 ***************
 .. https://img.shields.io/badge/release-pyrata-brightgreen.svg
 
-.. image:: https://img.shields.io/badge/pyrata-0.3.1-brightgreen.svg
-    :target: https://github.com/nicolashernandez/PyRATA/releases
+.. image:: https://img.shields.io/badge/pypi-release-brightgreen.svg
+    :target: https://pypi.python.org/pypi/PyRATA
     :alt: Current Release Version    
 
+.. image:: https://img.shields.io/badge/python-3.4.3-blue.svg
+    :target: https://www.python.org/download/releases/
+    :alt: Python 3
+
+
 .. image:: https://img.shields.io/badge/license-MIT-blue.svg
-    :target: https://github.com/nicolashernandez/PyRATA
+    :target: https://raw.githubusercontent.com/nicolashernandez/PyRATA/master/LICENSE
     :alt: MIT License
 
 

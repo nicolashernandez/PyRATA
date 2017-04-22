@@ -586,7 +586,21 @@ A compiled regular expression object is made of the pattern steps, the specifica
     pattern_steps="
     [['*', 'pos~"JJ"'], [None, 'pos~"NN."']]">
 
-Here the representation of a more complex compiled pattern: 
+
+Here the representation of a compiled pattern with chunks:
+
+.. doctest ::
+
+    >>> pyrata_re.compile ('chunk-"NP"')
+    <pyrata.syntactic_pattern_parser CompiledPattern object; 
+      starts_wi_data="False"
+      ends_wi_data="False"
+      lexicon="dict_keys([])"
+      pattern_steps="
+      [[None, [[[None, 'chunk="B-NP" '], ['*', 'chunk="I-NP"']]]]]
+      ">
+
+Here the representation of a compiled pattern with quantified groups and alternatives : 
 
 .. doctest ::
 
