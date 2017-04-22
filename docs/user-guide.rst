@@ -160,7 +160,7 @@ IOB Chunk operator
 
    The most widespread representation of chunks uses IOB tags. In this scheme, each token is tagged with one of three special chunk tags, I (inside), O (outside), or B (begin). A token is tagged as B if it marks the beginning of a chunk. Subsequent tokens within the chunk are tagged I. All other tokens are tagged O. The B and I tags are suffixed with the chunk type, e.g. B-NP, I-NP. Of course, it is not necessary to specify a chunk type for tokens that appear outside a chunk, so these are just labeled O.
 
-   -- [nltk book](http://www.nltk.org/book/ch07.html)
+   -- `nltk book <http://www.nltk.org/book/ch07.html>`_
 
 An example of pyrata data structure with chunks annotated in IOB tagged format is shown below. See the values of the ``chunk`` feature.  
 
@@ -542,7 +542,7 @@ The previous tests can be performed with the two Matches objects created above f
 Debugging the pattern compilation or the pattern matching
 ------------------
 
-PyRATA uses the `python logging facility<https://docs.python.org/3/howto/logging.html>`_. 
+PyRATA uses the `python logging facility <https://docs.python.org/3/howto/logging.html>`_. 
 .. https://docs.python.org/3/library/logging.html
 
 To **understand the process of a pyrata_re method either at the compilation or matching stage**, first import the logging module:
@@ -610,7 +610,7 @@ Log messages are incrementally appended at the end of the previous one.
 Compiled regular expression
 ===========================
 
-**Compiled regular expression objects** support the following methods ``search``, ``findall`` and ``finditer``. It follows the same API as [Python re](https://docs.python.org/3/library/re.html#re.regex.search) but uses a sequence of features set instead of a string.
+**Compiled regular expression objects** support the following methods ``search``, ``findall`` and ``finditer``. It follows the same API as `Python re <https://docs.python.org/3/library/re.html#re.regex.search>`_ but uses a sequence of features set instead of a string.
 
 Below an example of use with the ``findall`` method
 
