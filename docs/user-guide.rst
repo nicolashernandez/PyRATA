@@ -543,6 +543,7 @@ Debugging the pattern compilation or the pattern matching
 ------------------
 
 PyRATA uses the `python logging facility <https://docs.python.org/3/howto/logging.html>`_. 
+
 .. https://docs.python.org/3/library/logging.html
 
 To **understand the process of a pyrata_re method either at the compilation or matching stage**, first import the logging module:
@@ -553,9 +554,11 @@ To **understand the process of a pyrata_re method either at the compilation or m
     >>> import logging
 
 Set the loggging filename, optionally the logging format of messages, and the logging level:   
+
 * ``logging.DEBUG`` For very detailed output for diagnostic purposes (10)
 * ``logging.INFO`` Report events that occur during normal operation of a program (e.g. for status monitoring or fault investigation) (20)
 * ``logging.WARNING`` Issue a warning regarding a particular runtime event (30)
+
 DEBUG is more verbose than WARNING. WARNING will only report syntactic parsing problems.
 
 .. doctest ::
