@@ -589,7 +589,7 @@ or any matching process (which encompasses a compilation process):
     {'pos': 'NNS', 'raw': 'expressions'}, 
     {'pos': 'IN', 'raw': 'with'},
     {'pos': 'NNP', 'raw': 'Pyrata'}]
-    >>> pyrata_re.findall ('pos="JJ" [(pos="NNS" | pos="NNP")]', data, verbosity=1)
+    >>> pyrata_re.findall ('pos="JJ" [(pos="NNS" | pos="NNP")]', data)
 
 And observe the logging file in the current directory.
 
