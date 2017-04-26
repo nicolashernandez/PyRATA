@@ -131,11 +131,6 @@ class Lexer(object):
       lexicons = kwargs['lexicons']
       kwargs.pop('lexicons', None)
 
-    self.verbosity  = 0      
-    if 'verbosity' in kwargs.keys(): 
-      self.verbosity  = kwargs['verbosity']
-      kwargs.pop('verbosity', None)
-
     if not ('pattern' in kwargs.keys()):
       raise Exception('In',__file__,' pattern argument should be set in the constructor')
     pattern = kwargs['pattern'] 
@@ -195,8 +190,7 @@ class Lexer(object):
   def t_error(self, t):
 
     #raise Exception('Illegal character "{t}"'.format(t=t.value[0]))
-    if self.verbosity>0:
-      print ('Lexer: Illegal character "{}" found at lineno "{}"" and lexpos "{}". We skip the character. It is probably due to unexpected characters which leads to a tokenization error. Search before this position. Current tokenization results in {}'.format(t.value[0], t.lexer.lineno, t.lexpos, t.lexer.lexTokenList))
+    logging.warning ('Lexer: Illegal character "{}" found at lineno "{}"" and lexpos "{}". We skip the character. It is probably due to unexpected characters which leads to a tokenization error. Search before this position. Current tokenization results in {}'.format(t.value[0], t.lexer.lineno, t.lexpos, t.lexer.lexTokenList))
     t.lexer.skip(1)
     #while True:
     #  tok = self.lexer.token()
@@ -238,7 +232,7 @@ if __name__ == '__main__':
   pattern = 'lem="the" +pos@"positiveLexicon" pos~"NN.?" [lem="be" & !(raw="is" | raw="are")]\n'
 
   print ("Tokenize the given pattern:", pattern)
-  myLexer = Lexer(pattern=pattern, data=[], re='search', verbosity=1)
+  myLexer = Lexer(pattern=pattern, data=[], re='search')
   while True:
     tok = myLexer.lexer.token()
     if not tok: 

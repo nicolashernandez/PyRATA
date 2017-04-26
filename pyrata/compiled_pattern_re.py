@@ -15,6 +15,7 @@ from pyrata.lexer import *
 from pyrata.syntactic_pattern_parser import *
 import pyrata.semantic_pattern_parser
 
+(PREFIX_BEGIN, PREFIX_INSIDE, PREFIX_OTHER) = ('B-', 'I-', 'O-')
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class CompiledPattern(object):
@@ -26,7 +27,6 @@ class CompiledPattern(object):
 
   def getLexer(self):
     return self.lexer
-
 
 
   # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -63,8 +63,7 @@ class CompiledPattern(object):
     """
     """
 
-    method = 'search'
-    matcheslist = self.re_method (data, method=method, **kwargs)
+    matcheslist = self.re_method (data, method='search', **kwargs)
 
     if len(matcheslist) > 0 :
       return matcheslist.group(0)
@@ -109,14 +108,111 @@ class CompiledPattern(object):
 
 
   # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-  def split(self, data, **kwargs):
+  def annotate(self, annotation, data, group = [0], action = 'sub', iob = False, **kwargs):
     """
     """
-    raise Exception ('Not implemented yet')
+
+    prefix = ''
+
+    data_copy = list(data)
+    if isinstance(annotation, dict):
+      annotation = [annotation]
+
+    iter = self.finditer(data, **kwargs) #reversed([finditer(pattern, data)])  
+    if iter != None:
+      size = 0
+      for m in iter:
+        for g in group:
+          #print ('Debug: m={} g={} start={} end={}'.format(m, g, m.start(g), m.end(g)))
+          if action == 'sub':
+  #          data_copy[m.start(g):m.end(g)] = annotation
+            data_copy[m.start(g)+size:m.end(g)+size] = annotation
+            size +=  len(annotation) - (m.end(g) - m.start(g)) 
+
+          elif action == 'update':
+            if len(annotation) == 1:
+              for k in annotation[0].keys():
+                for r in range (m.start(g), m.end(g)):
+                  if iob and r == m.start(g): 
+                    prefix = PREFIX_BEGIN
+                  elif iob: 
+                    prefix = PREFIX_INSIDE
+                  data_copy[r][k] = prefix + annotation[0][k]
+            else:
+              for k in annotation[0].keys():
+                for r in range (m.start(g), m.end(g)):
+                  if len(annotation) == (m.end(g) - m.start(g)): 
+                    if iob and r == m.start(g): 
+                      prefix = PREFIX_BEGIN
+                    elif iob: 
+                      prefix = PREFIX_INSIDE
+                    data_copy[r][k] = prefix + annotation[0][k]
+                  else: # Verbosity not the same size
+                    data_copy = data  
+                    break
+
+          elif action == 'extend':
+            if len(annotation) == 1:
+              for k in annotation[0].keys():
+                for r in range (m.start(g), m.end(g)):
+                  if k not in data_copy[r]:
+                    if iob and r == m.start(g): 
+                      prefix = PREFIX_BEGIN
+                    elif iob: 
+                      prefix = PREFIX_INSIDE
+                    data_copy[r][k] = prefix+annotation[0][k]
+            else:
+              for k in annotation[0].keys():
+                for r in range (m.start(g), m.end(g)):
+                  if len(annotation) == (m.end(g) - m.start(g)):
+                    if k not in data_copy[r]:
+                      if iob and r == m.start(g): 
+                        prefix = PREFIX_BEGIN
+                      elif iob: 
+                        prefix = PREFIX_INSIDE
+                      data_copy[r][k] = prefix+annotation[0][k]
+                  else: # Verbosity not the same size
+                    data_copy = data  
+                    break       
+    return data_copy
+
+
+  # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
+  def sub (self, repl, data, group = [0], **kwargs):
+    """
+    Return the data obtained by replacing the leftmost non-overlapping occurrences of 
+    pattern matches or group of matches in data by the replacement repl. 
+    """
+    return self.annotate (repl, data, group, action = 'sub', iob = False, **kwargs)
+
+
+  # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
+  def subn (self, repl, data, **kwargs):
+    """
+    Perform the same operation as sub(), but return a tuple (new_string, number_of_subs_made).
+    """
+    raise Exception ("Not implemented yet !")
+
+  # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
+  def update (self, repl, data, group = [0], iob = False, **kwargs):
+    """
+    Return the data after updating (and extending) the features of a match or a group of a match 
+    with the features of a dict or a sequence of dicts (of the same size as the group/match). 
+    """
+    return self.annotate (repl, data, group = group, action = 'update', iob = iob, **kwargs)
+
+
+  # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
+  def extend (self, repl, data, group = [0], iob = False, **kwargs):
+    """
+    Return the data after updating (and extending) the features of a match or a group of a match 
+    with the features of a dict or a sequence of dicts (of the same size as the group/match). 
+    """
+    return self.annotate (repl, data, group = group, action = extend, iob = iob, **kwargs)
 
 
   # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-  def sub(self, data, **kwargs):
+  def split(self, data, **kwargs):
     """
     """
     raise Exception ('Not implemented yet')
@@ -128,20 +224,9 @@ class CompiledPattern(object):
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def parse_syntactic(pattern, **kwargs):
+def parse_syntactic(pattern, lexicons, **kwargs):
 
-  verbosity  = 0
-  if 'verbosity' in kwargs.keys(): 
-    verbosity  = kwargs['verbosity']
-
-  lexicons = {}
-  if 'lexicons' in kwargs.keys():
-    lexicons = kwargs['lexicons']
-    kwargs.pop('lexicons', None)
-
-
-
-     # Build the lexer 
+  # Build the lexer 
   l = Lexer(pattern=pattern, lexicons=lexicons)
 
   # Build the syntax parser

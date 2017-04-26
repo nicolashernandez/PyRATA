@@ -12,6 +12,7 @@ Last report
 TODO list following a decreasing priority order.
 -------------------------------
 
+* communication make tutorial to recognize NP and NP of NP, simple NE recognizer, Opinion mining or sentiment analysis
 * api/engine module re implement match
 * api/engine see the pattern search module and its facilities
 * api/engine the b*b case exploration in semantic_analysis ; currently check only the next step, but should explore as many as iter !

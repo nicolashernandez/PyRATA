@@ -61,11 +61,10 @@ def depth(l):
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-# verbosity  (0 None 1 global 2 verbose) 
+# 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class SyntacticPatternParser(object):
 
-  verbosity  = 0 # degree of verbosity
 
   precedence = (
     ('left', 'LBRACKET','RBRACKET'),    
@@ -305,11 +304,6 @@ class SyntacticPatternParser(object):
       self.tokens = kwargs['tokens']
     kwargs.pop('tokens', None)
 
-    self.verbosity  = 0
-    if 'verbosity' in kwargs.keys(): 
-      self.verbosity  = kwargs['verbosity']
-      kwargs.pop('verbosity', None)
-
     
     #print ('Debug: len(argv):',len(argv),'; argv:',*argv)
     #if len(argv) > 0:
@@ -353,7 +347,7 @@ if __name__ == '__main__':
 
   # Build the parser and 
   l = Lexer(pattern=pattern, data=data) 
-  m = SyntacticPatternParser(tokens=l.tokens, verbosity =2, start='expression')
+  m = SyntacticPatternParser(tokens=l.tokens, start='expression')
 
   # try it out
   # print ("Copy the grammar line without 'Grammar: ' (whitespace should not been included); The semi-colon ';' will lead to a parsing error")

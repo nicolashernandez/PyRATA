@@ -597,7 +597,7 @@ To dynamically change the log level without restarting the application, just typ
 
     >>> logging.getLogger().setLevel(logging.DEBUG)
 
-Log messages are incrementally appended at the end of the previous one.
+Log messages are incrementally appended at the end of the previous ones.
 
 .. Syntactic problems are reported in INFO and DEBUG examples such as a star at the beggining of the pattern or unexpected token in the pattern: 
 

@@ -5,10 +5,56 @@
 # 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import logging
+# logging.info() Report events that occur during normal operation of a program (e.g. for status monitoring or fault investigation)
+# logging.debug() for very detailed output for diagnostic purposes
+# logging.warning() Issue a warning regarding a particular runtime event
+
 import ply.yacc as yacc
 from pyrata.lexer import *
 
 import re
+
+
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+# 
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+
+
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def get_current_pattern_step_offsets(p):
+  ''' Line Number and Position Tracking'''
+  # http://www.dabeaz.com/ply/ply.html#ply_nn33
+  left_symbol_start, left_symbol_end = p.lexspan(1)
+  if p.lexer.lexpos > len(p.lexer.lexdata):
+    previous_lextoken_end = len(p.lexer.lexdata)
+  else:
+    previous_lextoken_end = p.lexer.lexpos - len(p.lexer.lexTokenEndDict[p.lexer.lexpos].value)
+  return left_symbol_start, previous_lextoken_end
+
+
+
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def get_current_pattern_step(p, start, end):
+  ''' surface form of the current parsed step'''
+  return p.lexer.lexdata[start:end]
+
+
+
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def log(p, production):
+  # Line Number and Position Tracking
+  # http://www.dabeaz.com/ply/ply.html#ply_nn33
+
+  step_start, step_end = get_current_pattern_step_offsets(p) 
+  step = get_current_pattern_step(p, step_start, step_end)
+  logging.info('Production=%s ; step=%s', production, step)
+  logging.debug('Whole pattern/lexdata=%s ; len(lexdata)=%s', p.lexer.lexdata, str(len(p.lexer.lexdata)))
+  logging.debug('# of lexical tokens in the current production rule=%s', str(len(p)))
+#      print ('\t\tProduction={} ; pattern_step=[{}] ; data_token = "{}" ; return="{}"'
+#        .format(production, p.lexer.lexdata, p.lexer.data[p.lexer.data_cursor], p[0]))
+
+
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -16,7 +62,7 @@ class SemanticStepParser(object):
 
   #self.tokens = self.lex.tokens
   #tokens = ()
-  verbosity  = 0 # degree of verbosity
+
   
   precedence = (
     ('left', 'LBRACKET','RBRACKET'),    
@@ -41,15 +87,15 @@ class SemanticStepParser(object):
             | LBRACKET classconstraint RBRACKET ''' 
     if len(p) == 2:
       p[0] = p[1]
-      self.log(p, '(step->atomicconstraint)')
+      log(p, '(step->atomicconstraint)')
     
     elif p[1] == '!':
       p[0] = not(p[2])
-      self.log(p, '(step->NOT step)')
+      log(p, '(step->NOT step)')
     
     else:
       p[0] = p[2]
-      self.log(p, '(step->LBRACKET classconstraint RBRACKET)')
+      log(p, '(step->LBRACKET classconstraint RBRACKET)')
 
     p.lexer.truth_value = p[0]  
 
@@ -61,16 +107,16 @@ class SemanticStepParser(object):
             | partofclassconstraint '''
     if len(p) == 2:
       p[0] = p[1] 
-      self.log(p, '(classconstraint->partofclassconstraint)')
+      log(p, '(classconstraint->partofclassconstraint)')
     #
     else:
       if p[2] == '&':
         p[0] = p[1] and p[3]
-        self.log(p, '(classconstraint->partofclassconstraint AND classconstraint)')
+        log(p, '(classconstraint->partofclassconstraint AND classconstraint)')
 
       else: 
         p[0] = p[1] or p[3]
-        self.log(p, '(classconstraint->partofclassconstraint OR classconstraint)')
+        log(p, '(classconstraint->partofclassconstraint OR classconstraint)')
 
 # _______________________________________________________________
   def p_partofclassconstraint(self,p):
@@ -79,15 +125,15 @@ class SemanticStepParser(object):
                     | NOT classconstraint '''
     if p[1] == '(':
       p[0] = p[2]
-      self.log(p, '(partofclassconstraint->LPAREN classconstraint RPAREN)')
+      log(p, '(partofclassconstraint->LPAREN classconstraint RPAREN)')
     
     elif p[1] == '!':
       p[0] = not(p[2])
-      self.log(p, '(partofclassconstraint->NOT classconstraint)')
+      log(p, '(partofclassconstraint->NOT classconstraint)')
     
     else:
       p[0] = p[1]
-      self.log(p, '(partofclassconstraint->atomicconstraint)')
+      log(p, '(partofclassconstraint->atomicconstraint)')
 
 # _______________________________________________________________
   def p_atomicconstraint(self,p):
@@ -119,28 +165,13 @@ class SemanticStepParser(object):
       # should not enter here, because it would mean that the parser encountered an unknown operator    
       else:
         p[0] = False
-      self.log(p, '(atomicconstraint->NAME=VALUE)') #: ' + attName + ' ' + operator + ' ' + attValue +')')
+      log(p, '(atomicconstraint->NAME=VALUE)') #: ' + attName + ' ' + operator + ' ' + attValue +')')
         
     else:
       p[0] = False
-      self.log(p, '(atomicconstraint->NAME=VALUE)') #: ' + attName + ' ' + operator + ' ' + attValue +')')
+      log(p, '(atomicconstraint->NAME=VALUE)') #: ' + attName + ' ' + operator + ' ' + attValue +')')
         
-      if self.verbosity >0: 
-        print ('Warning: unknown attribute name:', attName)
-
-
-# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-# 
-# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-
-  def log(self, p, production):
-    if self.verbosity >2:
-      #print (2*'  ','- - - - - - - - - - - - - - - - - - - - - - - -')
-      print ('\t\tProduction={} ; pattern_step=[{}] ; data_token = "{}" ; return="{}"'
-        .format(production, p.lexer.lexdata, p.lexer.data[p.lexer.data_cursor], p[0]))
-
-
+      logging.warning ('unknown attribute name %s', attName)
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -149,14 +180,13 @@ class SemanticStepParser(object):
 
   def p_error(self,p):
     if not p:
-      if self.verbosity >2: 
-        print('\t\tInfo: pattern semantically parsed.')
+      logging.info('pattern semantically parsed.')
       return
 
       # http://www.dabeaz.com/ply/ply.html#ply_nn26 6.8.2
       # Read ahead looking for a closing ';'
-    if self.verbosity >0: 
-      print ('Error: semantic parsing error - unexpected token type="{}" with value="{}" at position {}. Search an error before this point.'.format(p.type, p.value, p.lexer.lexpos))
+    logging.warning('semantic parsing error - unexpected token type="{}" with value="{}" at position {}. Search an error before this point.'.format(p.type, p.value, p.lexer.lexpos))
+
     while True:
       tok = self.parser.token()             # Get the next token
       if not tok: 
@@ -174,10 +204,7 @@ class SemanticStepParser(object):
       self.tokens = kwargs['tokens']
     kwargs.pop('tokens', None)
 
-    self.verbosity  = 0
-    if 'verbosity' in kwargs.keys(): 
-      self.verbosity  = kwargs['verbosity']
-      kwargs.pop('verbosity', None)
+
 
     
     #print ('Debug: len(argv):',len(argv),'; argv:',*argv)
@@ -221,7 +248,7 @@ if __name__ == '__main__':
 
   # Build the parser and 
   l = Lexer(pattern=pattern, data=data) 
-  m = Parser(tokens=l.tokens, verbosity =2, start='expression')
+  m = Parser(tokens=l.tokens, start='expression')
 
   # try it out
   print ("Copy the grammar line without 'Grammar: ' (whitespace should not been included); The semi-colon ';' will lead to a parsing error")

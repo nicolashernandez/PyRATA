@@ -206,9 +206,6 @@ def evaluate (lexer, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
 
   quantifier, pattern_step = pattern_steps[pattern_cursor]
 
-  verbosity = 0
-  if 'verbosity' in kwargs.keys():
-    verbosity = kwargs['verbosity']
 
   data_cursor_extension  = 1
   group_id = 0
@@ -307,11 +304,6 @@ def parse_semantic (compiledPattern, data, **kwargs):
   '''
   Parse a compiled pattern and depending on the re method return the recognized pattern over the data 
   '''
-  verbosity = 0
-  if 'verbosity' in kwargs.keys():
-    verbosity = kwargs['verbosity']
-
- 
 
   l = compiledPattern.getLexer()
   pattern_data_start = 0

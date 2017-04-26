@@ -12,7 +12,6 @@ from pyrata.lexer import *
 import pyrata.compiled_pattern_re
 import pyrata.semantic_pattern_parser
 
-(PREFIX_BEGIN, PREFIX_INSIDE, PREFIX_OTHER) = ('B-', 'I-', 'O-')
 
    
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -30,12 +29,13 @@ def compile (pattern, **kwargs):
   Compile a regular expression pattern into a regular expression object, 
   which can be used for matching using match(), search()... methods, described below.
   """
-  
-  verbosity = 0
-  if 'verbosity' in kwargs.keys():
-    verbosity = kwargs['verbosity']
 
-  l = pyrata.compiled_pattern_re.parse_syntactic(normalize_chunk_operator(pattern), **kwargs)
+  lexicons = {}
+  if 'lexicons' in kwargs.keys():
+    lexicons = kwargs['lexicons']
+    kwargs.pop('lexicons', None)
+
+  l = pyrata.compiled_pattern_re.parse_syntactic(normalize_chunk_operator(pattern), lexicons=lexicons, **kwargs)
 
   return pyrata.compiled_pattern_re.CompiledPattern(lexer=l, **kwargs)
 
@@ -46,23 +46,13 @@ def search (pattern, data, **kwargs):
       and return a corresponding match object. 
       Return None if no position in the data matches the pattern."""
 
-  ''' -.- log -.- '''
-  verbosity  = 0
-  if 'verbosity' in kwargs.keys(): 
-    verbosity  = kwargs['verbosity']
-  
+  # cannot be called in compiled since the pop will not modify the kwargs which is passed in search
+  # this would lead to a TypeError: yacc() got an unexpected keyword argument 'lexicons' 
+  # in File "/media/hernandez-n/ext4/workspace/17/PyRATA/pyrata/pyrata/semantic_step_parser.py", line 203, in build
   lexicons = {}
   if 'lexicons' in kwargs.keys():
     lexicons = kwargs['lexicons']
     kwargs.pop('lexicons', None)
-
-  method = 'search'
-  if verbosity >1:
-      print ('  ','Method:\t', method) 
-      print ('  ','Lexicons:\t', lexicons)       
-      print ('  ','Pattern:\t', pattern)
-      print ('  ','Data:\t\t', data)  
-  ''' -.- /log -.- '''
 
   # lexicons are passed by parameters via kwargs
   compiledPattern = compile(pattern, lexicons=lexicons, **kwargs)
@@ -79,30 +69,18 @@ def findall (pattern, data, **kwargs):
       #Empty matches are included in the result unless they touch the beginning of another match.
   """
 
-  ''' -.- log -.- '''
-  verbosity  = 0
-  if 'verbosity' in kwargs.keys(): 
-    verbosity  = kwargs['verbosity']
-
+  # cannot be called in compiled since the pop will not modify the kwargs which is passed in search
+  # this would lead to a TypeError: yacc() got an unexpected keyword argument 'lexicons' 
+  # in File "/media/hernandez-n/ext4/workspace/17/PyRATA/pyrata/pyrata/semantic_step_parser.py", line 203, in build
   lexicons = {}
   if 'lexicons' in kwargs.keys():
     lexicons = kwargs['lexicons']
     kwargs.pop('lexicons', None)
 
-  method = 'findall' 
-  
-  if verbosity >1:
-    print ('Method:\t', method) 
-    print ('Lexicons:\t', lexicons)       
-    print ('Pattern:\t', pattern)
-    print ('Data:\t\t', data)  
-  ''' -.- /log -.- '''
- 
   # lexicons are passed by parameters via kwargs
-  compiledPattern = compile(pattern, lexicons=lexicons,  **kwargs)
+  compiledPattern = compile(pattern,  lexicons=lexicons, **kwargs)
 
   return compiledPattern.findall(data, **kwargs)
-
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
@@ -113,32 +91,19 @@ def finditer (pattern, data, **kwargs):
   #Empty matches are included in the result unless they touch the beginning of another match.
   """
 
-  ''' -.- log -.- '''
-  verbosity  = 0
-  if 'verbosity' in kwargs.keys(): 
-    verbosity  = kwargs['verbosity']
-
+  # cannot be called in compiled since the pop will not modify the kwargs which is passed in search
+  # this would lead to a TypeError: yacc() got an unexpected keyword argument 'lexicons' 
+  # in File "/media/hernandez-n/ext4/workspace/17/PyRATA/pyrata/pyrata/semantic_step_parser.py", line 203, in build
   lexicons = {}
   if 'lexicons' in kwargs.keys():
     lexicons = kwargs['lexicons']
     kwargs.pop('lexicons', None)
 
-  method = 'finditer'
-
-  if verbosity >1:
-    print (1*'  ','Method:\t', method) 
-    print (1*'  ','Lexicons:\t', lexicons)       
-    print (1*'  ','Pattern:\t', pattern)
-    print (1*'  ','Data:\t\t', data)  
-  ''' -.- /log -.- '''
-
   # lexicons are passed by parameters via kwargs
-  compiledPattern = compile(pattern, lexicons=lexicons,  **kwargs)
+  compiledPattern = compile(pattern, lexicons=lexicons, **kwargs)
 
   return compiledPattern.finditer(data, **kwargs)
 
-# 16:15
-# 18 et 19 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
 def annotate (pattern, annotation, data, group = [0], action = 'sub', iob = False, **kwargs): # group=[0]
@@ -150,69 +115,19 @@ def annotate (pattern, annotation, data, group = [0], action = 'sub', iob = Fals
   * updates|extends the features of a match or a group of a match with IOB values of the features of a dict or a sequence of dicts (of the same size as the group/match or kwargs ?
   Return the data obtained.  If the pattern isn't found, data is returned unchanged.
   """
-  prefix = ''
 
-  data_copy = list(data)
-  if isinstance(annotation, dict):
-    annotation = [annotation]
+  # cannot be called in compiled since the pop will not modify the kwargs which is passed in search
+  # this would lead to a TypeError: yacc() got an unexpected keyword argument 'lexicons' 
+  # in File "/media/hernandez-n/ext4/workspace/17/PyRATA/pyrata/pyrata/semantic_step_parser.py", line 203, in build
+  lexicons = {}
+  if 'lexicons' in kwargs.keys():
+    lexicons = kwargs['lexicons']
+    kwargs.pop('lexicons', None)
 
-  iter = finditer(pattern, data) #reversed([finditer(pattern, data)])  
-  if iter != None:
-    size = 0
-    for m in iter:
-      for g in group:
-        #print ('Debug: m={} g={} start={} end={}'.format(m, g, m.start(g), m.end(g)))
-        if action == 'sub':
-#          data_copy[m.start(g):m.end(g)] = annotation
-          data_copy[m.start(g)+size:m.end(g)+size] = annotation
-          size +=  len(annotation) - (m.end(g) - m.start(g)) 
-
-        elif action == 'update':
-          if len(annotation) == 1:
-            for k in annotation[0].keys():
-              for r in range (m.start(g), m.end(g)):
-                if iob and r == m.start(g): 
-                  prefix = PREFIX_BEGIN
-                elif iob: 
-                  prefix = PREFIX_INSIDE
-                data_copy[r][k] = prefix + annotation[0][k]
-          else:
-            for k in annotation[0].keys():
-              for r in range (m.start(g), m.end(g)):
-                if len(annotation) == (m.end(g) - m.start(g)): 
-                  if iob and r == m.start(g): 
-                    prefix = PREFIX_BEGIN
-                  elif iob: 
-                    prefix = PREFIX_INSIDE
-                  data_copy[r][k] = prefix + annotation[0][k]
-                else: # Verbosity not the same size
-                  data_copy = data  
-                  break
-
-        elif action == 'extend':
-          if len(annotation) == 1:
-            for k in annotation[0].keys():
-              for r in range (m.start(g), m.end(g)):
-                if k not in data_copy[r]:
-                  if iob and r == m.start(g): 
-                    prefix = PREFIX_BEGIN
-                  elif iob: 
-                    prefix = PREFIX_INSIDE
-                  data_copy[r][k] = prefix+annotation[0][k]
-          else:
-            for k in annotation[0].keys():
-              for r in range (m.start(g), m.end(g)):
-                if len(annotation) == (m.end(g) - m.start(g)):
-                  if k not in data_copy[r]:
-                    if iob and r == m.start(g): 
-                      prefix = PREFIX_BEGIN
-                    elif iob: 
-                      prefix = PREFIX_INSIDE
-                    data_copy[r][k] = prefix+annotation[0][k]
-                else: # Verbosity not the same size
-                  data_copy = data  
-                  break                   
-  return data_copy
+  # lexicons are passed by parameters via kwargs
+  compiledPattern = compile(pattern, lexicons=lexicons, **kwargs)
+            
+  return compiledPattern.annotate(annotation, data, group, action, iob, **kwargs)
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  

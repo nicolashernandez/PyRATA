@@ -6,6 +6,8 @@ v0.3.3 ()
 ---------------------
 * fixed logging issues (output syntactic parsing problem and removing old verbosity facility) 
 * revised user-guide (logging)
+* implement annotation methods (annotate, sub, update, extend) for working with a compiled pattern (see compiled_pattern_re) 
+* removed old logging mechanism (verbosity argument) from the main code
 
 
 v0.3.2 (April 22, 2017)
