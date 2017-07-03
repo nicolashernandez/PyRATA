@@ -199,6 +199,7 @@ class MatchesList(object):
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+#@profile
 def evaluate (lexer, pattern_steps, pattern_cursor, data, data_cursor, **kwargs):
   '''
   Return a truth value which is True if the pattern_step recognizes the data_token

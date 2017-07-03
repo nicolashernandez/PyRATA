@@ -161,7 +161,7 @@ class SemanticStepParser(object):
           p[0] = False  
       elif operator == '-':
         # TODO 
-        logging.warn('operator CHUNK not implemented yet. Manually replace `ch-"NN"` by `(ch="B-NN" ch="I-NN"*)` ')
+        logging.warn('operator CHUNK not implemented yet. A trick is used to replace `ch-"NN"` by `(ch="B-NN" ch="I-NN"*)`. See `normalize_chunk_operator` in re.py.')
       # should not enter here, because it would mean that the parser encountered an unknown operator    
       else:
         p[0] = False
@@ -199,6 +199,7 @@ class SemanticStepParser(object):
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 #  def __init__(self, tokens, *argv):
+#  @profile
   def __init__(self, **kwargs):
     if 'tokens' in kwargs.keys(): # MANDATORY
       self.tokens = kwargs['tokens']
@@ -210,10 +211,10 @@ class SemanticStepParser(object):
     #print ('Debug: len(argv):',len(argv),'; argv:',*argv)
     #if len(argv) > 0:
     #  self.debug = argv[0]
-    self.build(**kwargs)
+ #   self.build(**kwargs)
 
   # Build the parser
-  def build(self, **kwargs):
+ # def build(self, **kwargs):
     """ the start attribute is mandatory !
         When calling the method with a start distinct from expression you may get the following message
         WARNING: Symbol 'expression' is unreachable
