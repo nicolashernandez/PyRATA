@@ -9,7 +9,7 @@ import logging
 # logging.debug() for very detailed output for diagnostic purposes
 # logging.warning() Issue a warning regarding a particular runtime event
 
-import re
+from re import compile
 from pprint import pprint, pformat
 import ply.yacc as yacc
 from sympy import *
@@ -277,7 +277,13 @@ class SyntacticPatternParser(object):
 
     # store what will be used for semantic evaluation
     p.lexer.single_constraint_list_list.append(p.lexer.single_constraint_list)        # each pattern_step has a list of single_constraint 
-    p.lexer.single_constraint_list = []    
+
+    p.lexer.single_constraint_symbol_list_list.append(p.lexer.single_constraint_symbol_list)
+
+
+    p.lexer.single_constraint_list = []
+    p.lexer.single_constraint_symbol_list = []    
+    
     p.lexer.step_list.append(p[0])
 
 # _______________________________________________________________
@@ -335,16 +341,19 @@ class SyntacticPatternParser(object):
     #operator = p[2]
     #attValue = p[3][1:-1]
 
-    # add single constraint to a list in the lexer 
+    # add single constraint string and tuple to lists in the lexer 
     c = {}
     c['name'] = p[1]
     c['operator'] = p[2]
     c['value'] = p[3][1:-1]
+    p.lexer.single_constraint_symbol_list.append(''.join([c['name'], c['operator'], '"', c['value'], '"']))
+    if c['operator'] == '~': 
+      c['value'] = compile(c['value'])
     p.lexer.single_constraint_list.append(c)
 
+
     # build a variable and a name
-    single_constraint = p[1]+p[2]+p[3]
-    single_constraint = single_constraint.replace(' ','\\ ')
+    single_constraint = ''.join([p[1],p[2],p[3]]).replace(' ','\\ ')
     indice = str(len(p.lexer.single_constraint_list)-1)
     var = {} 
     var[indice] =  symbols(single_constraint)

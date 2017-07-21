@@ -87,11 +87,10 @@ class CompiledPattern(object):
     if len(matcheslist)>0 :
       for i in range(len(matcheslist)):
         #print ('Debug: len(data):',len(data),'; start:', start,'; end:',end)
+      
         matches.append(matcheslist.group(i).group())
       return matches
     return None
-
-
 
   # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
   def finditer(self, data, **kwargs):
@@ -220,7 +219,7 @@ class CompiledPattern(object):
 
   # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
   def __repr__(self):
-    return '<pyrata.syntactic_pattern_parser CompiledPattern object; \n\tstarts_wi_data="'+str(self.getLexer().lexer.pattern_must_match_data_start)+      '"\n\tends_wi_data="'+str(self.getLexer().lexer.pattern_must_match_data_end)+      '"\n\tlexicon="'+str(self.getLexer().lexer.lexicons.keys())        +'"\n\tpattern_steps="\n'+  pformat(self.getLexer().lexer.pattern_steps)+      '\n">'
+    return ''.join(['<pyrata.syntactic_pattern_parser CompiledPattern object; \n\tstarts_wi_data="',str(self.getLexer().lexer.pattern_must_match_data_start),'"\n\tends_wi_data="',str(self.getLexer().lexer.pattern_must_match_data_end),'"\n\tlexicon="',str(self.getLexer().lexer.lexicons.keys()),'"\n\tpattern_steps="\n',pformat(self.getLexer().lexer.pattern_steps),'\n">'])
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

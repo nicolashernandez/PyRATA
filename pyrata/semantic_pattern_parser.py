@@ -9,8 +9,9 @@ from pprint import pprint, pformat
 import ply.yacc as yacc
 
 from pyrata.lexer import *
-from pyrata.semantic_step_parser import *
+#from pyrata.semantic_step_parser import *
 import pyrata.compiled_pattern_re
+from sympy import Symbol, symbols
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -43,7 +44,7 @@ class Match(object):
 
   def __repr__(self):
     #for v, s, e in self.groups
-    return '<pyrata.re Match object; groups='+str(self._groups)+'>' #span=('+str(self.start())+', '+str(self.end())+'), match="'+str(self.group())+'">'
+    return ''.join(['<pyrata.re Match object; groups=',str(self._groups),'>']) #span=('+str(self.start())+', '+str(self.end())+'), match="'+str(self.group())+'">'
 
   def get_group_id(self, *argv):
     if len(argv) > 0:
@@ -195,7 +196,7 @@ class MatchesList(object):
     return True 
 
   def __repr__(self):
-    return '<pyrata.re MatchesList object; matcheslist="'+str(self.matcheslist)+'">'
+    return ''.join(['<pyrata.re MatchesList object; matcheslist="',str(self.matcheslist),'">'])
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def evaluate_single_constraint (lexer, data, name, operator, value):
@@ -204,7 +205,9 @@ def evaluate_single_constraint (lexer, data, name, operator, value):
     return (data[name] == value)
   # checking if the given value, interpreted as regex, matches the current dict feature of the data 
   elif operator == '~':
-    return (re.search(value,data[name]) != None)
+#    return (re.search(value,data[name]) != None)
+    return (value.search(data[name]) != None)
+
   # checking if the current dict feature of the data belongs to a list having the name of the given value
   elif operator == '@':
     # check if the named list is kwown
@@ -232,23 +235,29 @@ def evaluate (lexer, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
     # for the given pattern_cursor, 
     #  evaluate each single constraint
     #  then evaluate the corresponding sympy expression by substitution
-    logging.info ('single_constraint_list_list={} len(single_constraint_list_list)={}, pattern_cursor={}'.format(lexer.lexer.single_constraint_list_list, len(lexer.lexer.single_constraint_list_list),pattern_cursor))
+    #logging.debug ('single_constraint_list_list={} len(single_constraint_list_list)={}, pattern_cursor={}'.format(lexer.lexer.single_constraint_list_list, len(lexer.lexer.single_constraint_list_list),pattern_cursor))
 
-    single_constraint_evaluation_list = [evaluate_single_constraint(lexer, data[data_cursor], single_Constraint_dict['name'], single_Constraint_dict['operator'], single_Constraint_dict['value']) for single_Constraint_dict in lexer.lexer.single_constraint_list_list[pattern_cursor]]
-    logging.info ('single_constraint_evaluation_list=%s', single_constraint_evaluation_list)
-    logging.info ('sympy step =%s', lexer.lexer.step_list[pattern_cursor])
+    single_constraint_evaluation_list = [evaluate_single_constraint(lexer, data[data_cursor], single_constraint_dict['name'], single_constraint_dict['operator'], single_constraint_dict['value']) for single_constraint_dict in lexer.lexer.single_constraint_list_list[pattern_cursor]]
+    #logging.debug ('single_constraint_evaluation_list=%s', single_constraint_evaluation_list)
+    #logging.debug ('sympy step =%s', lexer.lexer.step_list[pattern_cursor])
 
-    logging.info ('free_symbols =%s', lexer.lexer.step_list[pattern_cursor].free_symbols)
-    from sympy import Symbol, symbols
-    logging.info ('atoms =%s', lexer.lexer.step_list[pattern_cursor].atoms(Symbol))
-    logging.info ('args =%s', lexer.lexer.step_list[pattern_cursor].args)
-
-    single_constraint_symbol_list = [single_Constraint_dict['name']+single_Constraint_dict['operator']+'"'+single_Constraint_dict['value']+'"' for single_Constraint_dict in lexer.lexer.single_constraint_list_list[pattern_cursor]]
-    logging.info ('single_constraint_symbol_list =%s', single_constraint_symbol_list)
+    #logging.debug ('free_symbols =%s', lexer.lexer.step_list[pattern_cursor].free_symbols)
+    #logging.debug ('atoms =%s', lexer.lexer.step_list[pattern_cursor].atoms(Symbol))
+    #logging.debug ('args =%s', lexer.lexer.step_list[pattern_cursor].args)
 
     #single_constraint_symbols = ' '.join([single_Constraint_dict['name']+single_Constraint_dict['operator']+'"'+single_Constraint_dict['value']+'"' for single_Constraint_dict in lexer.lexer.single_constraint_list_list[pattern_cursor]])
+    #print ('single_constraint_symbols:',single_constraint_symbols)
     #logging.info ('single_constraint_symbols =%s', single_constraint_symbols)
     #logging.info ('type single_constraint_symbols =%s', type(single_constraint_symbols))
+
+
+    #single_constraint_symbol_list = [''.join([single_Constraint_dict['name'], single_Constraint_dict['operator'], '"', single_Constraint_dict['value'], '"']) for single_Constraint_dict in lexer.lexer.single_constraint_list_list[pattern_cursor]]
+    #logging.info ('single_constraint_symbol_list =%s', single_constraint_symbol_list)
+    single_constraint_symbol_list = lexer.lexer.single_constraint_symbol_list_list[pattern_cursor]
+    #logging.debug ('single_constraint_symbol_list =%s', single_constraint_symbol_list)
+    #print ('single_constraint_symbol_list:',single_constraint_symbol_list)
+
+
 
     
     from collections import defaultdict
@@ -263,11 +272,11 @@ def evaluate (lexer, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
     #var_list = [var[0], var[1], var[2]]
     substitution_list = list(zip (var_list, single_constraint_evaluation_list))
     #substitution_list = [(var[0], True), (var[1], True), (var[2], True)]
-    logging.info ('substitution_list=%s', substitution_list)
+    logging.debug ('substitution_list=%s', substitution_list)
 
     step_evaluation = lexer.lexer.step_list[pattern_cursor].subs(substitution_list)
 
-    logging.info ('step_evaluation=%s', step_evaluation)
+    logging.debug ('step_evaluation=%s', step_evaluation)
     lexer.lexer.truth_value = step_evaluation
 # 
     # lexer.lexer.data = [data[data_cursor]]
@@ -391,8 +400,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
   while data_cursor < len(data):
     quantifier, step = pattern_steps[pattern_cursor]
 
-    logging.info ('Exploring data[{}]="{}"  with pattern_steps[{}]="{}" and quantifier="{}"'
-        .format(data_cursor, data[data_cursor], pattern_cursor, step, quantifier))        
+    logging.info ('Exploring data[{}]="{}"  with pattern_steps[{}]="{}" and quantifier="{}"'.format(data_cursor, data[data_cursor], pattern_cursor, step, quantifier))        
     initial_data_cursor = data_cursor
     initial_data = data[data_cursor]
     initial_pattern_cursor = pattern_cursor
@@ -460,8 +468,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
       logging.info ('Evaluating ANY pattern_step')
       step_evaluation = step_evaluation, data_cursor_extension, pattern_cursor_extension, matcheslist_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
       while step_evaluation:
-        logging.info ('Evaluation result: in any pattern_step "{}" iteration, match_on_going="{}", data_cursor="{}", data_token="{}"'
-          .format(any_iter, match_on_going, data_cursor, data[data_cursor]))
+        logging.info ('Evaluation result: in any pattern_step "{}" iteration, match_on_going="{}", data_cursor="{}", data_token="{}"'.format(any_iter, match_on_going, data_cursor, data[data_cursor]))
         if any_iter == 0:
           # first pattern step matched
           if not(match_on_going):
@@ -480,8 +487,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
 
         step_evaluation, data_cursor_extension, pattern_cursor_extension, matcheslist_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)  
 
-      logging.info ('Evaluation result: after ANY pattern_step evaluation : "{}" iteration, match_on_going="{}", data_cursor="{}", data_token="{}"'
-          .format(any_iter, match_on_going, data_cursor, data[data_cursor] if data_cursor < len(data) else 'no-more'))
+      logging.info ('Evaluation result: after ANY pattern_step evaluation : "{}" iteration, match_on_going="{}", data_cursor="{}", data_token="{}"'.format(any_iter, match_on_going, data_cursor, data[data_cursor] if data_cursor < len(data) else 'no-more'))
 
       pattern_cursor += 1 
 
@@ -490,8 +496,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
         # case where *[ab]b
         if pattern_cursor < len(pattern_steps) :
           next_quantifier, next_step = pattern_steps[pattern_cursor]
-          logging.info ('checking the b*b case: any_iter="{}", pattern_cursor="{}", next_step="{}", data_cursor="{}", data[data_cursor-1]="{}"'
-            .format(any_iter, pattern_cursor, next_step, data_cursor, data[data_cursor - 1]))
+          logging.info ('checking the b*b case: any_iter="{}", pattern_cursor="{}", next_step="{}", data_cursor="{}", data[data_cursor-1]="{}"'.format(any_iter, pattern_cursor, next_step, data_cursor, data[data_cursor - 1]))
           step_evaluation, next_data_cursor_extension, next_pattern_cursor_extension, next_matcheslist_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor - 1, **kwargs)
           if any_iter > 0 and step_evaluation:
             logging.debug ('modify the cursor to face the case of b*b')
@@ -506,8 +511,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
       any_iter  = 0
       step_evaluation = step_evaluation, data_cursor_extension, pattern_cursor_extension, matcheslist_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
       while step_evaluation:
-        logging.info ('Evaluation result: in AT_LEAST_ONE pattern_step "{}" iteration, match_on_going="{}", data_cursor="{}", data_token="{}"'
-            .format(any_iter, match_on_going, data_cursor, data[data_cursor]))
+        logging.info ('Evaluation result: in AT_LEAST_ONE pattern_step "{}" iteration, match_on_going="{}", data_cursor="{}", data_token="{}"'.format(any_iter, match_on_going, data_cursor, data[data_cursor]))
         if any_iter == 0:
           # first pattern step matched
           if not(match_on_going):
@@ -525,8 +529,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
           break
         step_evaluation, data_cursor_extension, pattern_cursor_extension, matcheslist_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
 
-      logging.info ('Evaluation result: after AT_LEAST_ONE pattern_step evaluation : "{}" iteration, match_on_going="{}", data_cursor="{}", data_token="{}"'
-          .format(any_iter, match_on_going, data_cursor, data[data_cursor] if data_cursor < len(data) else 'no-more'))
+      logging.info ('Evaluation result: after AT_LEAST_ONE pattern_step evaluation : "{}" iteration, match_on_going="{}", data_cursor="{}", data_token="{}"'.format(any_iter, match_on_going, data_cursor, data[data_cursor] if data_cursor < len(data) else 'no-more'))
 
       if any_iter > 0: 
         pattern_cursor += 1 
@@ -535,8 +538,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
         if any_iter > 1 and pattern_cursor < len(pattern_steps) : 
         # at least 2 iterations are required, since it is '+', we cannot modify the first one
           next_quantifier, next_step = pattern_steps[pattern_cursor]
-          logging.info ('checking the b+b case: any_iter="{}", pattern_cursor="{}", next_step="{}", data_cursor="{}", data[data_cursor-1]="{}"'
-            .format(any_iter, pattern_cursor, next_step, data_cursor, data[data_cursor - 1]))          
+          logging.info ('checking the b+b case: any_iter="{}", pattern_cursor="{}", next_step="{}", data_cursor="{}", data[data_cursor-1]="{}"'.format(any_iter, pattern_cursor, next_step, data_cursor, data[data_cursor - 1]))          
           step_evaluation, next_data_cursor_extension, next_pattern_cursor_extension, next_matcheslist_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor - 1, **kwargs)
           if any_iter > 0 and step_evaluation:
             logging.debug ('modify the cursors to face the case of ab+b')
@@ -578,8 +580,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
 #          logging.debug ('pattern_cursor_to_data_cursor=', pattern_cursor_to_data_cursor)
 #          logging.debug ('pattern_cursor_to_data_cursor[{}]={} pattern_cursor_to_data_cursor[{}]={}'.format(
 #            s, pattern_cursor_to_data_cursor[s], e, pattern_cursor_to_data_cursor[e]))  
-          logging.debug ('append from group_pattern_offsets_group_list to current_groups: value={} start={} end={}'.format(
-            data[pattern_cursor_to_data_cursor[s]:pattern_cursor_to_data_cursor[e]],  pattern_cursor_to_data_cursor[s], pattern_cursor_to_data_cursor[e]))            
+          logging.debug ('append from group_pattern_offsets_group_list to current_groups: value={} start={} end={}'.format(data[pattern_cursor_to_data_cursor[s]:pattern_cursor_to_data_cursor[e]],  pattern_cursor_to_data_cursor[s], pattern_cursor_to_data_cursor[e]))            
           current_groups.append([data[pattern_cursor_to_data_cursor[s]:pattern_cursor_to_data_cursor[e]], pattern_cursor_to_data_cursor[s], pattern_cursor_to_data_cursor[e]])
 
         # FIXME Here we have to iterate over the group of the current Match
@@ -590,8 +591,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
 
             if _m != None:
               for g in _m._groups:
-                logging.debug ('append from temporary_matcheslist to current_groups: value={} start={} end={}'
-                  .format(g[Match.VALUE], g[Match.START], g[Match.END])) 
+                logging.debug ('append from temporary_matcheslist to current_groups: value={} start={} end={}'.format(g[Match.VALUE], g[Match.START], g[Match.END])) 
                 current_groups.append([g[Match.VALUE], g[Match.START], g[Match.END]])
 
         if not(l.lexer.pattern_must_match_data_end) or (l.lexer.pattern_must_match_data_end and data_cursor == len(data)):
@@ -617,8 +617,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
       if l.lexer.pattern_must_match_data_start:
         break
     else: 
-      logging.info ('Exploration of data[{}]="{}" with pattern_steps[{}]="{}" and quantifier="{}" does not lead to the recognition of a whole pattern (a recognition may be ongoing)'
-        .format(initial_data_cursor, initial_data, initial_pattern_cursor, initial_step, initial_quantifier))   
+      logging.info ('Exploration of data[{}]="{}" with pattern_steps[{}]="{}" and quantifier="{}" does not lead to the recognition of a whole pattern (a recognition may be ongoing)'.format(initial_data_cursor, initial_data, initial_pattern_cursor, initial_step, initial_quantifier))   
 
   logging.info('Ending semantic parsing with returning matcheslist=%s',matcheslist)  
   return matcheslist

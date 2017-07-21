@@ -4,7 +4,7 @@ from distutils.core import setup
 
 # https://packaging.python.org/distributing/
 setup(name='PyRATA',
-  version='0.3.4',
+  version='0.3.3',
   description='Python Rule-based feAture sTructure Analysis',
   author='Nicolas Hernandez',
   author_email='nicolas.hernandez@gmail.com',
