@@ -173,8 +173,17 @@ class Lexer(object):
     
     self.lexer.truth_value = False  # parsing result of a given pattern over a certain data 
 
-    self.lexer.group_pattern_offsets_group_list = []     # list of group offsets e.g. [[start_i, end_i], [start_j, end_j], [start_k, end_k]]
+    self.lexer.group_pattern_offsets_group_list = []   # list of group offsets e.g. [[start_i, end_i], [start_j, end_j], [start_k, end_k]]
 
+    self.lexer.single_constraint_list_list = [] # each pattern_step has a list of single_constraints
+                                                # a single constraint is a dict which contains a tuple of (name op value)
+                                                # the rank of the global list corresponds to the pattern step rank
+
+    self.lexer.single_constraint_list = []      # list of single constraints for a given pattern step 
+                                                # temporary structure only used inside teh syntactic pattern parser for building single_constraint_list_list
+ 
+    self.lexer.step_list = []                   # list of (sympy) symbolic expression to evaluate at the semantic parsing stage 
+                                                         
   def build(self, pattern, **kwargs):
     """
     Create a lexer.

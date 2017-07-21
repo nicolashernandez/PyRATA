@@ -4,10 +4,12 @@ Revision History
 
 v0.3.3 ()
 ---------------------
+* time performance increased by removing the semantic_step_parser and replacing it by compiling the step tokens into symbolic expressions (use the sympy module) evalated on fly for each data token (changes in syntactic_pattern_parser and in evaluate of semantic_pattern_parser)
 * fixed logging issues (output syntactic parsing problem and removing old verbosity facility) 
 * revised user-guide (logging)
 * implement annotation methods (annotate, sub, update, extend) for working with a compiled pattern (see compiled_pattern_re) 
 * removed old logging mechanism (verbosity argument) from the main code
+* fixed minor bug when falling in the b+b case (plus quantifier) of semantic_pattern_parser when finding all occurrences of '(pos="DT"? pos="JJ"*)+ pos="NN"' in the brown corpus 
 
 
 v0.3.2 (April 22, 2017)

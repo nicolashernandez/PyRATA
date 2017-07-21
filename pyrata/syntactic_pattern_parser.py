@@ -12,6 +12,7 @@ import logging
 import re
 from pprint import pprint, pformat
 import ply.yacc as yacc
+from sympy import *
 
 from pyrata.lexer import *
 
@@ -65,6 +66,14 @@ def depth(l):
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class SyntacticPatternParser(object):
 
+# p.lexer. variables which are modified in the parsing
+#
+# group_pattern_offsets_group_list
+# pattern_must_match_data_start
+# pattern_must_match_data_end
+# pattern_steps
+#
+# see definition in lexer
 
   precedence = (
     ('left', 'LBRACKET','RBRACKET'),    
@@ -80,6 +89,7 @@ class SyntacticPatternParser(object):
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # PARSING METHODS
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 
 
 # _______________________________________________________________
@@ -116,6 +126,9 @@ class SyntacticPatternParser(object):
     logging.info ('# Must start the data=\t%s',p.lexer.pattern_must_match_data_start)
     logging.info ('# Must end the data=\t%s',p.lexer.pattern_must_match_data_end)
     logging.info ('# Group_pattern_offsets_group_list=%s',p.lexer.group_pattern_offsets_group_list)
+    logging.info ('# single_constraint_list_list=%s',p.lexer.single_constraint_list_list)
+    logging.info ('# step_list=%s',p.lexer.step_list)
+
     logging.info ('# ----------------------------------')
   
 
@@ -186,6 +199,8 @@ class SyntacticPatternParser(object):
 
     if len(p) == 2: 
       log(p, '(step_group->step)')
+      logging.info ('step sympy expression:{}'.format(p[1]))
+
     elif len(p) == 3: 
       log(p, '(step_group->NOT step_group)') 
 
@@ -246,8 +261,24 @@ class SyntacticPatternParser(object):
   def p_step(self,p):
     '''step : single_constraint
             | LBRACKET constraint_class RBRACKET '''  # | NOT atomicconstraint # ajoute WARNING: 2 shift/reduce conflicts
-    log(p, '(step->...)')
+    #log(p, '(step->...)')
+    if len(p) == 2:
+      p[0] = p[1]
+      log(p, '(step->single_constraint)')
+    
+    #elif p[1] == '!':
+    #  p[0] = not(p[2])
+    #  log(p, '(step->NOT step)')
+    
+    else:
+      p[0] = p[2]
+      log(p, '(step->LBRACKET constraint_class RBRACKET)')
+    logging.info ('step sympy expression:{}'.format(p[0]))
 
+    # store what will be used for semantic evaluation
+    p.lexer.single_constraint_list_list.append(p.lexer.single_constraint_list)        # each pattern_step has a list of single_constraint 
+    p.lexer.single_constraint_list = []    
+    p.lexer.step_list.append(p[0])
 
 # _______________________________________________________________
   def p_constraint_class(self,p):
@@ -255,14 +286,43 @@ class SyntacticPatternParser(object):
             | constraint_class OR constraint_class_part 
             | constraint_class_part ''' 
     
-    log(p, '(constraint_class->...)')  
+    #log(p, '(constraint_class->...)')  
+    if len(p) == 2:
+      p[0] = p[1] 
+      log(p, '(constraint_class->constraint_class_part)')
+    #
+    else:
+      if p[2] == '&':
+        p[0] = And(p[1], p[3]) 
+        log(p, '(constraint_class->constraint_class AND constraint_class_part)')
+
+      else: 
+        p[0] = Or(p[1], p[3])
+        log(p, '(constraint_class->constraint_class OR constraint_class_part)')
+    
+    logging.info ('step sympy expression:{}'.format(p[0]))      
+
 # _______________________________________________________________
   def p_constraint_class_part(self,p):
     '''constraint_class_part : single_constraint
                     | LPAREN constraint_class RPAREN  
                     | NOT constraint_class '''
     
-    log(p, '(constraint_class_part->...)')  
+    #log(p, '(constraint_class_part->...)')  
+
+    if p[1] == '(':
+      p[0] = p[2]
+      log(p, '(constraint_class_part->LPAREN constraint_class RPAREN)')
+    
+    elif p[1] == '!':
+      p[0] = Not(p[2])
+      log(p, '(constraint_class_part->NOT constraint_class)')
+    
+    else:
+      p[0] = p[1]
+      log(p, '(constraint_class_part->single_constraint)')
+
+    logging.info ('step sympy expression:{}'.format(p[0]))
 
 # _______________________________________________________________
   def p_single_constraint(self,p):
@@ -271,6 +331,25 @@ class SyntacticPatternParser(object):
                           | NAME IN VALUE'''
     
     log(p, '(single_constraint->...)')  
+    #attName = p[1]
+    #operator = p[2]
+    #attValue = p[3][1:-1]
+
+    # add single constraint to a list in the lexer 
+    c = {}
+    c['name'] = p[1]
+    c['operator'] = p[2]
+    c['value'] = p[3][1:-1]
+    p.lexer.single_constraint_list.append(c)
+
+    # build a variable and a name
+    single_constraint = p[1]+p[2]+p[3]
+    single_constraint = single_constraint.replace(' ','\\ ')
+    indice = str(len(p.lexer.single_constraint_list)-1)
+    var = {} 
+    var[indice] =  symbols(single_constraint)
+    logging.info ('var[{}]:{}'.format(indice,var[indice]))
+    p[0] = var[indice]
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

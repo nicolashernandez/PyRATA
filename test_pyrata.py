@@ -1366,7 +1366,59 @@ class TestPyrata(object):
 
     self.testCounter +=1
 
+  def test_simple_clause_timit(self):
+    from nltk.corpus import brown
+    brown_sents = brown.sents()
+    import nltk
+    brown_pos_tag_sents = [nltk.pos_tag(sentence) for sentence in brown_sents[:1000]] 
+    #print (brown_pos_tag_sents[0])
+    data = []
+    for s in brown_pos_tag_sents:
+      data.append([{'raw':w, 'pos':p} for (w, p) in s])
+    #data = data[0]
+    data = [val for sublist in data for val in sublist]
 
+    print (data[:10])
+    print ('len(data):', len(data))
+
+    pattern = 'pos="DT"? pos="JJ"* pos="NN"' #
+    pattern = '[pos~"NN.*" | ( pos="JJ" & !pos="") ]* pos~"NN.*"' # INFO:   [['*', '[pos~"NN.*" | ( pos="JJ" & !pos="") ]'], [None, 'pos~"NN.*"']]
+    #pattern = '(pos="DT"? pos="JJ"*)+ pos="NN"'                   # INFO:   [['?', [[['?', 'pos="DT"'], ['*', 'pos="JJ"']]]], [None, 'pos="NN"']]
+
+    #findall_result = pyrata.re.findall(pattern, data)
+
+    #import pyrata.compiled_data
+    #cd = pyrata.compiled_data.CompiledData(data=data)
+
+    token = {'raw': 'The', 'pos': 'DT'}
+    pattern_step = pos="DT"
+    #print ('cd.has_key(',token,')=',cd.has_key(token))
+    
+    #pos="DT" {'raw': 'The', 'pos': 'DT'}
+    # token -> pattern -> evaluation
+
+    #matcheslist = pyrata.semantic_pattern_parser.MatchesList() 
+    # the following lines computes times
+    def measure_pyrata_findall():
+      #global pyrata_findall_result
+    #   #for dictlist in dictlistlist:
+    #   #  pyrata_findall_result.append(pyrata_re.findall('[pos~"NN.*" | pos="JJ"]* pos~"NN.*"', data))
+      pyrata.re.findall(pattern, data)
+      #print(pyrata.re.findall(pattern, data))
+    #     #print (pyrata_findall_result[-1])
+
+    #pyrata_findall_result = []
+
+    from timeit import Timer
+    pyrata_findall_time = Timer(measure_pyrata_findall)
+    #print ('timit:', pyrata_findall_time.timeit(number=1))
+    n = 1
+    runtimes = [pyrata_findall_time.timeit(number=1) for i in range (0, n)]
+    average = sum(runtimes)/len(runtimes)
+    print ('timit: #runs=', n, '; average=',average,'; min=', min(runtimes))
+
+
+    self.testCounter +=1
 
 
 
@@ -1377,79 +1429,79 @@ class TestPyrata(object):
   def __init__(self):
 
 
-    self.test_search_step_in_data()
-    self.test_findall_step_in_data()
-    self.test_finditer_step_in_data()
+    # self.test_search_step_in_data()
+    # self.test_findall_step_in_data()
+    # self.test_finditer_step_in_data()
 
-    self.test_search_step_absent_in_data()
-    self.test_findall_step_absent_in_data()
+    # self.test_search_step_absent_in_data()
+    # self.test_findall_step_absent_in_data()
 
-    self.test_search_class_step_in_data()
-    self.test_search_rich_class_step_in_data()
+    # self.test_search_class_step_in_data()
+    # self.test_search_rich_class_step_in_data()
 
-    self.test_findall_regex_step_in_data()
-    self.test_findall_lexicon_step_in_data()
-    self.test_findall_undefined_lexicon_step_in_data()
+    # self.test_findall_regex_step_in_data()
+    # self.test_findall_lexicon_step_in_data()
+    # self.test_findall_undefined_lexicon_step_in_data()
 
-    self.test_findall_multiple_lexicon_step_in_data()
+    # self.test_findall_multiple_lexicon_step_in_data()
 
-    self.test_search_optional_step_in_data()
-    self.test_findall_optional_step_in_data()
+    # self.test_search_optional_step_in_data()
+    # self.test_findall_optional_step_in_data()
     
-    self.test_findall_step_step_in_data()
+    # self.test_findall_step_step_in_data()
 
-    self.test_findall_optional_step_step_in_data()
-    self.test_findall_any_step_step_in_data()
-    self.test_findall_at_least_one_step_step_in_data()
+    # self.test_findall_optional_step_step_in_data()
+    # self.test_findall_any_step_step_in_data()
+    # self.test_findall_at_least_one_step_step_in_data()
 
-    self.test_findall_any_step_step_nbar_in_data()
-    self.test_findall_at_least_one_step_step_nbar_in_data()
+    # self.test_findall_any_step_step_nbar_in_data()
+    # self.test_findall_at_least_one_step_step_nbar_in_data()
 
-    self.test_findall_step_step_partially_matched_in_data_ending()
-    self.test_findall_optional_step_step_partially_matched_in_data_ending()
-    self.test_findall_any_step_step_partially_matched_in_data_ending()
-    self.test_findall_at_least_one_step_step_partially_matched_in_data_ending()
+    # self.test_findall_step_step_partially_matched_in_data_ending()
+    # self.test_findall_optional_step_step_partially_matched_in_data_ending()
+    # self.test_findall_any_step_step_partially_matched_in_data_ending()
+    # self.test_findall_at_least_one_step_step_partially_matched_in_data_ending()
 
-    self.test_findall_step_at_least_one_not_step_step_in_data()
-    self.test_findall_step_present_optional_step_step_in_data()
-    self.test_findall_step_absent_optional_step_step_in_data()
+    # self.test_findall_step_at_least_one_not_step_step_in_data()
+    # self.test_findall_step_present_optional_step_step_in_data()
+    # self.test_findall_step_absent_optional_step_step_in_data()
 
-    self.test_findall_step_optional_step_in_data()
-    self.test_findall_step_any_step_in_data()
-    self.test_findall_step_optinal_step_optional_step_step_in_data()
+    # self.test_findall_step_optional_step_in_data()
+    # self.test_findall_step_any_step_in_data()
+    # self.test_findall_step_optinal_step_optional_step_step_in_data()
 
-    self.test_findall_step_any_not_step1_step1_in_data()
+    # self.test_findall_step_any_not_step1_step1_in_data()
 
-    self.test_pattern_starting_with_the_first_token_of_data_present_as_expected_in_data()
-    self.test_pattern_ending_with_the_last_token_of_data_present_as_expected_in_data()
-    self.test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_present_as_expected_in_data()
-    self.test_pattern_starting_with_the_first_token_of_data_not_present_as_expected_in_data()
-    self.test_pattern_ending_with_the_last_token_of_data_not_present_as_expected_in_data()
-    self.test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_not_present_as_expected_in_data()
-
-
-    self.test_search_groups_in_data()
-
-    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_in_data()
-    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_not_in_data()
-    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_pattern_sequence_to_annotation_step_in_data()
-    self.test_annotate_default_action_sub_group_one_default_iob_annotation_dict_pattern_in_data()
-    self.test_annotate_default_action_sub_default_group_default_iob_annotation_empty_in_data()
+    # self.test_pattern_starting_with_the_first_token_of_data_present_as_expected_in_data()
+    # self.test_pattern_ending_with_the_last_token_of_data_present_as_expected_in_data()
+    # self.test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_present_as_expected_in_data()
+    # self.test_pattern_starting_with_the_first_token_of_data_not_present_as_expected_in_data()
+    # self.test_pattern_ending_with_the_last_token_of_data_not_present_as_expected_in_data()
+    # self.test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_not_present_as_expected_in_data()
 
 
-    self.test_annotate_default_action_update_default_group_default_iob_annotation_dict_pattern_in_data()
-    self.test_annotate_default_action_extend_default_group_default_iob_annotation_dict_pattern_in_data()
-    self.test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data()
-    self.test_annotate_default_action_extend_default_group_iob_True_annotation_sequence_by_one_dict_in_data()
+    # self.test_search_groups_in_data()
 
-    self.test_search_groups_wi_matched_quantifiers_in_data()
-
-    self.test_search_alternative_groups_in_data()
-    self.test_search_alternatives_groups_wi_matched_quantifiers_in_data()
-
-    self.test_eq_ne_len_operators_on_Matches_and_MatchesList()
+    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_in_data()
+    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_not_in_data()
+    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_pattern_sequence_to_annotation_step_in_data()
+    # self.test_annotate_default_action_sub_group_one_default_iob_annotation_dict_pattern_in_data()
+    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_empty_in_data()
 
 
+    # self.test_annotate_default_action_update_default_group_default_iob_annotation_dict_pattern_in_data()
+    # self.test_annotate_default_action_extend_default_group_default_iob_annotation_dict_pattern_in_data()
+    # self.test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data()
+    # self.test_annotate_default_action_extend_default_group_iob_True_annotation_sequence_by_one_dict_in_data()
+
+    # self.test_search_groups_wi_matched_quantifiers_in_data()
+
+    # self.test_search_alternative_groups_in_data()
+    # self.test_search_alternatives_groups_wi_matched_quantifiers_in_data()
+
+    # self.test_eq_ne_len_operators_on_Matches_and_MatchesList()
+
+    self.test_simple_clause_timit()
 
     #self.test_clause()
 
@@ -1465,7 +1517,7 @@ if __name__ == '__main__':
 
 
 
-#  logging.basicConfig(format='%(levelname)s:\t%(message)s', filename='test_pyrata.py.log', level=logging.DEBUG)
+  #logging.basicConfig(format='%(levelname)s:\t%(message)s', filename='test_pyrata.py.log', level=logging.DEBUG)
   logging.basicConfig(format='%(levelname)s:\t%(message)s', filename='test_pyrata.py.log', level=logging.INFO)
 
   tests = TestPyrata()

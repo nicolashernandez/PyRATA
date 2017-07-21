@@ -197,6 +197,20 @@ class MatchesList(object):
   def __repr__(self):
     return '<pyrata.re MatchesList object; matcheslist="'+str(self.matcheslist)+'">'
 
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def evaluate_single_constraint (lexer, data, name, operator, value):
+  # checking if the given value, interpreted as a string, matches the current dict feature of the data   
+  if operator == '=':
+    return (data[name] == value)
+  # checking if the given value, interpreted as regex, matches the current dict feature of the data 
+  elif operator == '~':
+    return (re.search(value,data[name]) != None)
+  # checking if the current dict feature of the data belongs to a list having the name of the given value
+  elif operator == '@':
+    # check if the named list is kwown
+    if attValue in lexer.lexer.lexicons:
+      return (data[name] in lexer.lexer.lexicons[value])
+  return False    
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 #@profile
@@ -215,11 +229,53 @@ def evaluate (lexer, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
   if not(isinstance(pattern_step, list)): 
     logging.info ('Evaluation starting... of a pattern step SIMPLE GROUP=%s', pattern_step)
 
-    lexer.lexer.data = [data[data_cursor]]
-    lexer.lexer.data_cursor = 0
-    lexer.lexer.pattern_cursor = 0
-    e = SemanticStepParser(tokens=lexer.tokens, **kwargs)
-    e.parser.parse(pattern_step, lexer.lexer) # removed tracking=True
+    # for the given pattern_cursor, 
+    #  evaluate each single constraint
+    #  then evaluate the corresponding sympy expression by substitution
+    logging.info ('single_constraint_list_list={} len(single_constraint_list_list)={}, pattern_cursor={}'.format(lexer.lexer.single_constraint_list_list, len(lexer.lexer.single_constraint_list_list),pattern_cursor))
+
+    single_constraint_evaluation_list = [evaluate_single_constraint(lexer, data[data_cursor], single_Constraint_dict['name'], single_Constraint_dict['operator'], single_Constraint_dict['value']) for single_Constraint_dict in lexer.lexer.single_constraint_list_list[pattern_cursor]]
+    logging.info ('single_constraint_evaluation_list=%s', single_constraint_evaluation_list)
+    logging.info ('sympy step =%s', lexer.lexer.step_list[pattern_cursor])
+
+    logging.info ('free_symbols =%s', lexer.lexer.step_list[pattern_cursor].free_symbols)
+    from sympy import Symbol, symbols
+    logging.info ('atoms =%s', lexer.lexer.step_list[pattern_cursor].atoms(Symbol))
+    logging.info ('args =%s', lexer.lexer.step_list[pattern_cursor].args)
+
+    single_constraint_symbol_list = [single_Constraint_dict['name']+single_Constraint_dict['operator']+'"'+single_Constraint_dict['value']+'"' for single_Constraint_dict in lexer.lexer.single_constraint_list_list[pattern_cursor]]
+    logging.info ('single_constraint_symbol_list =%s', single_constraint_symbol_list)
+
+    #single_constraint_symbols = ' '.join([single_Constraint_dict['name']+single_Constraint_dict['operator']+'"'+single_Constraint_dict['value']+'"' for single_Constraint_dict in lexer.lexer.single_constraint_list_list[pattern_cursor]])
+    #logging.info ('single_constraint_symbols =%s', single_constraint_symbols)
+    #logging.info ('type single_constraint_symbols =%s', type(single_constraint_symbols))
+
+    
+    from collections import defaultdict
+    var = defaultdict(list)
+    #var[0], var[1], var[2] = symbols(single_constraint_symbols)
+    var_list = []
+    for i in range (0, len(single_constraint_evaluation_list)):
+      var[i] = symbols(single_constraint_symbol_list[i])
+      var_list.append (var[i])
+
+    #var_list = [var[indice] for indice in list(range(len(single_constraint_evaluation_list) -1))]
+    #var_list = [var[0], var[1], var[2]]
+    substitution_list = list(zip (var_list, single_constraint_evaluation_list))
+    #substitution_list = [(var[0], True), (var[1], True), (var[2], True)]
+    logging.info ('substitution_list=%s', substitution_list)
+
+    step_evaluation = lexer.lexer.step_list[pattern_cursor].subs(substitution_list)
+
+    logging.info ('step_evaluation=%s', step_evaluation)
+    lexer.lexer.truth_value = step_evaluation
+# 
+    # lexer.lexer.data = [data[data_cursor]]
+    # lexer.lexer.data_cursor = 0
+    # lexer.lexer.pattern_cursor = 0
+    # e = SemanticStepParser(tokens=lexer.tokens, **kwargs)
+    # e.parser.parse(pattern_step, lexer.lexer) # removed tracking=True
+    # logging.info ('lexer.lexer.truth_value={}'.format(lexer.lexer.truth_value))
 
     logging.info ('Evaluation ending... of a pattern step SIMPLE GROUP ; return r={}'.format(r))
 
@@ -260,6 +316,13 @@ def evaluate (lexer, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
       #local_l.lexer.step_already_counted = 0 # to prevent from duplicate step counting (wo then wi parenthesis) 
       #local_l.lexer.step_group_class = []    # step_group_class list of alternatives
       #print ('Debug: l.lexer.group_pattern_offsets_group_list=',local_l.lexer.group_pattern_offsets_group_list)
+      
+      # FIXME 
+      #local_l.lexer.single_constraint_list_list = lexer.lexer.single_constraint_list_list # [lexer.lexer.single_constraint_list_list[group_id:]]
+      #local_l.lexer.step_list = lexer.lexer.step_list # [lexer.lexer.step_list[group_id]]
+      local_l.lexer.single_constraint_list_list = list(lexer.lexer.single_constraint_list_list[group_id:])
+      local_l.lexer.step_list = list(lexer.lexer.step_list[group_id:])
+
       local_cp = pyrata.compiled_pattern_re.CompiledPattern(lexer=local_l, **kwargs)
       #print ('Debug: lexer.group_pattern_offsets_group_list=',lexer.lexer.group_pattern_offsets_group_list)
       #print ('Debug: local_l.group_pattern_offsets_group_list=',local_l.lexer.group_pattern_offsets_group_list)
@@ -478,9 +541,13 @@ def parse_semantic (compiledPattern, data, **kwargs):
           if any_iter > 0 and step_evaluation:
             logging.debug ('modify the cursors to face the case of ab+b')
             data_cursor -= data_cursor_extension
-            if matcheslist_extension != None:
-              for i in len(matcheslist_extension):
-                temporary_matcheslist.delete(-1)
+            # FIX 
+            #if matcheslist_extension != None:
+            #  for i in len(matcheslist_extension):
+            #    temporary_matcheslist.delete(-1)
+            if next_matcheslist_extension != None:
+              for i in len(next_matcheslist_extension):
+                temporary_matcheslist.delete(-1)                
       else:
         # abort recognition
         logging.info ('Evaluation result: no data_token has been recognized')
