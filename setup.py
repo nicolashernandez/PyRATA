@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-from distutils.core import setup
+# from distutils.core import setup https://stackoverflow.com/questions/9810603/adding-install-requires-to-setup-py-when-making-a-python-package
+from setuptools import setup
 
 # https://packaging.python.org/distributing/
 setup(name='PyRATA',
