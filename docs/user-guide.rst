@@ -814,9 +814,11 @@ Time performance is actually the most important issue of pyrata. If you running 
 Simply run:
   
 ::
+
     bash more/code-optimize.sh
 
 To restore the code (modification will be lost): 
 
 ::
+
     bash more/code-restore.sh
