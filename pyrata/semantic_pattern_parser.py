@@ -201,18 +201,21 @@ class MatchesList(object):
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def evaluate_single_constraint (lexer, data, name, operator, value):
   # checking if the given value, interpreted as a string, matches the current dict feature of the data   
-  if operator == '=':
-    return (data[name] == value)
-  # checking if the given value, interpreted as regex, matches the current dict feature of the data 
-  elif operator == '~':
-#    return (re.search(value,data[name]) != None)
-    return (value.search(data[name]) != None)
 
-  # checking if the current dict feature of the data belongs to a list having the name of the given value
-  elif operator == '@':
-    # check if the named list is kwown
-    if attValue in lexer.lexer.lexicons:
-      return (data[name] in lexer.lexer.lexicons[value])
+  if name in data:
+    if operator == '=':
+      return (data[name] == value)
+    # checking if the given value, interpreted as regex, matches the current dict feature of the data 
+    elif operator == '~':
+  #    return (re.search(value,data[name]) != None)
+      return (value.search(data[name]) != None)
+
+    # checking if the current dict feature of the data belongs to a list having the name of the given value
+    elif operator == '@':
+      # check if the named list is kwown
+      if value in lexer.lexer.lexicons:
+        return (data[name] in lexer.lexer.lexicons[value])
+  # the matching operation fails or the attribute name is unknown
   return False    
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -222,59 +225,64 @@ def evaluate (lexer, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
   Return a truth value which is True if the pattern_step recognizes the data_token
   '''
 
-  quantifier, pattern_step = pattern_steps[pattern_cursor]
-
+  #quantifier, pattern_step = pattern_steps[pattern_cursor]
+  if (len(pattern_steps[pattern_cursor])) == 2:
+    quantifier, pattern_step = pattern_steps[pattern_cursor]
+  else:
+    quantifier, pattern_step, single_constraint_variable_list, single_constraint_tuple_list, single_constraint_symbol_list, symbolic_step_expression = pattern_steps[pattern_cursor]
+    logging.debug ('quantifier={}, pattern_step={}, single_constraint_variable_list={}, single_constraint_tuple_list={}, single_constraint_symbol_list={}, symbolic_step_expression={}'.format(quantifier, pattern_step, single_constraint_variable_list, single_constraint_tuple_list, single_constraint_symbol_list, symbolic_step_expression))
 
   data_cursor_extension  = 1
   group_id = 0
   r = None
 
   if not(isinstance(pattern_step, list)): 
-    logging.info ('Evaluation starting... of a pattern step SIMPLE GROUP=%s', pattern_step)
+    logging.info ('>>> Starting evaluation of\tSIMPLE GROUP pattern step=%s', pattern_step)
 
     # for the given pattern_cursor, 
     #  evaluate each single constraint
     #  then evaluate the corresponding sympy expression by substitution
-    #logging.debug ('single_constraint_list_list={} len(single_constraint_list_list)={}, pattern_cursor={}'.format(lexer.lexer.single_constraint_list_list, len(lexer.lexer.single_constraint_list_list),pattern_cursor))
 
-    single_constraint_evaluation_list = [evaluate_single_constraint(lexer, data[data_cursor], single_constraint_dict['name'], single_constraint_dict['operator'], single_constraint_dict['value']) for single_constraint_dict in lexer.lexer.single_constraint_list_list[pattern_cursor]]
+
+    # for the given pattern_cursor, 
+    #   evaluate each single constraint on the current data token
+
+    single_constraint_evaluation_list = [evaluate_single_constraint(lexer, data[data_cursor], single_constraint_dict['name'], single_constraint_dict['operator'], single_constraint_dict['value']) for single_constraint_dict in single_constraint_tuple_list]
+    logging.debug ('pattern_cursor: %s', pattern_cursor)
+    logging.debug ('pattern_step: %s', pattern_step)
+
+    #   then evaluate the corresponding sympy expression by substitution
+
+    # either
+    # #single_constraint_symbol_list = [''.join([single_Constraint_dict['name'], single_Constraint_dict['operator'], '"', single_Constraint_dict['value'], '"']) for single_Constraint_dict in lexer.lexer.single_constraint_list_list[pattern_cursor]]
+    # single_constraint_symbol_list = lexer.lexer.single_constraint_symbol_list_list[pattern_cursor]
+    
+    #print ('single_constraint_symbols:',single_constraint_symbols)
+    #logging.info ('single_constraint_symbols =%s', single_constraint_symbols)
+    #logging.info ('type single_constraint_symbols =%s', type(single_constraint_symbols))
+
+    # # re build the variable list     
+    # from collections import defaultdict
+    # var = defaultdict(list)
+    # var_list = []
+    # for i in range (0, len(single_constraint_evaluation_list)):
+    #   var[i] = symbols(single_constraint_symbol_list[i])
+    #   var_list.append (var[i])
+
+    # or
+    #var_list = lexer.lexer.single_constraint_variable_list_list[pattern_cursor]
+    var_list = single_constraint_variable_list
+    substitution_list = list(zip (var_list, single_constraint_evaluation_list))
+    logging.debug ('substitution_list=%s', substitution_list)
+
+    #step_evaluation = lexer.lexer.step_list[pattern_cursor].subs(substitution_list)
+    step_evaluation = symbolic_step_expression.subs(substitution_list)
     #logging.debug ('single_constraint_evaluation_list=%s', single_constraint_evaluation_list)
     #logging.debug ('sympy step =%s', lexer.lexer.step_list[pattern_cursor])
 
     #logging.debug ('free_symbols =%s', lexer.lexer.step_list[pattern_cursor].free_symbols)
     #logging.debug ('atoms =%s', lexer.lexer.step_list[pattern_cursor].atoms(Symbol))
     #logging.debug ('args =%s', lexer.lexer.step_list[pattern_cursor].args)
-
-    #single_constraint_symbols = ' '.join([single_Constraint_dict['name']+single_Constraint_dict['operator']+'"'+single_Constraint_dict['value']+'"' for single_Constraint_dict in lexer.lexer.single_constraint_list_list[pattern_cursor]])
-    #print ('single_constraint_symbols:',single_constraint_symbols)
-    #logging.info ('single_constraint_symbols =%s', single_constraint_symbols)
-    #logging.info ('type single_constraint_symbols =%s', type(single_constraint_symbols))
-
-
-    #single_constraint_symbol_list = [''.join([single_Constraint_dict['name'], single_Constraint_dict['operator'], '"', single_Constraint_dict['value'], '"']) for single_Constraint_dict in lexer.lexer.single_constraint_list_list[pattern_cursor]]
-    #logging.info ('single_constraint_symbol_list =%s', single_constraint_symbol_list)
-    single_constraint_symbol_list = lexer.lexer.single_constraint_symbol_list_list[pattern_cursor]
-    #logging.debug ('single_constraint_symbol_list =%s', single_constraint_symbol_list)
-    #print ('single_constraint_symbol_list:',single_constraint_symbol_list)
-
-
-
-    
-    from collections import defaultdict
-    var = defaultdict(list)
-    #var[0], var[1], var[2] = symbols(single_constraint_symbols)
-    var_list = []
-    for i in range (0, len(single_constraint_evaluation_list)):
-      var[i] = symbols(single_constraint_symbol_list[i])
-      var_list.append (var[i])
-
-    #var_list = [var[indice] for indice in list(range(len(single_constraint_evaluation_list) -1))]
-    #var_list = [var[0], var[1], var[2]]
-    substitution_list = list(zip (var_list, single_constraint_evaluation_list))
-    #substitution_list = [(var[0], True), (var[1], True), (var[2], True)]
-    logging.debug ('substitution_list=%s', substitution_list)
-
-    step_evaluation = lexer.lexer.step_list[pattern_cursor].subs(substitution_list)
 
     logging.debug ('step_evaluation=%s', step_evaluation)
     lexer.lexer.truth_value = step_evaluation
@@ -286,10 +294,10 @@ def evaluate (lexer, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
     # e.parser.parse(pattern_step, lexer.lexer) # removed tracking=True
     # logging.info ('lexer.lexer.truth_value={}'.format(lexer.lexer.truth_value))
 
-    logging.info ('Evaluation ending... of a pattern step SIMPLE GROUP ; return r={}'.format(r))
+    logging.info ('<<< Ending evaluation of\tSIMPLE GROUP pattern step; return r={}'.format(r))
 
   else:
-    logging.info ('Evaluation starting... of a pattern step COMPLEX GROUPS=%s',pformat(pattern_steps))
+    logging.info ('>>> Starting evaluation of\tCOMPLEX\tGROUPS pattern step=%s',pformat(pattern_steps))
 
     #print ('Debug: lexer.group_pattern_offsets_group_list=',lexer.lexer.group_pattern_offsets_group_list)
     #local_l = lexer l # defines a new reference
@@ -303,7 +311,9 @@ def evaluate (lexer, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
     #   add the must start constraint 
     #   then check
     while len(r) == 0 and group_id < len (pattern_step):
-      logging.info ('Evaluation starting... of group[{}]={}'.format(group_id, pattern_step[group_id]))
+      logging.info ('==================================================')        
+
+      logging.info ('>>> Starting evaluation of group[{}]={}'.format(group_id, pattern_step[group_id]))
 
       local_l.lexTokenEndDict = lexer.lexTokenEndDict
 
@@ -326,11 +336,7 @@ def evaluate (lexer, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
       #local_l.lexer.step_group_class = []    # step_group_class list of alternatives
       #print ('Debug: l.lexer.group_pattern_offsets_group_list=',local_l.lexer.group_pattern_offsets_group_list)
       
-      # FIXME 
-      #local_l.lexer.single_constraint_list_list = lexer.lexer.single_constraint_list_list # [lexer.lexer.single_constraint_list_list[group_id:]]
-      #local_l.lexer.step_list = lexer.lexer.step_list # [lexer.lexer.step_list[group_id]]
-      local_l.lexer.single_constraint_list_list = list(lexer.lexer.single_constraint_list_list[group_id:])
-      local_l.lexer.step_list = list(lexer.lexer.step_list[group_id:])
+
 
       local_cp = pyrata.compiled_pattern_re.CompiledPattern(lexer=local_l, **kwargs)
       #print ('Debug: lexer.group_pattern_offsets_group_list=',lexer.lexer.group_pattern_offsets_group_list)
@@ -365,7 +371,7 @@ def evaluate (lexer, pattern_steps, pattern_cursor, data, data_cursor, **kwargs)
     else:
       lexer.lexer.truth_value = False
 
-    logging.info ('Evaluation ending... of a pattern step COMPLEX GROUPS ; return r={}'.format(r))
+    logging.info ('<<< Ending evaluation of\t COMPLEX\tGROUPS pattern step; return r={}'.format(r))
 
   return lexer.lexer.truth_value, data_cursor_extension, len(pattern_step[group_id-1]), r 
 
@@ -398,7 +404,14 @@ def parse_semantic (compiledPattern, data, **kwargs):
   # # while there is sufficient data to recognize a pattern (! warning some pattern token are ? )
     # len (p.lexer.pattern_steps) minus # ?|*
   while data_cursor < len(data):
-    quantifier, step = pattern_steps[pattern_cursor]
+    if (len(pattern_steps[pattern_cursor])) == 2:
+      quantifier, step = pattern_steps[pattern_cursor]
+    else:
+      quantifier, step, single_constraint_variable_list, single_constraint_tuple_list, single_constraint_symbol_list, symbolic_step_expression= pattern_steps[pattern_cursor]
+      logging.debug ('quantifier={}, pattern_step={}, single_constraint_variable_list={}, single_constraint_tuple_list={}, single_constraint_symbol_list={}, symbolic_step_expression={}'.format(quantifier, step, single_constraint_variable_list, single_constraint_tuple_list, single_constraint_symbol_list, symbolic_step_expression))
+
+
+    logging.info ('--------------------------------------------------')        
 
     logging.info ('Exploring data[{}]="{}"  with pattern_steps[{}]="{}" and quantifier="{}"'.format(data_cursor, data[data_cursor], pattern_cursor, step, quantifier))        
     initial_data_cursor = data_cursor
@@ -422,6 +435,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
           temporary_matcheslist.extend(matcheslist_extension)
           logging.debug ('temporary_matcheslist after extension=%s',temporary_matcheslist)  
         else:
+          True
           logging.debug ('no extension since matcheslist_extension=%s',matcheslist_extension)  
 
         pattern_cursor_to_data_cursor[pattern_cursor] = data_cursor  
@@ -429,8 +443,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
       else:
         # abort recognition
         logging.info ('Evaluation result: UNMATCH')
-        if match_on_going:
-          logging.debug ('abort recognition')
+        if match_on_going:logging.debug ('abort recognition')
         match_on_going = False
         pattern_data_start = pattern_data_start+1
         pattern_cursor = 0
@@ -459,6 +472,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
           logging.debug ('temporary_matcheslist after extension=%s',temporary_matcheslist)         
         data_cursor += data_cursor_extension  
       else:
+        True
         logging.info ('Evaluation OPTION result: UNMATCH')
       pattern_cursor += 1 
 
@@ -495,7 +509,16 @@ def parse_semantic (compiledPattern, data, **kwargs):
         logging.info ('Evaluation result: some data_token have been recognized')
         # case where *[ab]b
         if pattern_cursor < len(pattern_steps) :
-          next_quantifier, next_step = pattern_steps[pattern_cursor]
+          #next_quantifier, next_step = pattern_steps[pattern_cursor]
+          
+          if (len(pattern_steps[pattern_cursor])) == 2:
+            next_quantifier, next_step = pattern_steps[pattern_cursor]
+          else:
+            next_quantifier, next_step, single_constraint_variable_list, single_constraint_tuple_list, single_constraint_symbol_list, symbolic_step_expression = pattern_steps[pattern_cursor]
+            logging.debug ('quantifier={}, pattern_step={}, single_constraint_variable_list={}, single_constraint_tuple_list={}, single_constraint_symbol_list={}, symbolic_step_expression={}'.format(next_quantifier, next_step, single_constraint_variable_list, single_constraint_tuple_list, single_constraint_symbol_list, symbolic_step_expression))
+
+
+
           logging.info ('checking the b*b case: any_iter="{}", pattern_cursor="{}", next_step="{}", data_cursor="{}", data[data_cursor-1]="{}"'.format(any_iter, pattern_cursor, next_step, data_cursor, data[data_cursor - 1]))
           step_evaluation, next_data_cursor_extension, next_pattern_cursor_extension, next_matcheslist_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor - 1, **kwargs)
           if any_iter > 0 and step_evaluation:
@@ -537,7 +560,15 @@ def parse_semantic (compiledPattern, data, **kwargs):
         # case where +[b]b to recognize bbb
         if any_iter > 1 and pattern_cursor < len(pattern_steps) : 
         # at least 2 iterations are required, since it is '+', we cannot modify the first one
-          next_quantifier, next_step = pattern_steps[pattern_cursor]
+#          next_quantifier, next_step = pattern_steps[pattern_cursor]
+          if (len(pattern_steps[pattern_cursor])) == 2:
+            next_quantifier, next_step = pattern_steps[pattern_cursor]
+          else:
+            next_quantifier, next_step, single_constraint_variable_list, single_constraint_tuple_list, single_constraint_symbol_list, symbolic_step_expression = pattern_steps[pattern_cursor]
+            logging.debug ('quantifier={}, pattern_step={}, single_constraint_variable_list={}, single_constraint_tuple_list={}, single_constraint_symbol_list={}, symbolic_step_expression={}'.format(next_quantifier, next_step, single_constraint_variable_list, single_constraint_tuple_list, single_constraint_symbol_list, symbolic_step_expression))
+
+
+
           logging.info ('checking the b+b case: any_iter="{}", pattern_cursor="{}", next_step="{}", data_cursor="{}", data[data_cursor-1]="{}"'.format(any_iter, pattern_cursor, next_step, data_cursor, data[data_cursor - 1]))          
           step_evaluation, next_data_cursor_extension, next_pattern_cursor_extension, next_matcheslist_extension = evaluate (l, pattern_steps, pattern_cursor, data, data_cursor - 1, **kwargs)
           if any_iter > 0 and step_evaluation:
@@ -553,8 +584,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
       else:
         # abort recognition
         logging.info ('Evaluation result: no data_token has been recognized')
-        if match_on_going:
-          logging.debug  ('abort recognition')
+        if match_on_going: logging.debug  ('abort recognition')
         match_on_going = False
         pattern_data_start = pattern_data_start+1
         pattern_cursor = 0
@@ -596,7 +626,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
 
         if not(l.lexer.pattern_must_match_data_end) or (l.lexer.pattern_must_match_data_end and data_cursor == len(data)):
           logging.info ('create the Match corresponding to current_groups=%s',current_groups)
-          logging.debug ('matcheslist before appending=',matcheslist)
+          logging.debug ('matcheslist before appending={}'.format(matcheslist))
  
           matcheslist.append(Match(groups=current_groups))
           logging.info ('append to matcheslist') #=',matcheslist)
@@ -617,6 +647,7 @@ def parse_semantic (compiledPattern, data, **kwargs):
       if l.lexer.pattern_must_match_data_start:
         break
     else: 
+      True
       logging.info ('Exploration of data[{}]="{}" with pattern_steps[{}]="{}" and quantifier="{}" does not lead to the recognition of a whole pattern (a recognition may be ongoing)'.format(initial_data_cursor, initial_data, initial_pattern_cursor, initial_step, initial_quantifier))   
 
   logging.info('Ending semantic parsing with returning matcheslist=%s',matcheslist)  

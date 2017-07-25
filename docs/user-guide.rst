@@ -5,13 +5,13 @@
 User guide
 ********************
 
-:Last Reviewed: 2017-04-22
+:Last Reviewed: 2017-07-25
 
 .. contents:: Contents
     :local:
 
 
-In addition to this current documentation, you may have look at ``test_pyrata.py`` to see the implemented examples and more.
+In addition to this current documentation, you may have look at ``do_tests.py`` to see the implemented examples and more.
 
 
 Brief introduction
@@ -207,7 +207,7 @@ To specify that a pattern should **match from the begining and/or to the end of 
 
 .. doctest ::
 
-    >>> pattern = '^raw="It" !foo="bar"+'
+    >>> pattern = '^raw="It" [!foo="bar"]+'
     >>> pyrata_re.search(pattern, data)
     <pyrata.re Match object; groups=[[[{'raw': 'It', 'pos': 'PRP'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}, {'raw': 'write', 'pos': 'VB'}, {'raw': 'regular', 'pos': 'JJ'}, {'raw': 'expressions', 'pos': 'NNS'}, {'raw': 'with', 'pos': 'IN'}, {'raw': 'Pyrata', 'pos': 'NNP'}], 0, 12]]>
    
@@ -272,7 +272,7 @@ The ``search`` method, like ``finditer``, returns match objects. Only one for th
 .. doctest ::
 
     >>> import pyrata.re as pyrata_re
-    >>> pyrata_re.search('raw="is" (!raw="to"+) raw="to"', [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]).group(1)
+    >>> pyrata_re.search('raw="is" ([!raw="to"]+) raw="to"', [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]).group(1)
     [{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}]
 
 Or a more complex example with many more groups and embedded groups:
@@ -326,7 +326,7 @@ Alternatives are a list of possible steps sequences which can occur at a given s
 
 .. doctest ::
 
-    >>> pattern = '(pos="IN") (raw="a" raw="tea" | raw="a" raw="cup" raw="of" raw="coffee" | raw="an" raw="orange" raw="juice" ) (!pos=";")'
+    >>> pattern = '(pos="IN") (raw="a" raw="tea" | raw="a" raw="cup" raw="of" raw="coffee" | raw="an" raw="orange" raw="juice" ) ([!pos=";"])'
     >>> data = [ {'raw':'Over', 'pos':'IN'},
       {'raw':'a', 'pos':'DT' }, 
       {'raw':'cup', 'pos':'NN' },
@@ -345,7 +345,7 @@ Groups can be embedded in alternatives:
 
 .. doctest ::
 
-    >>> pattern = '(pos="IN") (raw="a" (raw="tea") | raw="a" (raw="cup" raw="of" raw="coffee") | raw="an" (raw="orange" raw="juice") ) (!pos=";")'
+    >>> pattern = '(pos="IN") (raw="a" (raw="tea") | raw="a" (raw="cup" raw="of" raw="coffee") | raw="an" (raw="orange" raw="juice") ) ([!pos=";"])'
     >>> pyrata_re.search(pattern, data).group(3)
     [{'pos': 'NN', 'raw': 'cup'}, {'pos': 'IN', 'raw': 'of'}, {'pos': 'NN', 'raw': 'coffee'}]
 
@@ -357,7 +357,7 @@ Alternatives can be quantified.
 
 .. doctest ::
 
-    >>> pattern = '(pos="VB" !pos="NN"* raw="Life" pos="."| pos="VB" !pos="NN"* raw="job" pos="."|pos="VB" !pos="NN"* raw="career" pos="."|pos="VB" !pos="NN"* raw="family" pos="."|pos="VB" !pos="NN"* raw="television" pos=".")+'
+    >>> pattern = '(pos="VB" [!pos="NN"]* raw="Life" pos="."| pos="VB" [!pos="NN"]* raw="job" pos="."|pos="VB" [!pos="NN"]* raw="career" pos="."|pos="VB" [!pos="NN"]* raw="family" pos="."|pos="VB" [!pos="NN"]* raw="television" pos=".")+'
     >>> data = [ {'raw':'Choose', 'pos':'VB'},
       {'raw':'Life', 'pos':'NN' }, 
       {'raw':'.', 'pos':'.' },
@@ -541,6 +541,8 @@ The previous tests can be performed with the two Matches objects created above f
 
 Debugging the pattern compilation or the pattern matching
 ------------------
+
+__For some performance reason, the debugging facility is not available on the pip version but on the github version.__ 
 
 PyRATA uses the `python logging facility <https://docs.python.org/3/howto/logging.html>`_. 
 
@@ -803,3 +805,18 @@ The former method, ``list2pyrata``, turns a list into a list of dict (e.g. a lis
 The latter, ``listList2pyrata``, turns a list of list ``listList`` into a list of dict with values being the elements of the second list; the value names are arbitrary choosen. If the parameter ``names`` is given then the dict feature names will be the ones set (the order matters) in the list passed as ``names`` parameter value. If parameter ``dictList`` is given then the list of dict will be extented with the values of the list (named or not).
 
 Example of uses of pyrata dedicated conversion methods: See the ``nltk.py`` scripts
+
+
+Time performance
+===========================
+
+Time performance is actually the most important issue of pyrata. If you running the git version, you may make the code faster by removing the logging instructions.
+Simply run:
+  
+::
+    bash more/code-optimize.sh
+
+To restore the code (modification will be lost): 
+
+::
+    bash more/code-restore.sh

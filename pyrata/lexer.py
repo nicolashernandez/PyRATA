@@ -175,17 +175,23 @@ class Lexer(object):
 
     self.lexer.group_pattern_offsets_group_list = []   # list of group offsets e.g. [[start_i, end_i], [start_j, end_j], [start_k, end_k]]
 
-    self.lexer.single_constraint_list_list = [] # each pattern_step has a list of single_constraints
-                                                # a single constraint is a dict which contains a tuple of (name op value)
-                                                # the rank of the global list corresponds to the pattern step rank
-    self.lexer.single_constraint_list = []      # list of single constraints for a given pattern step 
-                                                # temporary structure only used inside teh syntactic pattern parser for building single_constraint_list_list
 
-    self.lexer.single_constraint_symbol_list_list = [] # each pattern_step has a list of single_constraints string (to avoid to compute it at each data token)
-    self.lexer.single_constraint_symbol_list = [] # list of single constraints string for a given pattern step 
-                                                # temporary structure only used inside teh syntactic pattern parser for building single_constraint_symbol_list_list
+    self.lexer.single_constraint_tuple_list = []    # list of single constraints tuples for a given pattern step 
+                                                    # temporary structure only used inside the syntactic pattern parser for building pattern_steps
+                                                    # used at the semantic evaluation stage
+    
+    self.lexer.single_constraint_symbol_list = []   # list of single constraints string (variable name) for a given pattern step 
+                                                    # temporary structure only used inside the syntactic pattern parser for building pattern_steps
+                                                    # used at the semantic evaluation stage
 
-    self.lexer.step_list = []                   # list of (sympy) symbolic expression to evaluate at the semantic parsing stage 
+    self.lexer.single_constraint_variable_list = [] # list of variables eachone corresponding to a single constraint of a given pattern step 
+                                                    # temporary structure only used inside the syntactic pattern parser for building pattern_steps
+                                                    # used at the semantic evaluation stage
+
+    self.lexer.symbolic_step_expression = []        # sympy symbolic expression corresponding to a pattern step ;
+                                                    # temporary structure only used inside the syntactic pattern parser for building pattern_steps
+                                                    # used at the semantic evaluation stage
+      
                                                          
   def build(self, pattern, **kwargs):
     """

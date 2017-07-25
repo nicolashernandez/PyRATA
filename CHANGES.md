@@ -2,13 +2,16 @@ Revision History
 ================
 
 
-v0.3.3 ()
+v0.3.3 (July 25, 2017)
 ---------------------
-* time performance increased by removing the semantic_step_parser and replacing it by compiling the step tokens into symbolic expressions (use the sympy module) evalated on fly for each data token (changes in syntactic_pattern_parser and in evaluate of semantic_pattern_parser)
-* fixed logging issues (output syntactic parsing problem and removing old verbosity facility) 
-* revised user-guide (logging)
 * implement annotation methods (annotate, sub, update, extend) for working with a compiled pattern (see compiled_pattern_re) 
+* code refactoring to increase time performance: removing the semantic_step_parser and replacing it by compiling the step tokens into symbolic expressions (use the sympy module) evaluated on fly for each data token (changes in syntactic_pattern_parser and in evaluate of semantic_pattern_parser)
+* grammar does not accept anymore negative pattern step. '!pos="NNS"+' should be rewritten '[!pos="NNS"]+'
+* code refactoring to increase time performance: releasing a pip version without I/O logging and a verbose git version with scripts to generate the opimized pip version 
+* code refactoring to increase time performance: substituting string concat to format 
+* revised user-guide (logging)
 * removed old logging mechanism (verbosity argument) from the main code
+* fixed logging issues (output syntactic parsing problem and removing old verbosity facility) 
 * fixed minor bug when falling in the b+b case (plus quantifier) of semantic_pattern_parser when finding all occurrences of '(pos="DT"? pos="JJ"*)+ pos="NN"' in the brown corpus 
 
 

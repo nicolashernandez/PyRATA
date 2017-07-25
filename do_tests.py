@@ -331,7 +331,7 @@ class TestPyrata(object):
     description = 'test_findall_step_at_least_one_not_step_step_in_data'
     method = 'findall'
     lexicons = {}
-    pattern = 'pos="VB" !pos="NNS"+ pos="NNS"'
+    pattern = 'pos="VB" [!pos="NNS"]+ pos="NNS"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[{'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}]]
     self.test(description, method, lexicons, pattern, data, expected)
@@ -478,10 +478,10 @@ class TestPyrata(object):
     self.test(description, method, lexicons, pattern, data, expected)  
 
 
-  def test_search_groups_in_data(self):
+  def test_search_no_group_marked(self):
     # if verbosity >0:
     #   print ('================================================')
-    description = 'test_search_groups_in_data'
+    description = 'test_search_no_group_marked'
     method = 'search'
     lexicons = {}
     #pattern = '(raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")'
@@ -493,46 +493,289 @@ class TestPyrata(object):
     
     pattern = 'raw="is"'                     # [None, 'raw="is"']
     expected = [[[{'pos': 'VBZ', 'raw': 'is'}], 1, 2]]
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+
+    #self.test(description, method, lexicons, pattern, data, expected)  
+    result = pyrata.re.search(pattern, data, lexicons=lexicons)
+    #print ('Debug: type(result)=',type(result))
+    #print ('Debug: type(result.groups)=',type(result.groups()))
+    #print ('Debug: result=',result)
+    
+    result = result.groups()
+
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+
+
+
+
+  def test_search_group_zero_marked(self):
+    description = 'test_search_group_zero_marked'
+    method = 'search'
+    lexicons = {}
 
     pattern = '(raw="is")'                   # [None, [[[None, 'raw="is"']]]]
     expected = [[[{'pos': 'VBZ', 'raw': 'is'}], 1, 2], [[{'pos': 'VBZ', 'raw': 'is'}], 1, 2]]
     
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+   
+    result = pyrata.re.search(pattern, data, lexicons=lexicons)
+    result = result.groups()
+
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+
+
+  def test_search_emdedded_group_zero_marked(self):
+    description = 'test_search_emdedded_group_zero_marked'
+    method = 'search'
+    lexicons = {}
+
     pattern = '(((raw="is")))'               # [None, [[[None, [[[None, [[[None, 'raw="is"']]]]]]]]]]   
-    expected = [[[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'is', 'pos': 'VBZ'}], 0, 1], [[{'raw': 'is', 'pos': 'VBZ'}], 0, 1]]
-    
+    expected = [[[{'pos': 'VBZ', 'raw': 'is'}], 1, 2], [[{'pos': 'VBZ', 'raw': 'is'}], 1, 2], [[{'pos': 'VBZ', 'raw': 'is'}], 1, 2], [[{'pos': 'VBZ', 'raw': 'is'}], 1, 2]] # [[[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'is', 'pos': 'VBZ'}], 0, 1], [[{'raw': 'is', 'pos': 'VBZ'}], 0, 1]] 
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+   
+    result = pyrata.re.search(pattern, data, lexicons=lexicons)
+    #logging.info('Debug: pyrata.re.search={}'.format(result))
+    result = result.groups()
+    #logging.info('Debug: pyrata.re.search.groups={}'.format(result))
+
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+
+  def test_search_step_group_inside_a_sequence(self):
+    description = 'test_search_step_group_inside_a_sequence'
+    method = 'search'
+    lexicons = {}
+
     pattern = 'raw="is" pos="JJ" pos="JJ"'   # [[None, 'raw="is" '], [None, 'pos="JJ" '], [None, 'pos="JJ"']]
     expected = [[[{'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}], 1, 4]]
     
     pattern = 'raw="is" (pos="JJ") pos="JJ"' # [[None, 'raw="is" '], [None, [[[None, 'pos="JJ"']]]], [None, 'pos="NN"']]
     expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}], 1, 4], [[{'raw': 'fast', 'pos': 'JJ'}], 2, 3]]
 
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+   
+    result = pyrata.re.search(pattern, data, lexicons=lexicons)
+    result = result.groups()
+
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+
+
+  def test_search_multiple_optionnaly_embedded_step_group_inside_a_sequence(self):
+    description = 'test_search_multiple_optionnaly_embedded_step_group_inside_a_sequence'
+    method = 'search'
+    lexicons = {}
+
     pattern = 'raw="is" (pos="JJ") ((pos="JJ"))' # 
     expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}], 1, 4], [[{'raw': 'fast', 'pos': 'JJ'}], 2, 3], [[{'raw': 'easy', 'pos': 'JJ'}], 3, 4], [[{'raw': 'easy', 'pos': 'JJ'}], 3, 4] ]
+
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+   
+    result = pyrata.re.search(pattern, data, lexicons=lexicons)
+    result = result.groups()
+
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+
+
+  def test_search_sequence_as_group_zero(self):
+    description = 'test_search_sequence_as_group_zero'
+    method = 'search'
+    lexicons = {}
 
     pattern = '(raw="is" pos="JJ")'          # [None, [[[None, 'raw="is" '], [None, 'pos="JJ"']]]]
     expected = [[[{'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}], 1, 3], [[{'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}], 1, 3]]
 
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+   
+    result = pyrata.re.search(pattern, data, lexicons=lexicons)
+    result = result.groups()
+
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+
+  def test_search_class_as_group_zero(self):
+    description = 'test_search_class_as_group_zero'
+    method = 'search'
+    lexicons = {}
+
     pattern = '(raw="is"|pos="JJ")'          # [None, [[[None, 'raw="is" '], [None, 'pos="JJ"']]]]
     expected = [[[{'pos': 'VBZ', 'raw': 'is'}], 1, 2], [[{'pos': 'VBZ', 'raw': 'is'}], 1, 2]]
+
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+   
+    result = pyrata.re.search(pattern, data, lexicons=lexicons)
+    result = result.groups()
+
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+
+
+
+  def test_search_sequence_of_step_groups(self):
+    description = 'test_search_sequence_of_step_groups'
+    method = 'search'
+    lexicons = {}
 
     pattern = '(raw="is") (pos="JJ")'        # [[None, [[[None, 'raw="is"']]]], [None, [[[None, 'pos="JJ"']]]]]
     expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3], [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'fast', 'pos': 'JJ'}], 2, 3]]
     
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+   
+    result = pyrata.re.search(pattern, data, lexicons=lexicons)
+    result = result.groups()
+
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+
+  def test_search_sequence_group_wi_step_group (self):
+    description = 'test_search_sequence_group_wi_step_group'
+    method = 'search'
+    lexicons = {}
+
     pattern = '(raw="is" (pos="JJ"))'        # [None, [[[None, 'raw="is" '], [None, [[[None, 'pos="JJ"']]]]]]]
     expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3], [[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3], [[{'raw': 'fast', 'pos': 'JJ'}], 2, 3]]
+
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+   
+    result = pyrata.re.search(pattern, data, lexicons=lexicons)
+    result = result.groups()
+
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+
+
+  def test_search_sequence_step_alternative (self):
+    description = 'test_search_sequence_step_alternative'
+    method = 'search'
+    lexicons = {}
 
     pattern = '(raw="is" pos="JJ"|raw="is" )'          # [None, [[[None, 'raw="is" '], [None, 'pos="JJ"']]]]
     expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3], [[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3]]
 
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+   
+    result = pyrata.re.search(pattern, data, lexicons=lexicons)
+    #logging.info('Debug: pyrata.re.search={}'.format(result))
+    result = result.groups()
+    #logging.info('Debug: pyrata.re.search.groups={}'.format(result))
+
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+
+
+  def test_search_sequence_sequence_alternative (self):
+    description = 'test_search_sequence_sequence_alternative'
+    method = 'search'
+    lexicons = {}
+
     pattern = '(raw="is" pos="NN"|raw="is" pos="JJ")'          # [None, [[[None, 'raw="is" '], [None, 'pos="JJ"']]]]
     expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3], [[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3]]
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+   
+    result = pyrata.re.search(pattern, data, lexicons=lexicons)
+    result = result.groups()
+
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+
+  def test_search_sequence_sequence_sequence_alternative (self):
+    description = 'test_search_sequence_sequence_sequence_alternative'
+    method = 'search'
+    lexicons = {}
 
     pattern = '(raw="is" pos="NN"|raw="is" pos="NN"|raw="is" pos="JJ")'          # [None, [[[None, 'raw="is" '], [None, 'pos="JJ"']]]]
     expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3], [[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3]]
 
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+   
+    result = pyrata.re.search(pattern, data, lexicons=lexicons)
+    result = result.groups()
+
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+
+  def test_search_multiple_optionnaly_embedded_quantified_step_or_sequence_group (self):
+    description = 'test_search_multiple_optionnaly_embedded_quantified_step_or_sequence_group'
+    method = 'search'
+    lexicons = {}
+
     pattern = 'raw="It" (raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")'
     expected = [[[{'pos': 'PRP', 'raw': 'It'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}], 0, 7], [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], [[{'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}], 3, 5], [[{'raw': 'funny', 'pos': 'JJ'}], 5, 6], [[{'raw': 'to', 'pos': 'TO'}], 6, 7]]
     #self.getLexer().lexer.group_pattern_offsets_group_list= [[0, 7], [1, 2], [2, 6], [2, 6], [3, 5], [5, 6], [6, 7]]
+
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+   
+    result = pyrata.re.search(pattern, data, lexicons=lexicons)
+    logging.info('Debug: pyrata.re.search={}'.format(result))
+    result = result.groups()
+    logging.info('Debug: pyrata.re.search.groups={}'.format(result))
+
+    success = False
+    if result == expected:
+      success = True
+      self.testSuccess += 1
+    self.testCounter +=1
+    print (success,'\t', description)
+
+
+
+
+  def test_search_multiple_optionnaly_embedded_quantified_step_or_sequence_group_2(self):
+    description = 'test_search_multiple_optionnaly_embedded_quantified_step_or_sequence_group_2'
+    method = 'search'
+    lexicons = {}
+
 
     pattern = 'raw="It" (raw="is") (( (pos="JJ"* pos="JJ") raw="and" (pos="JJ") )) (raw="to")'
     expected = [[[{'raw': 'It', 'pos': 'PRP'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}], 0, 7], 
@@ -566,7 +809,9 @@ class TestPyrata(object):
     #print ('Debug: type(result.groups)=',type(result.groups()))
     #print ('Debug: result=',result)
     
+    logging.info('Debug: pyrata.re.search={}'.format(result))
     result = result.groups()
+    logging.info('Debug: pyrata.re.search.groups={}'.format(result))
 
     success = False
     if result == expected:
@@ -888,6 +1133,8 @@ class TestPyrata(object):
 
 
 
+
+
   def test_search_alternative_groups_in_data(self):
 
     description = 'test_search_alternative_groups_in_data'
@@ -911,7 +1158,7 @@ class TestPyrata(object):
     #pattern = '(raw="the"|raw="a" raw="cup" raw="of")'  # [None, [ [[None, 'raw="a" ']], [[None, 'raw="the"']] ]]
 
 
-    pattern = '(pos="IN") (raw="a" raw="tea" | raw="a" raw="cup" raw="of" raw="coffee" | raw="an" raw="orange" raw="juice" ) !pos=";"'
+    pattern = '(pos="IN") (raw="a" raw="tea" | raw="a" raw="cup" raw="of" raw="coffee" | raw="an" raw="orange" raw="juice" ) [!pos=";"]'
     group_id = 2
     expected = [[{'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'cup'}, {'pos': 'IN', 'raw': 'of'}, {'pos': 'NN', 'raw': 'coffee'}], 1, 5]
     #self.test(description, method, lexicons, pattern, data, expected)  
@@ -1058,7 +1305,7 @@ class TestPyrata(object):
     lexicons = {}
     pattern = '(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos="."|pos="FAKE")+' # Debug: p[0]=[[[None, 'pos="VB" '], ['?', 'pos="DT"'], ['*', 'pos="JJ"'], [None, 'pos="NN" '], [None, 'pos="."']], [[None, 'pos="FAKE"']]]
 
-    pattern = '(pos="VB" !pos="NN"* raw="Life" pos="."| pos="VB" !pos="NN"* raw="job" pos="."|pos="VB" !pos="NN"* raw="career" pos="."|pos="VB" !pos="NN"* raw="family" pos="."|pos="VB" !pos="NN"* raw="television" pos=".")+' # Debug: p[0]=[[[None, 'pos="VB" '], ['?', 'pos="DT"'], ['*', 'pos="JJ"'], [None, 'pos="NN" '], [None, 'pos="."']], [[None, 'pos="FAKE"']]]
+    pattern = '(pos="VB" [!pos="NN"]* raw="Life" pos="."| pos="VB" [!pos="NN"]* raw="job" pos="."|pos="VB" [!pos="NN"]* raw="career" pos="."|pos="VB" [!pos="NN"]* raw="family" pos="."|pos="VB" [!pos="NN"]* raw="television" pos=".")+' # Debug: p[0]=[[[None, 'pos="VB" '], ['?', 'pos="DT"'], ['*', 'pos="JJ"'], [None, 'pos="NN" '], [None, 'pos="."']], [[None, 'pos="FAKE"']]]
 
 
     # Choose Life. Choose a job. Choose a career. Choose a family. Choose a fucking big television, choose washing machines, cars, compact disc players and electrical tin openers. Choose good health, low cholesterol, and dental insurance. 
@@ -1176,7 +1423,7 @@ class TestPyrata(object):
 
     pattern = '(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos=".")+' # Debug: p[0]=['(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos=".")']
     quantified_group = pyrata.re.search(pattern, data, lexicons=lexicons)
-    pattern = '(pos="VB" !pos="NN"* raw="Life" pos="."| pos="VB" !pos="NN"* raw="job" pos="."|pos="VB" !pos="NN"* raw="career" pos="."|pos="VB" !pos="NN"* raw="family" pos="."|pos="VB" !pos="NN"* raw="television" pos=".")+'
+    pattern = '(pos="VB" [!pos="NN"]* raw="Life" pos="."| pos="VB" [!pos="NN"]* raw="job" pos="."|pos="VB" [!pos="NN"]* raw="career" pos="."|pos="VB" [!pos="NN"]* raw="family" pos="."|pos="VB" [!pos="NN"]* raw="television" pos=".")+'
     quantified_alternatives = pyrata.re.search(pattern, data, lexicons=lexicons)
     
     description = 'test_eq_operator_on_Matches'
@@ -1429,79 +1676,98 @@ class TestPyrata(object):
   def __init__(self):
 
 
-    # self.test_search_step_in_data()
-    # self.test_findall_step_in_data()
-    # self.test_finditer_step_in_data()
+    self.test_search_step_in_data()
+    self.test_findall_step_in_data()
+    self.test_finditer_step_in_data()
 
-    # self.test_search_step_absent_in_data()
-    # self.test_findall_step_absent_in_data()
+    self.test_search_step_absent_in_data()
+    self.test_findall_step_absent_in_data()
 
-    # self.test_search_class_step_in_data()
-    # self.test_search_rich_class_step_in_data()
+    self.test_search_class_step_in_data()
+    self.test_search_rich_class_step_in_data()
 
-    # self.test_findall_regex_step_in_data()
-    # self.test_findall_lexicon_step_in_data()
-    # self.test_findall_undefined_lexicon_step_in_data()
+    self.test_findall_regex_step_in_data()
+    self.test_findall_lexicon_step_in_data()
+    self.test_findall_undefined_lexicon_step_in_data()
 
-    # self.test_findall_multiple_lexicon_step_in_data()
+    self.test_findall_multiple_lexicon_step_in_data()
 
-    # self.test_search_optional_step_in_data()
-    # self.test_findall_optional_step_in_data()
+    self.test_search_optional_step_in_data()
+    self.test_findall_optional_step_in_data()
     
-    # self.test_findall_step_step_in_data()
+    self.test_findall_step_step_in_data()
 
-    # self.test_findall_optional_step_step_in_data()
-    # self.test_findall_any_step_step_in_data()
-    # self.test_findall_at_least_one_step_step_in_data()
+    self.test_findall_optional_step_step_in_data()
+    self.test_findall_any_step_step_in_data()
+    self.test_findall_at_least_one_step_step_in_data()
 
-    # self.test_findall_any_step_step_nbar_in_data()
-    # self.test_findall_at_least_one_step_step_nbar_in_data()
+    self.test_findall_any_step_step_nbar_in_data()
+    self.test_findall_at_least_one_step_step_nbar_in_data()
 
-    # self.test_findall_step_step_partially_matched_in_data_ending()
-    # self.test_findall_optional_step_step_partially_matched_in_data_ending()
-    # self.test_findall_any_step_step_partially_matched_in_data_ending()
-    # self.test_findall_at_least_one_step_step_partially_matched_in_data_ending()
+    self.test_findall_step_step_partially_matched_in_data_ending()
+    self.test_findall_optional_step_step_partially_matched_in_data_ending()
+    self.test_findall_any_step_step_partially_matched_in_data_ending()
+    self.test_findall_at_least_one_step_step_partially_matched_in_data_ending()
 
-    # self.test_findall_step_at_least_one_not_step_step_in_data()
-    # self.test_findall_step_present_optional_step_step_in_data()
-    # self.test_findall_step_absent_optional_step_step_in_data()
+    self.test_findall_step_at_least_one_not_step_step_in_data()
+    self.test_findall_step_present_optional_step_step_in_data()
+    self.test_findall_step_absent_optional_step_step_in_data()
 
-    # self.test_findall_step_optional_step_in_data()
-    # self.test_findall_step_any_step_in_data()
-    # self.test_findall_step_optinal_step_optional_step_step_in_data()
+    self.test_findall_step_optional_step_in_data()
+    self.test_findall_step_any_step_in_data()
+    self.test_findall_step_optinal_step_optional_step_step_in_data()
 
-    # self.test_findall_step_any_not_step1_step1_in_data()
+    self.test_findall_step_any_not_step1_step1_in_data()
 
-    # self.test_pattern_starting_with_the_first_token_of_data_present_as_expected_in_data()
-    # self.test_pattern_ending_with_the_last_token_of_data_present_as_expected_in_data()
-    # self.test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_present_as_expected_in_data()
-    # self.test_pattern_starting_with_the_first_token_of_data_not_present_as_expected_in_data()
-    # self.test_pattern_ending_with_the_last_token_of_data_not_present_as_expected_in_data()
-    # self.test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_not_present_as_expected_in_data()
-
-
-    # self.test_search_groups_in_data()
-
-    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_in_data()
-    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_not_in_data()
-    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_pattern_sequence_to_annotation_step_in_data()
-    # self.test_annotate_default_action_sub_group_one_default_iob_annotation_dict_pattern_in_data()
-    # self.test_annotate_default_action_sub_default_group_default_iob_annotation_empty_in_data()
+    self.test_pattern_starting_with_the_first_token_of_data_present_as_expected_in_data()
+    self.test_pattern_ending_with_the_last_token_of_data_present_as_expected_in_data()
+    self.test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_present_as_expected_in_data()
+    self.test_pattern_starting_with_the_first_token_of_data_not_present_as_expected_in_data()
+    self.test_pattern_ending_with_the_last_token_of_data_not_present_as_expected_in_data()
+    self.test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_not_present_as_expected_in_data()
 
 
-    # self.test_annotate_default_action_update_default_group_default_iob_annotation_dict_pattern_in_data()
-    # self.test_annotate_default_action_extend_default_group_default_iob_annotation_dict_pattern_in_data()
-    # self.test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data()
-    # self.test_annotate_default_action_extend_default_group_iob_True_annotation_sequence_by_one_dict_in_data()
+    self.test_search_no_group_marked()
+    self.test_search_group_zero_marked()
 
-    # self.test_search_groups_wi_matched_quantifiers_in_data()
+    self.test_search_emdedded_group_zero_marked()
+    self.test_search_step_group_inside_a_sequence()
+    self.test_search_multiple_optionnaly_embedded_step_group_inside_a_sequence()
+    self.test_search_class_as_group_zero()
+    self.test_search_sequence_as_group_zero()
+    self.test_search_sequence_of_step_groups()
+    self.test_search_sequence_group_wi_step_group()
+    logging.info('test_search_sequence_step_alternative')
 
-    # self.test_search_alternative_groups_in_data()
-    # self.test_search_alternatives_groups_wi_matched_quantifiers_in_data()
+    self.test_search_sequence_step_alternative()
+    self.test_search_sequence_sequence_alternative()
+    self.test_search_sequence_sequence_sequence_alternative()
+    self.test_search_multiple_optionnaly_embedded_quantified_step_or_sequence_group()
+    self.test_search_multiple_optionnaly_embedded_quantified_step_or_sequence_group_2()
 
-    # self.test_eq_ne_len_operators_on_Matches_and_MatchesList()
 
-    self.test_simple_clause_timit()
+    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_in_data()
+    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_not_in_data()
+    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_pattern_sequence_to_annotation_step_in_data()
+    self.test_annotate_default_action_sub_group_one_default_iob_annotation_dict_pattern_in_data()
+    self.test_annotate_default_action_sub_default_group_default_iob_annotation_empty_in_data()
+
+
+    self.test_annotate_default_action_update_default_group_default_iob_annotation_dict_pattern_in_data()
+    self.test_annotate_default_action_extend_default_group_default_iob_annotation_dict_pattern_in_data()
+    self.test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data()
+    self.test_annotate_default_action_extend_default_group_iob_True_annotation_sequence_by_one_dict_in_data()
+
+    self.test_search_groups_wi_matched_quantifiers_in_data()
+
+    self.test_search_alternative_groups_in_data()
+    self.test_search_alternatives_groups_wi_matched_quantifiers_in_data()
+
+    self.test_eq_ne_len_operators_on_Matches_and_MatchesList()
+
+
+
+    #self.test_simple_clause_timit()
 
     #self.test_clause()
 
@@ -1516,10 +1782,11 @@ class TestPyrata(object):
 if __name__ == '__main__':
 
 
-
-  #logging.basicConfig(format='%(levelname)s:\t%(message)s', filename='test_pyrata.py.log', level=logging.DEBUG)
-  logging.basicConfig(format='%(levelname)s:\t%(message)s', filename='test_pyrata.py.log', level=logging.INFO)
-
+  logging.basicConfig(format='%(levelname)s:\t%(message)s', filename='test_pyrata.py.log', level=logging.DEBUG)
+  #logging.basicConfig(format='%(levelname)s:\t%(message)s', filename='test_pyrata.py.log', level=logging.INFO)
+  logger = logging.getLogger()
+  logger.disabled = True
+  
   tests = TestPyrata()
   
   accuracy=tests.testSuccess/float(tests.testCounter)

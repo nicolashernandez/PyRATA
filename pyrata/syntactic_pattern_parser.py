@@ -9,7 +9,9 @@ import logging
 # logging.debug() for very detailed output for diagnostic purposes
 # logging.warning() Issue a warning regarding a particular runtime event
 
-from re import compile
+#import re 
+from re import compile 
+
 from pprint import pprint, pformat
 import ply.yacc as yacc
 from sympy import *
@@ -121,14 +123,10 @@ class SyntacticPatternParser(object):
     logging.info('\treturn p[0]={}'.format(p[0]))
 
     logging.info ('# ----------------------------------')
-    logging.info ('# Syntactic structure parsed tree:')
-    logging.info('%s',pformat(p.lexer.pattern_steps))
+    logging.info ('# Syntactic structure parsed tree (pattern_steps): %s',pformat(p.lexer.pattern_steps))
     logging.info ('# Must start the data=\t%s',p.lexer.pattern_must_match_data_start)
     logging.info ('# Must end the data=\t%s',p.lexer.pattern_must_match_data_end)
     logging.info ('# Group_pattern_offsets_group_list=%s',p.lexer.group_pattern_offsets_group_list)
-    logging.info ('# single_constraint_list_list=%s',p.lexer.single_constraint_list_list)
-    logging.info ('# step_list=%s',p.lexer.step_list)
-
     logging.info ('# ----------------------------------')
   
 
@@ -141,8 +139,8 @@ class SyntacticPatternParser(object):
       log(p, '(quantified_step_group_list->quantified_step_group)')
     elif len(p) == 3:
       log(p, '(quantified_step_group_list->quantified_step_group_list quantified_step_group)')
-      logging.debug ('p[1] =', p[1])
-      logging.debug ('p[2] =', p[2])
+      logging.debug ('p[1] =%s',pformat(p[1]))
+      logging.debug ('p[2] =%s',pformat(p[2]))
 
       if not(isinstance (p[1][0], list)):      # 2nd part of a steps sequence 
         logging.debug ('2nd part of a steps sequence ')
@@ -178,8 +176,23 @@ class SyntacticPatternParser(object):
     elif p[2] == '?':  
       p[0] = ['?', p[1]]
     else:
+      True
       logging.warning ('syntactic_pattern_parser - p_quantified_step_group - should not be here p[2]=%s',p[2])
+
+    # extend the patten step structures with for each elementary step its list of variables, its list of variable names, and the symbolic expression,
+    if not isinstance (p[1], list): 
+    # we are dealing with a step 
+      p[0].append(p.lexer.single_constraint_variable_list)
+      p[0].append(p.lexer.single_constraint_tuple_list)
+      p[0].append(p.lexer.single_constraint_symbol_list) 
+      p[0].append(p.lexer.symbolic_step_expression[0])
+      p.lexer.single_constraint_symbol_list = []    
+      p.lexer.single_constraint_tuple_list = []
+      p.lexer.single_constraint_variable_list = []   
+      p.lexer.symbolic_step_expression = []
     
+#    logging.info ('\tpattern_steps={} append pattern_steps = {}'.format(p.lexer.pattern_steps, p[0]))
+
     logging.info ('\tappend pattern_steps = {}'.format(p[0]))       
     p.lexer.pattern_steps.append(p[0])
 
@@ -189,20 +202,22 @@ class SyntacticPatternParser(object):
 # _______________________________________________________________
   def p_step_group(self,p):
     '''step_group : step
-                  | NOT step_group
                   | LPAREN step_group_class RPAREN'''
-
+#                   | NOT step_group
     # get the start and the end of the part of the pattern recognized by the current rule 
     step_start, step_end = get_current_pattern_step_offsets(p) 
 
     p[0] = get_current_pattern_step(p, step_start, step_end)
 
+    #logging.info ('DEBUG p[0]:{}'.format(p[0]))
+
     if len(p) == 2: 
       log(p, '(step_group->step)')
       logging.info ('step sympy expression:{}'.format(p[1]))
 
-    elif len(p) == 3: 
-      log(p, '(step_group->NOT step_group)') 
+ 
+ #   elif len(p) == 3: 
+ #     log(p, '(step_group->NOT step_group)') 
 
     elif len(p) == 4:
       log(p, '(step_group->LPAREN step_group_class RPAREN)')
@@ -213,6 +228,7 @@ class SyntacticPatternParser(object):
         logging.debug ('dealing with alternatives') 
         p[0] = p[2]
       else:
+        True
         logging.debug ('not dealing with alternatives p[1][0][0]=%s', p[2][0][0])
 
     logging.info('\treturn p[0]={}'.format(p[0]))
@@ -230,7 +246,7 @@ class SyntacticPatternParser(object):
       else:
         p[0]=p[1]
 
-      logging.debug ('len(p[0])=', len(p[0]))
+      logging.debug ('len(p[0])={}'.format(p[0]))
       logging.info ('\tpop pattern_steps=%s',p.lexer.pattern_steps[len(p.lexer.pattern_steps)-len(p[0]):len(p.lexer.pattern_steps)])
       del (p.lexer.pattern_steps[len(p.lexer.pattern_steps)-len(p[0]):len(p.lexer.pattern_steps)])
 
@@ -275,16 +291,8 @@ class SyntacticPatternParser(object):
       log(p, '(step->LBRACKET constraint_class RBRACKET)')
     logging.info ('step sympy expression:{}'.format(p[0]))
 
-    # store what will be used for semantic evaluation
-    p.lexer.single_constraint_list_list.append(p.lexer.single_constraint_list)        # each pattern_step has a list of single_constraint 
 
-    p.lexer.single_constraint_symbol_list_list.append(p.lexer.single_constraint_symbol_list)
-
-
-    p.lexer.single_constraint_list = []
-    p.lexer.single_constraint_symbol_list = []    
-    
-    p.lexer.step_list.append(p[0])
+    p.lexer.symbolic_step_expression.append(p[0])
 
 # _______________________________________________________________
   def p_constraint_class(self,p):
@@ -341,24 +349,26 @@ class SyntacticPatternParser(object):
     #operator = p[2]
     #attValue = p[3][1:-1]
 
-    # add single constraint string and tuple to lists in the lexer 
+    # add to the temporary list of single constraint string
+    single_constraint_string = ''.join([p[1],p[2],p[3]])
+    p.lexer.single_constraint_symbol_list.append(single_constraint_string)
+
+    # add single contraint tuple to lists in the lexer 
     c = {}
     c['name'] = p[1]
     c['operator'] = p[2]
     c['value'] = p[3][1:-1]
-    p.lexer.single_constraint_symbol_list.append(''.join([c['name'], c['operator'], '"', c['value'], '"']))
     if c['operator'] == '~': 
+      #c['value'] = re.compile(c['value'])
       c['value'] = compile(c['value'])
-    p.lexer.single_constraint_list.append(c)
-
+    p.lexer.single_constraint_tuple_list.append(c)
 
     # build a variable and a name
-    single_constraint = ''.join([p[1],p[2],p[3]]).replace(' ','\\ ')
-    indice = str(len(p.lexer.single_constraint_list)-1)
+    indice = str(len(p.lexer.single_constraint_tuple_list)-1)
     var = {} 
-    var[indice] =  symbols(single_constraint)
-    logging.info ('var[{}]:{}'.format(indice,var[indice]))
+    var[indice] =  symbols(single_constraint_string.replace(' ','\\ '))
     p[0] = var[indice]
+    p.lexer.single_constraint_variable_list.append(var[indice])
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

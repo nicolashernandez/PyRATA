@@ -78,7 +78,7 @@ Of course, as any python module you can barely copy the pyrata sub dir in your p
 Requirement
 ------------------------
 
-PyRATA use the `PLY <http://www.dabeaz.com/ply/ply.html>`_ implementation of lex and yacc parsing tools for Python (version 3.10).
+PyRATA use the `PLY <http://www.dabeaz.com/ply/ply.html>`_ implementation of lex and yacc parsing tools for Python (version 3.10). It also uses the `sympy <http://www.sympy.org/fr>`_ library for symbolic evaluation of logical expression.
 
 You do not need to care about this stage if you performed the pip3 install procedure above.
 
@@ -86,13 +86,13 @@ If you do not properly install pyrata, you will have to manually install ply (or
 ::
 
     sudo pip3 install ply
-
+    sudo pip3 install sympy
 
 Run tests (optional)
 ------------------------
 
 ::
-    python3 test_pyrata.py
+    python3 do_tests.py
 
 The test named ``test_search_any_class_step_error_step_in_data`` may fail. It is due to a ``syntactic parsing error - unexpected token type="NAME" with value="pos" at position 35. Search an error before this point.`` So far the process of a pattern is not stopped when it encounters a parsing error, we would like to prevent this behavior (expected result). So the current obtained result differs from the one expected, and consequently gives a fail.
 

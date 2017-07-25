@@ -1,2 +1,3 @@
-include README.rst CHANGES.md LICENSE test_pyrata.py
+include README.rst CHANGES.md LICENSE do_tests.py do_benchmark.py
 recursive-include docs user-guide.rst
+recursive-include more code-optimize.sh code-restore.sh measure_pattern_time_v1.py
