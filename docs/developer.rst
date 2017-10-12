@@ -32,11 +32,16 @@ github repository update
 -------------------
 
 :: 
-    git commit -am # ''
+    git commit -a # m ''
     git push
 
 github branch merging and suppression
 --------------------
+
+pousser une branche local
+:: 
+  git push <remote> <local branch name>:<remote branch to push into>
+  git push origin develop:master
 
 connaitre les branches dans votre repo
 ::
