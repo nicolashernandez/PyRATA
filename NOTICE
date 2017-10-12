@@ -1,0 +1,11 @@
+
+This product uses ply module, which is available under a "3-clause BSD" license.  
+For details, see http://www.dabeaz.com/ply
+
+This product uses sympy module, which is available under a "3-clause BSD" license.  
+For details, see http://www.sympy.org/fr
+
+This product derives some code from the Gui Guan's implementation of the Thompson's algorithm. 
+The original implementation of Gui Guan can be found here "A Beautiful Linear Time Python Regex Matcher via NFA", August 19, 2014 https://www.guiguan.net/a-beautiful-linear-time-python-regex-matcher-via-nfa
+The algorithm is described in Thompson, K. (1968). Programming techniques: Regular expression search algorithm. Commun. ACM, 11(6):419–422, June.
+Gui Guan first wrote this code mainly for educational purpose. Everyone was free to modify it in any way. Eventually he released it under the MIT License.

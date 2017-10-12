@@ -5,13 +5,13 @@ from setuptools import setup
 
 # https://packaging.python.org/distributing/
 setup(name='PyRATA',
-  version='0.3.3',
+  version='0.4.1',
   description='Python Rule-based feAture sTructure Analysis',
   author='Nicolas Hernandez',
   author_email='nicolas.hernandez@gmail.com',
   url='https://github.com/nicolashernandez/PyRATA',
-  license='MIT',
-  keywords='NLP rule-based text mining',
+  license='Apache 2.0',
+  keywords='NLP rule-based text mining machine learning natural language processing',
   install_requires=['ply','sympy'],
   packages=['pyrata'],
 )

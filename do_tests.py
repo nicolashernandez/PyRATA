@@ -1,150 +1,132 @@
-# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-# Nicolas Hernandez 2017
-# 
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# PyRATA
+#
+# Authors: 
+#         Nicolas Hernandez <nicolas.hernandez@gmail.com>
+# URL: 
+#         https://github.com/nicolashernandez/PyRATA/
+#
+#
+# Copyright 2017 Nicolas Hernandez
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License. 
+#
 #
 # SET in __main__, the logging level
 # 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 import logging
 import pyrata.re
-import pyrata.semantic_pattern_parser
+import pyrata.match
+import pyrata.state
 
+import unittest
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-class TestPyrata(object):
 
-  testCounter = 0
-  testSuccess = 0
-
-
-# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-# Main test method
-# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-  def test (self, description = '', method = '', lexicons = {}, pattern = '', data = [], expected = [],  
-    action = '', annotation= {}, group = [0], iob = False, **kwargs):
-    ''' 
-    general method for testing 
-    '''
-
-    #print ('================================================')
-#      print ('________________________________________________')
-#      print ('------------------------------------------------')
-#      print ('_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _')
-#      print ('- -  - - - - - - - - - - - - - - - - - - - - - -')
+class PyrataReTest(unittest.TestCase):
+  """Test cases used for testing methods of the 're' module."""
 
 
+  # # ----------------------------------------------------------------------
+  # def test_findall_pattern_wi_syntax_error_in_it(self):
+  #   """Test findall pattern with syntax error in it"""
+  #   pattern = '[pos~"NN.*" | pos="JJ"]* blabla pos~"NN.*"'
+  #   data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+  #   expected = None
+  #   result = pyrata.re.findall(pattern, data)
+  #   self.assertEqual(result, expected)  
 
-    if method == 'search':
-      result = pyrata.re.search(pattern, data, lexicons=lexicons)
-      if result != None:
-        result = result.group()
-    elif method == 'findall':
-      result = pyrata.re.findall(pattern, data, lexicons=lexicons)
-    elif method == 'finditer':
-      result = pyrata.re.finditer(pattern, data, lexicons=lexicons) 
-    elif method == 'annotate':
-      result = pyrata.re.annotate (pattern, annotation, data, group, action, iob, **kwargs)
-
-    else:
-      raise Exception('wrong method to test')
-    #print('Result:',l.lexer.finalresult,'; start:',l.lexer.groupstartindex,'; end:',l.lexer.groupendindex)
-    #if debug:
-
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
-
-    # if verbosity >0:
-    #   print ('Method:\t', method) 
-    #   if action != '': print ('Action:\t', action) 
-    #   if lexicons != {}: print ('Lexicons:\t', lexicons)       
-    #   print ('Pattern:\t', pattern)
-    #   if group != [0]:       print ('Group:\t', group)
-    #   if annotation != {}:       print ('Annotation:\t', annotation)
-    #   print ('Data:\t\t', data)
-    #   print ('Expected:\t', expected)
-    #   print ('Recognized:\t', result) 
-    # if result == expected:
-    #   if verbosity >0:
-    #     print ('Result:\tSUCCESS')
-    # else:
-    #   if verbosity >0:
-    #     print ('Result:\tFAIL') 
-    #     #exit()
-
-    # if verbosity >0:
-    #   print ()
-    
-  # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-  # Test cases definitions
-  # by default (if not specified) 
-  # * a step is an atomic constraint wi eq operator
-  # * the pattern is at least present once
-  # * data is made of one or several elements
-  # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-
-  def test_search_step_in_data(self):
-    description = 'test_search_step_in_data'
-    method = 'search'
-    lexicons = {}
+  # ----------------------------------------------------------------------
+  def test_search_step(self):
+    """Test search method with a simple step pattern. The pattern fires at some points."""
     pattern = 'pos="JJ"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [{'pos': 'JJ', 'raw': 'fast'}]
-    self.test(description, method, lexicons, pattern, data, expected)
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.group(),expected)
 
-  def test_findall_step_in_data(self):
-    description = 'test_findall_step_in_data'
-    method = 'findall'
-    lexicons = {}
+  # ----------------------------------------------------------------------
+  def test_search_step_only_present_at_the_data_start(self):
+    """Test search method with a simple step pattern. The pattern fires at the data start."""
+    pattern = 'foo="bar"'
+    data = [{'pos': 'PRP', 'raw': 'It', 'foo':'bar'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [{'pos': 'PRP', 'raw': 'It', 'foo':'bar'}]
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.group(),expected)
+
+  # ----------------------------------------------------------------------
+  def test_search_step_only_present_at_the_data_end(self):
+    """Test search method with a simple step pattern. The pattern fires at the data end."""
+    pattern = 'foo="bar"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata', 'foo':'bar'}]
+    expected = [{'pos': 'NNP', 'raw': 'Pyrata', 'foo':'bar'}]
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.group(),expected)    
+
+  # ----------------------------------------------------------------------
+  def test_search_step_absent_from_data(self):
+    """Test search method with a simple step pattern. The pattern is not present in the data."""
+    pattern = 'foo="bar"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result, expected)
+
+  # ----------------------------------------------------------------------
+  def test_findall_step(self):
+    """Test findall method with a simple step pattern. The pattern fires several times in the data."""
     pattern = 'pos="JJ"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[{'pos': 'JJ', 'raw': 'fast'}], [{'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}], [{'pos': 'JJ', 'raw': 'regular'}]]
-    self.test(description, method, lexicons, pattern, data, expected)
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected)
 
-  def test_finditer_step_in_data(self):
-    description = 'test_finditer_step_in_data'
-    method = 'finditer'
-    lexicons = {}
+  # ----------------------------------------------------------------------
+  #def (self):
+  # TODO findall with pattern at various position start middle and end
+
+  # ----------------------------------------------------------------------
+  def test_findall_step_absent_from_data(self):
+    """Test findall method with a simple step pattern. The pattern is not present in the data."""
+    pattern = 'foo="bar"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result, expected)
+
+  # ----------------------------------------------------------------------
+  def test_finditer_step(self):
+    """Test finditer method with a simple step pattern. The pattern matches several times the data."""
     pattern = 'pos="JJ"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
-    matcheslist = pyrata.semantic_pattern_parser.MatchesList()  
-    matcheslist.append(pyrata.semantic_pattern_parser.Match (start=2, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}]))
-    matcheslist.append(pyrata.semantic_pattern_parser.Match (start=3, end=4, value=[{'pos': 'JJ', 'raw': 'easy'}]))
-    matcheslist.append(pyrata.semantic_pattern_parser.Match (start=5, end=6, value=[{'pos': 'JJ', 'raw': 'funny'}]))
-    matcheslist.append(pyrata.semantic_pattern_parser.Match (start=8, end=9, value=[{'pos': 'JJ', 'raw': 'regular'}]))
+    matcheslist = pyrata.match.MatchesList()  
+    matcheslist.append(pyrata.match.Match (start=2, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}]))
+    matcheslist.append(pyrata.match.Match (start=3, end=4, value=[{'pos': 'JJ', 'raw': 'easy'}]))
+    matcheslist.append(pyrata.match.Match (start=5, end=6, value=[{'pos': 'JJ', 'raw': 'funny'}]))
+    matcheslist.append(pyrata.match.Match (start=8, end=9, value=[{'pos': 'JJ', 'raw': 'regular'}]))
     expected = matcheslist
-    self.test(description, method, lexicons, pattern, data, expected)
+    result = pyrata.re.finditer(pattern, data)
+    self.assertEqual(result, expected)
 
-  def test_search_step_absent_in_data(self):
-    description = 'test_search_step_absent_in_data'
-    method = 'search'
-    lexicons = {}
-    pattern = 'foo="bar"'
-    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
-    expected = None
-    self.test(description, method, lexicons, pattern, data, expected)
-
-  def test_findall_step_absent_in_data(self):
-    description = 'test_findall_step_absent_in_data'
-    method = 'findall'
-    lexicons = {}
-    pattern = 'foo="bar"'
-    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
-    expected = None
-    self.test(description, method, lexicons, pattern, data, expected)
-
-  def test_search_class_step_in_data(self):
-    description = 'test_search_class_step_in_data'
-    method = 'search'
-    lexicons = {}
-    pattern = '[pos="VB" | pos="VBZ"]'
+  # ----------------------------------------------------------------------
+  def test_search_class_step(self):
+    """Test search method with a class step pattern. The class is present present in the data."""
+    pattern = '[pos="VBZ"]'
     #data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
     #expected = [ {'raw':'are', 'lem':'be', 'pos':'VB'}]
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, 
@@ -152,258 +134,1010 @@ class TestPyrata(object):
       {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, 
       {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [{'pos': 'VBZ', 'raw': 'is'}]   
-    self.test(description, method, lexicons, pattern, data, expected)
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.group(),expected)    
 
-  def test_search_rich_class_step_in_data(self):
-    description = 'test_search_rich_class_step_in_data'
-    method = 'search'
-    lexicons = {}
+  # ----------------------------------------------------------------------
+  def test_search_complex_class_step_(self):
+    """Test search method with a complex class step pattern. The class is present present in the data."""
     pattern = '[(pos="VB" | pos="VBZ") & !raw="is"]'
-    #data = [{'raw':'The', 'lem':'the', 'pos':'DT'}, {'raw':'big', 'lem':'big', 'pos':'JJ'}, {'raw':'fat', 'lem':'fat', 'pos':'JJ'}, {'raw':'giant', 'lem':'giant', 'pos':'JJ'}, {'raw':'cars', 'lem':'car', 'pos':'NN'}, {'raw':'are', 'lem':'be', 'pos':'VB'}, {'raw':'amazing', 'lem':'amaze', 'pos':'JJ'}]     
-    #expected = [ {'raw':'are', 'lem':'be', 'pos':'VB'}]
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, 
       {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, 
       {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, 
       {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
-    expected = [{'pos': 'VBZ', 'raw': 'is'}]   
+    expected = [{'pos': 'VB', 'raw': 'write'}]   
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.group(),expected)    
 
-  def test_findall_regex_step_in_data(self):
-    description = 'test_findall_regex_step_in_data'
-    method = 'findall'
-    lexicons = {}
+
+  # ----------------------------------------------------------------------
+  def test_findall_regex_step(self):
+    """Test findall method with a regex step pattern. The pattern is present in the data."""
+
     pattern = 'pos~"NN.*"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[{'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'NNP', 'raw': 'Pyrata'}]]
-    self.test(description, method, lexicons, pattern, data, expected)
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected) 
 
-  def test_findall_lexicon_step_in_data(self):
-    description = 'test_findall_lexicon_step_in_data'
-    method = 'findall'
+  # ----------------------------------------------------------------------
+  def test_findall_lexicon_step(self):
+    """Test findall method with a step pattern declaring a lexicon constraint. The pattern is present in the data."""
     lexicons = {'positiveLexicon':['easy', 'funny']}
     pattern = 'raw@"positiveLexicon"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[ {'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}]]
-    self.test(description, method, lexicons, pattern, data, expected)   
+    result = pyrata.re.findall(pattern, data, lexicons=lexicons)
+    self.assertEqual(result, expected) 
 
-  def test_findall_undefined_lexicon_step_in_data(self):
-    description = 'test_findall_undefined_lexicon_step_in_data'
-    method = 'findall'
-    lexicons = {}
+  # ----------------------------------------------------------------------
+  def test_findall_undefined_lexicon_step(self):
+    """Test findall method with a step pattern declaring a lexicon constraint but no lexicons. The pattern is present in the data."""
     pattern = 'raw@"positiveLexicon"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = None
-    self.test(description, method, lexicons, pattern, data, expected)      
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected) 
 
-  def test_findall_multiple_lexicon_step_in_data(self):
-    description = 'test_findall_multiple_lexicon_step_in_data'
-    method = 'findall'
+  # ----------------------------------------------------------------------
+  def test_findall_multiple_lexicon_step(self):
+    """Test findall method with a step pattern declaring multiple lexicon constraints with multiple lexicons. The pattern is present in the data."""
     lexicons = {'positiveLexicon':['easy', 'funny'], 'negativeLexicon':['fast', 'regular']}
     pattern = '[raw@"positiveLexicon" | raw@"negativeLexicon"]'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[ {'pos': 'JJ', 'raw': 'fast'}], [ {'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}],[ {'pos': 'JJ', 'raw': 'regular'}]]
-    self.test(description, method, lexicons, pattern, data, expected)  
+    result = pyrata.re.findall(pattern, data, lexicons=lexicons)
+    self.assertEqual(result, expected) 
 
+  # ----------------------------------------------------------------------
+  def test_findall_wildcard_step(self):
+    """Test findall method with a step pattern declaring a lexicon constraint but no lexicons. The pattern is present in the data."""
+    pattern = '.'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [[{'pos': 'PRP', 'raw': 'It'}], [{'pos': 'VBZ', 'raw': 'is'}], [{'pos': 'JJ', 'raw': 'fast'}], [{'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'CC', 'raw': 'and'}], [{'pos': 'JJ', 'raw': 'funny'}], [{'pos': 'TO', 'raw': 'to'}], [{'pos': 'VB', 'raw': 'write'}], [{'pos': 'JJ', 'raw': 'regular'}], [{'pos': 'NNS', 'raw': 'expressions'}], [{'pos': 'IN', 'raw': 'with'}],[{'pos': 'NNP', 'raw': 'Pyrata'}]]
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected) 
 
-  def test_search_optional_step_in_data(self):
+  # ----------------------------------------------------------------------
+  def test_search_optional_step(self):
+    """Test search method with an optional step pattern. The pattern is present in the data."""
     # echo 1 | perl -ne '$s = "abcbdb"; if ($s =~ /b?/) {print "matched>$1<\n";} else {print "unmatched\n"}'
     # echo 1 | perl -ne '$s = "abcbdb"; if ($s =~ /e?/) {print "matched>$1<\n";} else {print "unmatched\n"}'
     # both return matche but wo any character
-    description = 'test_search_optional_step_in_data'
-    method = 'search'
-    lexicons = {}
     pattern = 'pos="JJ"?'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [{'raw': 'fast', 'pos': 'JJ'}]
-    self.test(description, method, lexicons, pattern, data, expected)
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.group(),expected) 
 
-  def test_findall_optional_step_in_data(self):
+  # ----------------------------------------------------------------------
+  def test_findall_optional_step(self):
+    """Test findall method with an optional step pattern. The pattern is present in the data."""
     # echo 1 | perl -ne '$s = "abcbdb"; if ($s =~ /b?/) {print "matched>$1<\n";} else {print "unmatched\n"}'
     # echo 1 | perl -ne '$s = "abcbdb"; if ($s =~ /e?/) {print "matched>$1<\n";} else {print "unmatched\n"}'
     # both return matche but wo any character
-    description = 'test_findall_optional_step_in_data'
-    method = 'findall'
-    lexicons = {}
     pattern = 'pos="JJ"?'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[{'pos': 'JJ', 'raw': 'fast'}], [{'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}], [{'pos': 'JJ', 'raw': 'regular'}]]
-    self.test(description, method, lexicons, pattern, data, expected)
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected) 
 
-  def test_findall_step_step_in_data(self):
-    description = 'test_findall_step_step_in_data'
-    method = 'findall'
-    lexicons = {}
+  # ----------------------------------------------------------------------
+  def test_findall_sequence(self):
+    """Test findall method with a step sequence pattern. The pattern is present in the data."""
     pattern = 'pos="JJ" pos="NNS"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[ {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}]]
-    self.test(description, method, lexicons, pattern, data, expected)
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected) 
 
-  def test_findall_optional_step_step_in_data(self):
-    description = 'test_findall_optional_step_step_in_data'
-    method = 'findall'
-    lexicons = {}
+  # ----------------------------------------------------------------------
+  def test_findall_sequence_wi_wildcard(self):
+    """Test findall method with a step sequence pattern. The pattern is present in the data."""
+    pattern = '. pos="NNS"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [[ {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}]]
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected) 
+
+
+# --------------------------------------------------------------------------------------
+# aa in caaaab greedy/reluctant search/findall/finditer (i.e. any_quantifier at_the_beginning)  
+# --------------------------------------------------------------------------------------
+
+  # ----------------------------------------------------------------------
+  def test_greedy_search_aa_in_caaaad(self):
+    """Test greedy search aa_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}]" --method search --mode greedy
+    pattern = 'pos="JJ" pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected =  pyrata.match.Match (start=1, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'} ])
+    result = pyrata.re.search(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_search_aa_in_caaaad(self):
+    """Test reluctant search aa_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method search --mode reluctant
+    pattern = 'pos="JJ" pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected =  pyrata.match.Match (start=1, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}])
+    result = pyrata.re.search(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)    
+
+  # ----------------------------------------------------------------------
+  def test_greedy_findall_aa_in_caaaad(self):
+    """Test greedy findall aa_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'},{'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method findall --mode greedy
+    pattern = 'pos="JJ" pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected = [[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_findall_aa_in_caaaad(self):
+    """Test reluctant findall aa_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]" --method findall --mode reluctant
+    pattern = 'pos="JJ" pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected =  [[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'reluctant')
+    #print ('\ntest_reluctant_findall_wi_any_quantifier_at_the_beginning={}'.format(result))
+    self.assertEqual(result, expected)    
+
+  # ----------------------------------------------------------------------
+  def test_greedy_finditer_aa_in_caaaad(self):
+    """Test greedy finditer aa_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'},{'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method finditer --mode greedy
+    pattern = 'pos="JJ" pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected = pyrata.match.MatchesList()  
+    expected.append(pyrata.match.Match (start=1, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'} ]))
+    expected.append(pyrata.match.Match (start=3, end=5, value=[{'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'} ]))
+    result = pyrata.re.finditer(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_finditer_aa_in_caaaad(self):
+    """Test reluctant finditer aa_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]" --method finditer --mode reluctant
+    pattern = 'pos="JJ" pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected = pyrata.match.MatchesList()  
+    expected.append(pyrata.match.Match (start=1, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'} ]))
+    expected.append(pyrata.match.Match (start=3, end=5, value=[{'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'} ]))
+    result = pyrata.re.finditer(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)   
+
+
+
+# --------------------------------------------------------------------------------------
+# dot_a_in_caaaab greedy/reluctant search/findall/finditer (i.e. any_quantifier at_the_beginning)  
+# --------------------------------------------------------------------------------------
+
+  # ----------------------------------------------------------------------
+  def test_greedy_search_dot_a_in_caaaad(self):
+    """Test greedy search dot_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  '. pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}]" --method search --mode greedy
+    pattern = '. pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected =  pyrata.match.Match (start=0, end=2, value=[{'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'} ])
+    result = pyrata.re.search(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_search_dot_a_in_caaaad(self):
+    """Test reluctant search dot_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  '. pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method search --mode reluctant
+    pattern = '. pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected =  pyrata.match.Match (start=0, end=2, value=[{'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}])
+    result = pyrata.re.search(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)    
+
+  # ----------------------------------------------------------------------
+  def test_greedy_findall_dot_a_in_caaaad(self):
+    """Test greedy findall dot_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  '. pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'},{'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method findall --mode greedy
+    pattern = '. pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected = [[{'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}], [{'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_findall_dot_a_in_caaaad(self):
+    """Test reluctant findall dot_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  '. pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]" --method findall --mode reluctant
+    pattern = '. pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected = [[{'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}], [{'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'reluctant')
+    #print ('\ntest_reluctant_findall_wi_any_quantifier_at_the_beginning={}'.format(result))
+    self.assertEqual(result, expected)    
+
+  # ----------------------------------------------------------------------
+  def test_greedy_finditer_dot_a_in_caaaad(self):
+    """Test greedy finditer dot_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  '. pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'},{'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method finditer --mode greedy
+    pattern = '. pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected = pyrata.match.MatchesList()  
+    expected.append(pyrata.match.Match (start=0, end=2, value=[{'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}]))
+    expected.append(pyrata.match.Match (start=2, end=4, value=[{'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'} ]))
+    result = pyrata.re.finditer(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_finditer_dot_a_in_caaaad(self):
+    """Test reluctant finditer dot_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  '. pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]" --method finditer --mode reluctant
+    pattern = '. pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected = pyrata.match.MatchesList()  
+    expected.append(pyrata.match.Match (start=0, end=2, value=[{'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}]))
+    expected.append(pyrata.match.Match (start=2, end=4, value=[{'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'} ]))
+    result = pyrata.re.finditer(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)   
+
+
+# --------------------------------------------------------------------------------------
+# a_star_a_in_caaaad greedy/reluctant search/findall/finditer (i.e. any_quantifier at_the_beginning)  
+# --------------------------------------------------------------------------------------
+
+  # ----------------------------------------------------------------------
+  def test_greedy_search_a_star_a_in_caaaad(self):
+    """Test greedy search wi a_star_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ"* pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}]" --method search --mode greedy
+    pattern = 'pos="JJ"* pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected =  pyrata.match.Match (start=1, end=5, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'} ])
+    result = pyrata.re.search(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_search_a_star_a_in_caaaad(self):
+    """Test reluctant search wi a_star_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ"* pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method search --mode reluctant
+    pattern = 'pos="JJ"* pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected =  pyrata.match.Match (start=1, end=2, value=[{'pos': 'JJ', 'raw': 'fast'}])
+    result = pyrata.re.search(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)    
+
+  # ----------------------------------------------------------------------
+  def test_greedy_findall_a_star_a_in_caaaad(self):
+    """Test greedy findall wi a_star_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ"* pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'},{'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method findall --mode greedy
+    pattern = 'pos="JJ"* pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected = [[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_findall_a_star_a_in_caaaad(self):
+    """Test reluctant findall wi a_star_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ"* pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]" --method findall --mode reluctant
+    pattern = 'pos="JJ"* pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected =  [[{'pos': 'JJ', 'raw': 'fast'}], [{'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}], [{'pos': 'JJ', 'raw': 'neat'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'reluctant')
+    #print ('\ntest_reluctant_findall_wi_any_quantifier_at_the_beginning={}'.format(result))
+    self.assertEqual(result, expected)    
+
+  # ----------------------------------------------------------------------
+  def test_greedy_finditer_a_star_a_in_caaaad(self):
+    """Test greedy finditer wi a_star_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ"* pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'},{'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method finditer --mode greedy
+    pattern = 'pos="JJ"* pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected = pyrata.match.MatchesList()  
+    expected.append(pyrata.match.Match (start=1, end=5, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'} ]))
+    result = pyrata.re.finditer(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_finditer_a_star_a_in_caaaad(self):
+    """Test reluctant finditer wi a_star_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ"* pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]" --method finditer --mode reluctant
+    pattern = 'pos="JJ"* pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected = pyrata.match.MatchesList()  
+    expected.append(pyrata.match.Match (start=1, end=2, value=[ {'pos': 'JJ', 'raw': 'fast'} ]))
+    expected.append(pyrata.match.Match (start=2, end=3, value=[ {'pos': 'JJ', 'raw': 'easy'} ]))
+    expected.append(pyrata.match.Match (start=3, end=4, value=[ {'pos': 'JJ', 'raw': 'funny'} ]))
+    expected.append(pyrata.match.Match (start=4, end=5, value=[ {'pos': 'JJ', 'raw': 'neat'} ]))
+    result = pyrata.re.finditer(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)   
+
+
+
+# --------------------------------------------------------------------------------------
+# a_option_a_in_caaaad greedy/reluctant search/findall/finditer (i.e. any_quantifier at_the_beginning)  
+# --------------------------------------------------------------------------------------
+
+  # ----------------------------------------------------------------------
+  def test_greedy_search_a_option_a_in_caaaad(self):
+    """Test greedy search wi a_option_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ"? pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}]" --method search --mode greedy
+    pattern = 'pos="JJ"? pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected =  pyrata.match.Match (start=1, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'} ])
+    result = pyrata.re.search(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_search_a_option_a_in_caaaad(self):
+    """Test reluctant search wi a_option_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ"? pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method search --mode reluctant
+    pattern = 'pos="JJ"? pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected =  pyrata.match.Match (start=1, end=2, value=[{'pos': 'JJ', 'raw': 'fast'}])
+    result = pyrata.re.search(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)    
+
+  # ----------------------------------------------------------------------
+  def test_greedy_findall_a_option_a_in_caaaad(self):
+    """Test greedy findall wi a_option_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ"? pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'},{'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method findall --mode greedy
+    pattern = 'pos="JJ"? pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected = [[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_findall_a_option_a_in_caaaad(self):
+    """Test reluctant findall wi a_option_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ"? pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]" --method findall --mode reluctant
+    pattern = 'pos="JJ"? pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected =  [[{'pos': 'JJ', 'raw': 'fast'}], [{'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}], [{'pos': 'JJ', 'raw': 'neat'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'reluctant')
+    #print ('\ntest_reluctant_findall_wi_any_quantifier_at_the_beginning={}'.format(result))
+    self.assertEqual(result, expected)    
+
+  # ----------------------------------------------------------------------
+  def test_greedy_finditer_a_option_a_in_caaaad(self):
+    """Test greedy finditer wi a_option_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ"? pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'},{'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method finditer --mode greedy
+    pattern = 'pos="JJ"? pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected = pyrata.match.MatchesList()  
+    expected.append(pyrata.match.Match (start=1, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}]))
+    expected.append(pyrata.match.Match (start=3, end=5, value=[{'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'} ]))
+    result = pyrata.re.finditer(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_finditer_a_option_a_in_caaaad(self):
+    """Test reluctant finditer wi a_option_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ"? pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]" --method finditer --mode reluctant
+    pattern = 'pos="JJ"? pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected = pyrata.match.MatchesList()  
+    expected.append(pyrata.match.Match (start=1, end=2, value=[ {'pos': 'JJ', 'raw': 'fast'} ]))
+    expected.append(pyrata.match.Match (start=2, end=3, value=[ {'pos': 'JJ', 'raw': 'easy'} ]))
+    expected.append(pyrata.match.Match (start=3, end=4, value=[ {'pos': 'JJ', 'raw': 'funny'} ]))
+    expected.append(pyrata.match.Match (start=4, end=5, value=[ {'pos': 'JJ', 'raw': 'neat'} ]))
+    result = pyrata.re.finditer(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)   
+
+
+# --------------------------------------------------------------------------------------
+# a_plus_a_in_caaaad greedy/reluctant search/findall/finditer (i.e. any_quantifier at_the_beginning)  
+# --------------------------------------------------------------------------------------
+
+  # ----------------------------------------------------------------------
+  def test_greedy_search_a_plus_a_in_caaaad(self):
+    """Test greedy search wi  a_plus_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ"+ pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}]" --method search --mode greedy
+    pattern = 'pos="JJ"+ pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected =  pyrata.match.Match (start=1, end=5, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'} ])
+    result = pyrata.re.search(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_search_a_plus_a_in_caaaad(self):
+    """Test reluctant search wi a_plus_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ"+ pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method search --mode reluctant
+    pattern = 'pos="JJ"+ pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected =  pyrata.match.Match (start=1, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}])
+    result = pyrata.re.search(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)    
+
+  # ----------------------------------------------------------------------
+  def test_greedy_findall_a_plus_a_in_caaaad(self):
+    """Test greedy findall wi a_plus_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ"+ pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'},{'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method findall --mode greedy
+    pattern = 'pos="JJ"+ pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected = [[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_findall_a_plus_a_in_caaaad(self):
+    """Test reluctant findall wi a_plus_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ"+ pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]" --method findall --mode reluctant
+    pattern = 'pos="JJ"+ pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected =  [[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'reluctant')
+    #print ('\ntest_reluctant_findall_wi_any_quantifier_at_the_beginning={}'.format(result))
+    self.assertEqual(result, expected)    
+
+  # ----------------------------------------------------------------------
+  def test_greedy_finditer_a_plus_a_in_caaaad(self):
+    """Test greedy finditer wi a_plus_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ"+ pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'},{'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method finditer --mode greedy
+    pattern = 'pos="JJ"+ pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected = pyrata.match.MatchesList()  
+    expected.append(pyrata.match.Match (start=1, end=5, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'} ]))
+    result = pyrata.re.finditer(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_finditer_a_plus_a_in_caaaad(self):
+    """Test reluctant finditer wi a_plus_a_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ"+ pos="JJ"' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]" --method finditer --mode reluctant
+    pattern = 'pos="JJ"+ pos="JJ"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected = pyrata.match.MatchesList()  
+    expected.append(pyrata.match.Match (start=1, end=3, value=[ {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}]))
+    expected.append(pyrata.match.Match (start=3, end=5, value=[ {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'} ]))
+    result = pyrata.re.finditer(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)   
+
+
+
+
+# --------------------------------------------------------------------------------------
+# a_dot_in_caaaab greedy/reluctant search/findall/finditer (i.e. any_quantifier at_the_beginning)  
+# --------------------------------------------------------------------------------------
+
+  # ----------------------------------------------------------------------
+  def test_greedy_search_a_dot_in_caaaab(self):
+    """Test greedy search a_dot_in_caaaab. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" .' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}]" --method search --mode greedy
+    pattern = 'pos="JJ" .'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected =  pyrata.match.Match (start=1, end=3, value=[{'pos': 'JJ', 'raw': 'fast'},  {'pos': 'JJ', 'raw': 'easy'} ])
+    result = pyrata.re.search(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_search_a_dot_in_caaaab(self):
+    """Test reluctant search a_dot_in_caaaab. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" .' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method search --mode reluctant
+    pattern = 'pos="JJ" .'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected =  pyrata.match.Match (start=1, end=3, value=[{'pos': 'JJ', 'raw': 'fast'},  {'pos': 'JJ', 'raw': 'easy'} ])
+    result = pyrata.re.search(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)    
+
+  # ----------------------------------------------------------------------
+  def test_greedy_findall_a_dot_in_caaaab(self):
+    """Test greedy findall a_dot_in_caaaab. The pattern is present in the data."""
+    # python3 pyrata_re.py 'pos="JJ" .' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'},{'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method findall --mode greedy
+    pattern = 'pos="JJ" .'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected = [[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_findall_a_dot_in_caaaab(self):
+    """Test reluctant findall a_dot_in_caaaab. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" .' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]" --method findall --mode reluctant
+    pattern = 'pos="JJ" .'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected = [[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'reluctant')
+    #print ('\ntest_reluctant_findall_wi_any_quantifier_at_the_beginning={}'.format(result))
+    self.assertEqual(result, expected)    
+
+  # ----------------------------------------------------------------------
+  def test_greedy_finditer_a_dot_in_caaaab(self):
+    """Test greedy finditer a_dot_in_caaaab. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" .' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'},{'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method finditer --mode greedy
+    pattern = 'pos="JJ" .'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected = pyrata.match.MatchesList()  
+    expected.append(pyrata.match.Match (start=1, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}]))
+    expected.append(pyrata.match.Match (start=3, end=5, value=[{'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'} ]))
+    result = pyrata.re.finditer(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_finditer_a_dot_in_caaaab(self):
+    """Test reluctant finditer a_dot_in_caaaab. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" .' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]" --method finditer --mode reluctant
+    pattern = 'pos="JJ" .'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected = pyrata.match.MatchesList()  
+    expected.append(pyrata.match.Match (start=1, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}]))
+    expected.append(pyrata.match.Match (start=3, end=5, value=[{'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'} ]))
+    result = pyrata.re.finditer(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)   
+
+
+# --------------------------------------------------------------------------------------
+# a_a_star_in_caaaad greedy/reluctant search/findall/finditer (i.e. any_quantifier at_the_beginning)  
+# --------------------------------------------------------------------------------------
+
+  # ----------------------------------------------------------------------
+  def test_greedy_search_a_a_star_in_caaaad(self):
+    """Test greedy search wi a_a_star_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"*' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}]" --method search --mode greedy
+    pattern = 'pos="JJ" pos="JJ"*'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected =  pyrata.match.Match (start=1, end=5, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'} ])
+    result = pyrata.re.search(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_search_a_a_star_in_caaaad(self):
+    """Test reluctant search wi a_a_star_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"*' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method search --mode reluctant
+    pattern = 'pos="JJ" pos="JJ"*'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected =  pyrata.match.Match (start=1, end=2, value=[{'pos': 'JJ', 'raw': 'fast'}])
+    result = pyrata.re.search(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)    
+
+  # ----------------------------------------------------------------------
+  def test_greedy_findall_a_a_star_in_caaaad(self):
+    """Test greedy findall wi a_a_star_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"*' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'},{'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method findall --mode greedy
+    pattern = 'pos="JJ" pos="JJ"*'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected = [[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_findall_a_a_star_in_caaaad(self):
+    """Test reluctant findall wi a_a_star_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"*' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]" --method findall --mode reluctant
+    pattern = 'pos="JJ" pos="JJ"*'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected =  [[{'pos': 'JJ', 'raw': 'fast'}], [{'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}], [{'pos': 'JJ', 'raw': 'neat'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'reluctant')
+    #print ('\ntest_reluctant_findall_wi_any_quantifier_at_the_beginning={}'.format(result))
+    self.assertEqual(result, expected)    
+
+  # ----------------------------------------------------------------------
+  def test_greedy_finditer_a_a_star_in_caaaad(self):
+    """Test greedy finditer wi a_a_star_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"*' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'},{'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method finditer --mode greedy
+    pattern = 'pos="JJ" pos="JJ"*'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected = pyrata.match.MatchesList()  
+    expected.append(pyrata.match.Match (start=1, end=5, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'} ]))
+    result = pyrata.re.finditer(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_finditer_a_a_star_in_caaaad(self):
+    """Test reluctant finditer wi a_a_star_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"*' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]" --method finditer --mode reluctant
+    pattern = 'pos="JJ" pos="JJ"*'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected = pyrata.match.MatchesList()  
+    expected.append(pyrata.match.Match (start=1, end=2, value=[ {'pos': 'JJ', 'raw': 'fast'} ]))
+    expected.append(pyrata.match.Match (start=2, end=3, value=[ {'pos': 'JJ', 'raw': 'easy'} ]))
+    expected.append(pyrata.match.Match (start=3, end=4, value=[ {'pos': 'JJ', 'raw': 'funny'} ]))
+    expected.append(pyrata.match.Match (start=4, end=5, value=[ {'pos': 'JJ', 'raw': 'neat'} ]))
+    result = pyrata.re.finditer(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)   
+
+
+# --------------------------------------------------------------------------------------
+# a_a_option_in_caaaad greedy/reluctant search/findall/finditer (i.e. any_quantifier at_the_beginning)  
+# --------------------------------------------------------------------------------------
+
+  # ----------------------------------------------------------------------
+  def test_greedy_search_a_a_option_in_caaaad(self):
+    """Test greedy search wi a_a_option_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"?' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}]" --method search --mode greedy
+    pattern = 'pos="JJ" pos="JJ"?'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected =  pyrata.match.Match (start=1, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'} ])
+    result = pyrata.re.search(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_search_a_a_option_in_caaaad(self):
+    """Test reluctant search wi a_a_option_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"?' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method search --mode reluctant
+    pattern = 'pos="JJ" pos="JJ"?'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected =  pyrata.match.Match (start=1, end=2, value=[{'pos': 'JJ', 'raw': 'fast'}])
+    result = pyrata.re.search(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)    
+
+  # ----------------------------------------------------------------------
+  def test_greedy_findall_a_a_option_in_caaaad(self):
+    """Test greedy findall wi a_a_option_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"?' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'},{'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method findall --mode greedy
+    pattern = 'pos="JJ" pos="JJ"?'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected = [[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_findall_a_a_option_in_caaaad(self):
+    """Test reluctant findall wi a_a_option_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"?' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]" --method findall --mode reluctant
+    pattern = 'pos="JJ" pos="JJ"?'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected =  [[{'pos': 'JJ', 'raw': 'fast'}], [{'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}], [{'pos': 'JJ', 'raw': 'neat'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'reluctant')
+    #print ('\ntest_reluctant_findall_wi_any_quantifier_at_the_beginning={}'.format(result))
+    self.assertEqual(result, expected)    
+
+  # ----------------------------------------------------------------------
+  def test_greedy_finditer_a_a_option_in_caaaad(self):
+    """Test greedy finditer wi a_a_option_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"?' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'},{'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method finditer --mode greedy
+    pattern = 'pos="JJ" pos="JJ"?'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected = pyrata.match.MatchesList()  
+    expected.append(pyrata.match.Match (start=1, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}]))
+    expected.append(pyrata.match.Match (start=3, end=5, value=[{'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'} ]))
+    result = pyrata.re.finditer(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_finditer_a_a_option_in_caaaad(self):
+    """Test reluctant finditer wi a_a_option_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"?' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]" --method finditer --mode reluctant
+    pattern = 'pos="JJ" pos="JJ"?'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected = pyrata.match.MatchesList()  
+    expected.append(pyrata.match.Match (start=1, end=2, value=[ {'pos': 'JJ', 'raw': 'fast'} ]))
+    expected.append(pyrata.match.Match (start=2, end=3, value=[ {'pos': 'JJ', 'raw': 'easy'} ]))
+    expected.append(pyrata.match.Match (start=3, end=4, value=[ {'pos': 'JJ', 'raw': 'funny'} ]))
+    expected.append(pyrata.match.Match (start=4, end=5, value=[ {'pos': 'JJ', 'raw': 'neat'} ]))
+    result = pyrata.re.finditer(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)   
+
+
+
+# --------------------------------------------------------------------------------------
+# a_a_plus_in_caaaad greedy/reluctant search/findall/finditer (i.e. any_quantifier at_the_beginning)  
+# --------------------------------------------------------------------------------------
+
+  # ----------------------------------------------------------------------
+  def test_greedy_search_a_a_plus_in_caaaad(self):
+    """Test greedy search wi  a_a_plus_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"+' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}]" --method search --mode greedy
+    pattern = 'pos="JJ" pos="JJ"+'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected =  pyrata.match.Match (start=1, end=5, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'} ])
+    result = pyrata.re.search(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_search_a_a_plus_in_caaaad(self):
+    """Test reluctant search wi a_a_plus_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"+' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method search --mode reluctant
+    pattern = 'pos="JJ" pos="JJ"+'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected =  pyrata.match.Match (start=1, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}])
+    result = pyrata.re.search(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)    
+
+  # ----------------------------------------------------------------------
+  def test_greedy_findall_a_a_plus_in_caaaad(self):
+    """Test greedy findall wi a_a_plus_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"+' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'},{'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method findall --mode greedy
+    pattern = 'pos="JJ" pos="JJ"+'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected = [[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_findall_a_a_plus_in_caaaad(self):
+    """Test reluctant findall wi a_a_plus_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"+' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]" --method findall --mode reluctant
+    pattern = 'pos="JJ" pos="JJ"+'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected =  [[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'reluctant')
+    #print ('\ntest_reluctant_findall_wi_any_quantifier_at_the_beginning={}'.format(result))
+    self.assertEqual(result, expected)    
+
+  # ----------------------------------------------------------------------
+  def test_greedy_finditer_a_a_plus_in_caaaad(self):
+    """Test greedy finditer wi a_a_plus_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"+' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'},{'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]" --method finditer --mode greedy
+    pattern = 'pos="JJ" pos="JJ"+'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+    expected = pyrata.match.MatchesList()  
+    expected.append(pyrata.match.Match (start=1, end=5, value=[{'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'} ]))
+    result = pyrata.re.finditer(pattern, data, mode = 'greedy')
+    self.assertEqual(result, expected) 
+
+   # ----------------------------------------------------------------------
+  def test_reluctant_finditer_a_a_plus_in_caaaad(self):
+    """Test reluctant finditer wi a_a_plus_in_caaaad. The pattern is present in the data."""
+    # python3 pyrata_re.py  'pos="JJ" pos="JJ"+' "[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]" --method finditer --mode reluctant
+    pattern = 'pos="JJ" pos="JJ"+'
+    data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'},  {'pos': 'TO', 'raw': 'to'}]
+    expected = pyrata.match.MatchesList()  
+    expected.append(pyrata.match.Match (start=1, end=3, value=[ {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}]))
+    expected.append(pyrata.match.Match (start=3, end=5, value=[ {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'} ]))
+    result = pyrata.re.finditer(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)   
+
+
+
+
+
+
+  # ----------------------------------------------------------------------
+  def test_greedy_findall_sequence_wi_optional_step_at_the_beginning(self):
+    """Test findall method with a step sequence pattern; one element at the beginning being optional. The pattern is present in the data."""
     pattern = 'pos="JJ"? pos~"NN.*"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[ {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}], [{'raw': 'Pyrata', 'pos': 'NNP'}]]
-    self.test(description, method, lexicons, pattern, data, expected)
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected) 
 
-  def test_findall_any_step_step_in_data(self):
-    description = 'test_findall_any_step_step_in_data'
-    method = 'findall'
-    lexicons = {}
+  # ----------------------------------------------------------------------
+  def test_reluctant_findall_sequence_wi_optional_step_at_the_beginning(self):
+    """Test findall method in reluctant mode with a step sequence pattern; one element at the beginning being optional. The pattern is present in the data."""
+    pattern = 'pos="JJ"? pos~"NN.*"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [[ {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}], [{'raw': 'Pyrata', 'pos': 'NNP'}]]
+    result = pyrata.re.findall(pattern, data, mode='reluctant')
+    self.assertEqual(result, expected)     
+
+  # ----------------------------------------------------------------------
+  def test_greedy_findall_sequence_wi_any_step_at_the_beginning(self):
+    """Test findall method in greedy mode with sequences with any step at the beginning of the pattern . The pattern is present in the data."""
     pattern = 'pos="JJ"* pos~"NN.*"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[ {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}], [{'raw': 'Pyrata', 'pos': 'NNP'}]]
-    self.test(description, method, lexicons, pattern, data, expected)
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected) 
 
-  def test_findall_at_least_one_step_step_in_data(self):
-    description = 'test_findall_at_least_one_step_step_in_data'
-    method = 'findall'
-    lexicons = {}
+
+  # ----------------------------------------------------------------------
+  def test_reluctant_findall_sequence_wi_any_step_at_the_beginning(self):
+    """Test findall method in reluctant mode on sequences with any step at the beginning of the pattern. The pattern is present in the data."""
+    pattern = 'pos="JJ"* pos~"NN.*"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [[ {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}], [{'raw': 'Pyrata', 'pos': 'NNP'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)  
+
+  # ----------------------------------------------------------------------
+  def test_greedy_findall_sequence_wi_at_least_one_step_at_the_beginning(self):
+    """Test findall method in greedy mode on sequence with  at least one step sequence at the beginning of the pattern. The pattern is present in the data."""
     pattern = 'pos="JJ"+ pos~"NN.*"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[ {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}]]
-    self.test(description, method, lexicons, pattern, data, expected)
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected)  
 
+
+  # ----------------------------------------------------------------------
+  def test_DFA_from_greedy_finditer_sequence_wi_any_step_at_the_beginning(self):
+    """Test findall method in greedy mode with sequences with any step at the beginning of the pattern . The pattern is present in the data."""
+    pattern = 'pos="JJ"* pos~"NN.*"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    
+    # expected = [['IN[#S]->CHAR(pos="JJ")->OUT[#S]', 'IN[#S]->CHAR(pos~"NN.*")->OUT[#M]'], 
+    #             ['IN[#S]->CHAR(pos~"NN.*")->OUT[#M]'], 
+    #             ['IN[#S]->CHAR(pos~"NN.*")->OUT[#M]']]
+    expected = [['pos="JJ"', 'pos~"NN.*"'],  ['pos~"NN.*"']] 
+    #def __init__(self, char, in_states, out_states, symbolic_step_expression, single_constraint_tuple_list, single_constraint_variable_list, group_pile):
+    # start_state = State.create_start_state()
+    # matching_state = State.create_matching_state()
+    # in_states = Set()
+    # in_states.add(start_state)
+    # out_states.add(start_state)
+    # State('pos="JJ"', in_states, out_states, [], [], [], [])
+
+    result = []
+#    i = 0    
+    for m in pyrata.re.finditer(pattern, data):
+      # print ('Debug: DFA={} type={}'.format(m, type(m)))
+      # print ('Debug: DFA={}'.format(m.DFA()))
+ #     result.append(m.DFA())
+      result.append(m.str_DFA())
+#      print ('Debug: DFA={} type={} str={}'.format(m.DFA(), type(m.DFA()[0]), m.str_DFA()))
+#      self.assertEqual(m.DFA(), expected[i])  # m.DFA() return state so expected should also be made of states 
+#      self.assertEqual(m.str_DFA(), expected[i]) 
+#      i += 1
+#    print ('test_DFA_from_greedy_finditer_sequence_wi_any_step_at_the_beginning expected={}'.format(expected))  
+#    print ('test_DFA_from_greedy_finditer_sequence_wi_any_step_at_the_beginning result  ={}'.format(result))  
+    self.assertEqual(result, expected) 
+
+  # ----------------------------------------------------------------------
   def test_findall_any_step_step_nbar_in_data(self):
+    """Test findall method in greedy mode on sequence with optional class step  at the beginning of the pattern. The pattern is present in the data."""
     # https://gist.github.com/alexbowe/879414
     # echo 0 | perl -ne '$s = "abccd"; if ($s =~ /([bc]c)/) {print "$1\n"}'
     # bc
-    description = 'test_findall_any_step_step_nbar_in_data'
-    method = 'findall'
-    lexicons = {}
     pattern = '[pos~"NN.*" | pos="JJ"]* pos~"NN.*"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
-    #data = [ {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
-    expected = [[{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}],[{'pos': 'NNP', 'raw': 'Pyrata'}]]
-    self.test(description, method, lexicons, pattern, data, expected)    
 
+    expected = [[ {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}], [{'raw': 'Pyrata', 'pos': 'NNP'}]]
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected)  
+  
+
+
+  # ----------------------------------------------------------------------
   def test_findall_at_least_one_step_step_nbar_in_data(self):
+    """Test findall method in greedy mode on sequence with at least one class step  at the beginning of the pattern. The pattern is present in the data."""
     # https://gist.github.com/alexbowe/879414
     # echo 0 | perl -ne '$s = "abccd"; if ($s =~ /([bc]c)/) {print "$1\n"}'
     # bc
-    description = 'test_findall_at_least_one_step_step_nbar_in_data'
-    method = 'findall'
-    lexicons = {}
     pattern = '[pos~"NN.*" | pos="JJ"]+ pos~"NN.*"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     #data = [ {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}]]
-    self.test(description, method, lexicons, pattern, data, expected)   
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected)  
 
-  def test_findall_step_step_partially_matched_in_data_ending(self):
-    description = 'test_findall_step_step_partially_matched_in_data_ending'
-    method = 'findall'
-    lexicons = {}
+  # ----------------------------------------------------------------------
+  def test_findall_sequence_partially_matched_in_data_ending(self):
+    """Test findall method in greedy mode on sequence pattern partially present in the data."""
     pattern = 'pos="NNS" pos="JJ"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = None
-    self.test(description, method, lexicons, pattern, data, expected)
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected)  
 
+  # ----------------------------------------------------------------------
   def test_findall_optional_step_step_partially_matched_in_data_ending(self):
-    description = 'test_findall_optional_step_step_partially_matched_in_data_ending'
-    method = 'findall'
-    lexicons = {}
+    """Test findall method in greedy mode on sequence pattern partially present in the data with optional step at the beginning of the pattern."""
     pattern = 'pos="NNS"? pos="JJ"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[{'pos': 'JJ', 'raw': 'fast'}], [{'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}], [{'pos': 'JJ', 'raw': 'regular'}]]
-    self.test(description, method, lexicons, pattern, data, expected)
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected)  
 
+  # ----------------------------------------------------------------------
   def test_findall_any_step_step_partially_matched_in_data_ending(self):
-    description = 'test_findall_any_step_step_partially_matched_in_data_ending'
-    method = 'findall'
-    lexicons = {}
+    """Test findall method in greedy mode on sequence pattern partially present in the data with any step at the beginning of the pattern."""
     pattern = 'pos="NNS"? pos="JJ"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[{'pos': 'JJ', 'raw': 'fast'}], [{'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}], [{'pos': 'JJ', 'raw': 'regular'}]]
-    self.test(description, method, lexicons, pattern, data, expected)
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected)  
 
+  # ----------------------------------------------------------------------
   def test_findall_at_least_one_step_step_partially_matched_in_data_ending(self):
-    description = 'test_findall_at_least_one_step_step_partially_matched_in_data_ending'
-    method = 'findall'
-    lexicons = {}
+    """Test findall method in greedy mode on sequence pattern partially present in the data with at least one step at the beginning of the pattern."""
     pattern = 'pos="NNS"+ pos="JJ"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = None
-    self.test(description, method, lexicons, pattern, data, expected)
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected)  
 
 
+  # ----------------------------------------------------------------------
   def test_findall_step_at_least_one_not_step_step_in_data(self):
-    description = 'test_findall_step_at_least_one_not_step_step_in_data'
-    method = 'findall'
-    lexicons = {}
+    """Test findall method in greedy mode on sequence with at least one class step in the middle of the pattern. The pattern is present in the data."""
     pattern = 'pos="VB" [!pos="NNS"]+ pos="NNS"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[{'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}]]
-    self.test(description, method, lexicons, pattern, data, expected)
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected)  
 
+  # ----------------------------------------------------------------------
   def test_findall_step_present_optional_step_step_in_data(self):
-    description = 'test_findall_step_present_optional_step_step_in_data'
-    method = 'findall'
-    lexicons = {}
+    """Test findall method in greedy mode on sequence with optional step in the middle of the pattern. The pattern is present in the data."""
     pattern = 'pos="VB" pos="JJ"? pos="NNS"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[{'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}]]
-    self.test(description, method, lexicons, pattern, data, expected)
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected)  
 
+  # ----------------------------------------------------------------------
   def test_findall_step_absent_optional_step_step_in_data(self):
-    description = 'test_findall_step_absent_optional_step_step_in_data'
-    method = 'findall'
-    lexicons = {}
+    """Test findall method in greedy mode on sequence with at least one class step in the middle of the pattern. The option is absent from the data."""
     pattern = 'pos="IN" pos="JJ"? pos="NNP"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[{'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]]
-    self.test(description, method, lexicons, pattern, data, expected)
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected)  
 
 
-  def test_findall_step_optional_step_in_data(self):
+  # ----------------------------------------------------------------------
+  def test_greedy_findall_sequence_wi_optional_step_at_the_end(self):
+    """Test findall method in greedy mode on sequence with optional step at the end of the pattern. The pattern is present in the data."""
     #echo 0 |  perl -ne '$s="abbbcb"; if ($s =~/(bc?)/) {print "$1\n"}' gives b
-    description = 'test_findall_step_optional_step_in_data'
-    method = 'findall'
-    lexicons = {}
     pattern = 'pos="JJ" pos~"NN.*"?'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    # naive approach
     expected = [[{'raw': 'fast', 'pos': 'JJ'}], [{'raw': 'easy', 'pos': 'JJ'}], [{'raw': 'funny', 'pos': 'JJ'}], [{'raw': 'regular', 'pos': 'JJ'}, {'raw': 'expressions', 'pos': 'NNS'}]]
-    self.test(description, method, lexicons, pattern, data, expected)
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected)  
 
-  def test_findall_step_any_step_in_data(self):
-    description = 'test_findall_step_any_step_in_data'
-    method = 'findall'
-    lexicons = {}
+  # ----------------------------------------------------------------------
+  def test_reluctant_findall_sequence_wi_optional_step_at_the_end(self):
+    """Test findall method in reluctant mode on sequence with optional step at the end of the pattern. The pattern is present in the data."""
+    #echo 0 |  perl -ne '$s="abbbcb"; if ($s =~/(bc?)/) {print "$1\n"}' gives b
+    pattern = 'pos="JJ" pos~"NN.*"?'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    # reluctant
+    expected = [[{'raw': 'fast', 'pos': 'JJ'}], [{'raw': 'easy', 'pos': 'JJ'}], [{'raw': 'funny', 'pos': 'JJ'}], [{'raw': 'regular', 'pos': 'JJ'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)  
+
+
+
+
+  # ----------------------------------------------------------------------
+  def test_greedy_findall_sequence_wi_any_step_at_the_end(self):
+    """Test findall method in greedy mode on sequence with any step at the end of the pattern. The pattern is present in the data."""
     pattern = 'pos="JJ" pos~"NN.*"*'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
-    expected = [[{'raw': 'fast', 'pos': 'JJ'}], [{'raw': 'easy', 'pos': 'JJ'}], [{'raw': 'funny', 'pos': 'JJ'}], [{'raw': 'regular', 'pos': 'JJ'}, {'raw': 'expressions', 'pos': 'NNS'}]]
-    self.test(description, method, lexicons, pattern, data, expected)
+    expected = [[{'pos': 'JJ', 'raw': 'fast'}], [{'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}], [{'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}]]
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected)  
 
-  def test_findall_step_optinal_step_optional_step_step_in_data(self):
+  # ----------------------------------------------------------------------
+  def test_reluctant_findall_sequence_wi_any_step_at_the_end(self):
+    """Test findall method in reluctant mode on sequence with any step at the end of the pattern. The pattern is present in the data."""
+    pattern = 'pos="JJ" pos~"NN.*"*'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [[{'raw': 'fast', 'pos': 'JJ'}], [{'raw': 'easy', 'pos': 'JJ'}], [{'raw': 'funny', 'pos': 'JJ'}], [{'raw': 'regular', 'pos': 'JJ'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'reluctant')
+
+    self.assertEqual(result, expected)  
+
+
+  # ----------------------------------------------------------------------
+  def test_greedy_findall_sequence_wi_two_optinal_steps_in_the_middle(self):
+    """Test findall method in greedy mode on sequence with two optional steps in the middle of the pattern. The pattern is present in the data."""
     #echo 0 |  perl -ne '$s="abbbcb"; if ($s =~/(bc?)/) {print "$1\n"}' gives b
-    description = 'test_findall_step_optinal_step_optional_step_step_in_data'
-    method = 'findall'
-    lexicons = {}
     pattern = 'pos="VBZ" pos="JJ"? pos="JJ"? pos="CC"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}]]
-    self.test(description, method, lexicons, pattern, data, expected)
-  
-  def test_search_any_class_step_error_step_in_data(self):
-    description = 'test_search_any_class_step_error_step_in_data'
-    method = 'search'
-    lexicons = {}
-    pattern = '[pos~"NN.*" | pos="JJ"]* blabla pos~"NN.*"'
-    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
-    expected = None
-    self.test(description, method, lexicons, pattern, data, expected)    
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected)  
 
-  def test_findall_step_any_not_step1_step1_in_data(self):
+  # ----------------------------------------------------------------------
+  def test_reluctant_findall_sequence_wi_two_optinal_steps_in_the_middle(self):
+    """Test findall method in reluctant mode on sequence with two optional steps in the middle of the pattern. The pattern is present in the data."""
+    #echo 0 |  perl -ne '$s="abbbcb"; if ($s =~/(bc?)/) {print "$1\n"}' gives b
+    pattern = 'pos="VBZ" pos="JJ"? pos="JJ"? pos="CC"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [[ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}]]
+    result = pyrata.re.findall(pattern, data, mode = 'reluctant')
+    self.assertEqual(result, expected)  
+
+  # ----------------------------------------------------------------------
+  def test_findall_sequence_wi_step_preceded_by_its_complement(self):
+    """Test findall method on sequence with any class step which is the complement to the next one. The pattern is present in the data."""
     # https://gist.github.com/alexbowe/879414
-    description = 'test_findall_step_any_not_step1_step1_in_data'
-    method = 'findall'
-    lexicons = {}
     pattern = 'pos~"VB." [!raw="to"]* raw="to"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}]]
-    self.test(description, method, lexicons, pattern, data, expected)    
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected)  
 
-  def test_pattern_starting_with_the_first_token_of_data_present_as_expected_in_data(self):
+
+
+
+  # ----------------------------------------------------------------------
+  def test_search_wi_start_anchor(self):
+    """Test search method with start anchor. The pattern is present in the data."""
     # ^ matches the start of data before the first token in a data.
     # $ matches the end of data ~after the last token of data.
     # test_pattern_starting_with_the_first_token_of_data_present_as_expected_in_data
@@ -412,78 +1146,157 @@ class TestPyrata(object):
     # test_pattern_starting_with_the_first_token_of_data_not_present_as_expected_in_data
     # test_pattern_ending_with_the_last_token_of_data_not_present_as_expected_in_data
     # test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_not_present_as_expected_in_data  
-    description = 'test_pattern_starting_with_the_first_token_of_data_present_as_expected_in_data'
-    method = 'search'
-    lexicons = {}
     pattern = '^raw="It" raw="is"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    #data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}]
     expected = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}]
-    self.test(description, method, lexicons, pattern, data, expected)  
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.group(),expected)  
 
-  def test_pattern_ending_with_the_last_token_of_data_present_as_expected_in_data(self):
-    description = 'test_pattern_ending_with_the_last_token_of_data_present_as_expected_in_data'
-    method = 'search'
-    lexicons = {}
+  # ----------------------------------------------------------------------
+  def test_search_wi_end_anchor(self):
+    """Test search method with end anchor. The pattern is present in the data."""
     pattern = 'raw="with" raw="Pyrata"$'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [{'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
-    self.test(description, method, lexicons, pattern, data, expected)  
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.group(),expected)  
 
-  def test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_present_as_expected_in_data(self):
-
-    description = 'test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_present_as_expected_in_data'
-    method = 'search'
-    lexicons = {}
+  # ----------------------------------------------------------------------
+  def test_search_wi_start_and_end_anchors(self):
+    """Test search method with both start and end anchors. The pattern is present in the data."""
     pattern = '^raw="with" raw="Pyrata"$'
     data = [{'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [{'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
-    self.test(description, method, lexicons, pattern, data, expected)  
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.group(),expected)  
 
 
-  def test_pattern_starting_with_the_first_token_of_data_not_present_as_expected_in_data(self):
-    description = 'test_pattern_starting_with_the_first_token_of_data_not_present_as_expected_in_data'
-    method = 'search'
-    lexicons = {}
+
+
+  # ----------------------------------------------------------------------
+  def test_findall_wi_start_anchor(self):
+    """Test findall method with start anchor. The pattern is present in the data."""
+    pattern = '^raw="It" raw="is"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'},{'pos': 'CC', 'raw': 'and'}, {'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'easy'},  {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    #data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}]
+    expected = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}]
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result[0],expected)  
+
+  # ----------------------------------------------------------------------
+  def test_findall_wi_end_anchor(self):
+    """Test findall method with end anchor. The pattern is present in the data."""
+    pattern = 'raw="with" raw="Pyrata"$'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'funny'},  {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'},{'pos': 'CC', 'raw': 'and'}, {'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'easy'},  {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [{'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result[0],expected)   
+
+  # ----------------------------------------------------------------------
+  def test_findall_wi_start_and_end_anchors(self):
+    """Test findall method with both start and end anchors. The pattern is present in the data."""
+    pattern = '^raw="with" raw="Pyrata"$'
+    data = [{'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [{'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result[0],expected)  
+
+
+  # ----------------------------------------------------------------------
+  def test_reluctant_findall_wi_start_anchor(self):
+    """Test reluctant findall method with start anchor. The pattern is present in the data."""
+    pattern = '^raw="It" raw="is"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'},{'pos': 'CC', 'raw': 'and'}, {'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'easy'},  {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    #data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}]
+    expected = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}]
+    result = pyrata.re.findall(pattern, data, mode = 'reluctant')
+    self.assertEqual(result[0],expected)  
+
+  # ----------------------------------------------------------------------
+  def test_reluctant_findall_wi_end_anchor(self):
+    """Test reluctant findall method with end anchor. The pattern is present in the data."""
+    pattern = 'raw="with" raw="Pyrata"$'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'funny'},  {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'},{'pos': 'CC', 'raw': 'and'}, {'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'easy'},  {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [{'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    result = pyrata.re.findall(pattern, data, mode = 'reluctant')
+    self.assertEqual(result[0],expected)   
+
+  # ----------------------------------------------------------------------
+  def test_reluctant_findall_wi_start_and_end_anchors(self):
+    """Test reluctant findall method with both start and end anchors. The pattern is present in the data."""
+    pattern = '^raw="with" raw="Pyrata"$'
+    data = [{'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [{'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    result = pyrata.re.findall(pattern, data, mode = 'reluctant')
+    self.assertEqual(result[0],expected)  
+
+
+
+  # ----------------------------------------------------------------------
+  def test_search_wi_start_anchor_but_absent(self):
+    """Test search method with start anchor. The pattern is not present in the data."""
     pattern = '^raw="is" raw="fast"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = None
-    self.test(description, method, lexicons, pattern, data, expected)  
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result, expected)  
 
-
-  def test_pattern_starting_with_the_first_token_of_data_not_present_as_expected_in_data(self):
-    description = 'test_pattern_starting_with_the_first_token_of_data_present_as_expected_in_data'
-    method = 'search'
-    lexicons = {}
-    pattern = '^raw="is" raw="fast"'
-    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
-    expected = None
-    self.test(description, method, lexicons, pattern, data, expected)  
-
-  def test_pattern_ending_with_the_last_token_of_data_not_present_as_expected_in_data(self):
-    description = 'test_pattern_ending_with_the_last_token_of_data_not_present_as_expected_in_data'
-    method = 'search'
-    lexicons = {}
+  # ----------------------------------------------------------------------
+  def test_search_wi_end_anchor_but_absent(self):
+    """Test search method with end anchor. The pattern is not present in the data."""
     pattern = 'raw="is" raw="fast"$'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = None
-    self.test(description, method, lexicons, pattern, data, expected)  
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result, expected)  
 
-  def test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_not_present_as_expected_in_data(self):
-    description = 'test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_not_present_as_expected_in_data'
-    method = 'search'
-    lexicons = {}
+  # ----------------------------------------------------------------------
+  def test_search_wi_start_and_end_anchors_but_absent(self):
+    """Test search method with start and end anchors. The pattern is not present in the data."""
     pattern = '^raw="is" raw="fast"$'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = None
-    self.test(description, method, lexicons, pattern, data, expected)  
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result, expected)  
 
 
+
+
+  # ----------------------------------------------------------------------
+  def test_findall_wi_start_anchor_but_absent(self):
+    """Test findall method with start anchor. The pattern is not present in the data."""
+    pattern = '^raw="is" raw="fast"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected)  
+
+  # ----------------------------------------------------------------------
+  def test_findall_wi_end_anchor_but_absent(self):
+    """Test findall method with end anchor. The pattern is not present in the data."""
+    pattern = 'raw="is" raw="fast"$'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected)  
+
+  # ----------------------------------------------------------------------
+  def test_findall_wi_start_and_end_anchors_but_absent(self):
+    """Test findall method with start and end anchors. The pattern is not present in the data."""
+    pattern = '^raw="is" raw="fast"$'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected)  
+
+
+
+
+
+  # ----------------------------------------------------------------------
   def test_search_no_group_marked(self):
-    # if verbosity >0:
-    #   print ('================================================')
-    description = 'test_search_no_group_marked'
-    method = 'search'
-    lexicons = {}
+    """Test search method with no group. The pattern is present in the data."""
     #pattern = '(raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")'
 
     #pattern = 'raw="It" (raw="is" |fa="ke") (( pos="JJ"* (pos="JJ" raw="and"|fa="ke") (pos="JJ"|fa="ke") |fa="ke")|fa="ke") (raw="to"|fa="ke")'
@@ -494,289 +1307,158 @@ class TestPyrata(object):
     pattern = 'raw="is"'                     # [None, 'raw="is"']
     expected = [[[{'pos': 'VBZ', 'raw': 'is'}], 1, 2]]
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.groups(),expected)  
 
-    #self.test(description, method, lexicons, pattern, data, expected)  
-    result = pyrata.re.search(pattern, data, lexicons=lexicons)
-    #print ('Debug: type(result)=',type(result))
-    #print ('Debug: type(result.groups)=',type(result.groups()))
-    #print ('Debug: result=',result)
-    
-    result = result.groups()
-
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
-
-
-
-
+  # ----------------------------------------------------------------------
   def test_search_group_zero_marked(self):
-    description = 'test_search_group_zero_marked'
-    method = 'search'
-    lexicons = {}
-
+    """Test search method with zero group marked. The pattern is present in the data."""
     pattern = '(raw="is")'                   # [None, [[[None, 'raw="is"']]]]
     expected = [[[{'pos': 'VBZ', 'raw': 'is'}], 1, 2], [[{'pos': 'VBZ', 'raw': 'is'}], 1, 2]]
-    
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
-   
-    result = pyrata.re.search(pattern, data, lexicons=lexicons)
-    result = result.groups()
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.groups(),expected)  
 
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
-
-
-  def test_search_emdedded_group_zero_marked(self):
-    description = 'test_search_emdedded_group_zero_marked'
-    method = 'search'
-    lexicons = {}
-
+  # ----------------------------------------------------------------------
+  def test_search_nested_group_zero_marked(self):
+    """Test search method with nested zero group marked. The pattern is present in the data."""
     pattern = '(((raw="is")))'               # [None, [[[None, [[[None, [[[None, 'raw="is"']]]]]]]]]]   
     expected = [[[{'pos': 'VBZ', 'raw': 'is'}], 1, 2], [[{'pos': 'VBZ', 'raw': 'is'}], 1, 2], [[{'pos': 'VBZ', 'raw': 'is'}], 1, 2], [[{'pos': 'VBZ', 'raw': 'is'}], 1, 2]] # [[[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'is', 'pos': 'VBZ'}], 0, 1], [[{'raw': 'is', 'pos': 'VBZ'}], 0, 1]] 
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
-   
-    result = pyrata.re.search(pattern, data, lexicons=lexicons)
-    #logging.info('Debug: pyrata.re.search={}'.format(result))
-    result = result.groups()
-    #logging.info('Debug: pyrata.re.search.groups={}'.format(result))
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.groups(),expected)  
 
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
-
+  # ----------------------------------------------------------------------
   def test_search_step_group_inside_a_sequence(self):
-    description = 'test_search_step_group_inside_a_sequence'
-    method = 'search'
-    lexicons = {}
-
-    pattern = 'raw="is" pos="JJ" pos="JJ"'   # [[None, 'raw="is" '], [None, 'pos="JJ" '], [None, 'pos="JJ"']]
-    expected = [[[{'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}], 1, 4]]
-    
+    """Test search method with a group inside the sequence. The pattern is present in the data."""
+    #pattern = 'raw="is" pos="JJ" pos="JJ"'   # [[None, 'raw="is" '], [None, 'pos="JJ" '], [None, 'pos="JJ"']]
+    #expected = [[[{'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}], 1, 4]]
     pattern = 'raw="is" (pos="JJ") pos="JJ"' # [[None, 'raw="is" '], [None, [[[None, 'pos="JJ"']]]], [None, 'pos="NN"']]
     expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}], 1, 4], [[{'raw': 'fast', 'pos': 'JJ'}], 2, 3]]
-
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
-   
-    result = pyrata.re.search(pattern, data, lexicons=lexicons)
-    result = result.groups()
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.groups(),expected)  
 
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
-
-
-  def test_search_multiple_optionnaly_embedded_step_group_inside_a_sequence(self):
-    description = 'test_search_multiple_optionnaly_embedded_step_group_inside_a_sequence'
-    method = 'search'
-    lexicons = {}
-
+  # ----------------------------------------------------------------------
+  def test_search_multiple_step_group_some_nested(self):
+    """Test search method with multiple step groups; some nested. The pattern is present in the data."""
     pattern = 'raw="is" (pos="JJ") ((pos="JJ"))' # 
     expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}], 1, 4], [[{'raw': 'fast', 'pos': 'JJ'}], 2, 3], [[{'raw': 'easy', 'pos': 'JJ'}], 3, 4], [[{'raw': 'easy', 'pos': 'JJ'}], 3, 4] ]
-
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
-   
-    result = pyrata.re.search(pattern, data, lexicons=lexicons)
-    result = result.groups()
-
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.groups(),expected)  
+    
 
 
+
+
+
+  # ----------------------------------------------------------------------
   def test_search_sequence_as_group_zero(self):
-    description = 'test_search_sequence_as_group_zero'
-    method = 'search'
-    lexicons = {}
-
+    """Test search method with a sequence as group. The pattern is present in the data."""
     pattern = '(raw="is" pos="JJ")'          # [None, [[[None, 'raw="is" '], [None, 'pos="JJ"']]]]
     expected = [[[{'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}], 1, 3], [[{'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}], 1, 3]]
-
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
-   
-    result = pyrata.re.search(pattern, data, lexicons=lexicons)
-    result = result.groups()
-
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
-
-  def test_search_class_as_group_zero(self):
-    description = 'test_search_class_as_group_zero'
-    method = 'search'
-    lexicons = {}
-
-    pattern = '(raw="is"|pos="JJ")'          # [None, [[[None, 'raw="is" '], [None, 'pos="JJ"']]]]
-    expected = [[[{'pos': 'VBZ', 'raw': 'is'}], 1, 2], [[{'pos': 'VBZ', 'raw': 'is'}], 1, 2]]
-
-    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
-   
-    result = pyrata.re.search(pattern, data, lexicons=lexicons)
-    result = result.groups()
-
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.groups(),expected) 
 
 
 
-  def test_search_sequence_of_step_groups(self):
-    description = 'test_search_sequence_of_step_groups'
-    method = 'search'
-    lexicons = {}
-
+  # ----------------------------------------------------------------------
+  def test_search_sequence_of_individual_step_groups(self):
+    """Test search method with two distinct step groups. The pattern is present in the data."""
     pattern = '(raw="is") (pos="JJ")'        # [[None, [[[None, 'raw="is"']]]], [None, [[[None, 'pos="JJ"']]]]]
     expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3], [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'fast', 'pos': 'JJ'}], 2, 3]]
-    
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
-   
-    result = pyrata.re.search(pattern, data, lexicons=lexicons)
-    result = result.groups()
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.groups(),expected) 
 
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
-
-  def test_search_sequence_group_wi_step_group (self):
-    description = 'test_search_sequence_group_wi_step_group'
-    method = 'search'
-    lexicons = {}
-
+  # ----------------------------------------------------------------------
+  def test_search_sequence_as_zero_group_wi_nested_step_group (self):
+    """Test search method with a sequence as zero group and a nested step group. The pattern is present in the data."""
     pattern = '(raw="is" (pos="JJ"))'        # [None, [[[None, 'raw="is" '], [None, [[[None, 'pos="JJ"']]]]]]]
     expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3], [[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3], [[{'raw': 'fast', 'pos': 'JJ'}], 2, 3]]
-
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
-   
-    result = pyrata.re.search(pattern, data, lexicons=lexicons)
-    result = result.groups()
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.groups(),expected) 
 
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
+    
 
-
-  def test_search_sequence_step_alternative (self):
-    description = 'test_search_sequence_step_alternative'
-    method = 'search'
-    lexicons = {}
-
-    pattern = '(raw="is" pos="JJ"|raw="is" )'          # [None, [[[None, 'raw="is" '], [None, 'pos="JJ"']]]]
-    expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3], [[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3]]
-
+  # ----------------------------------------------------------------------
+  def test_search_step_alternative_as_group_zero(self):
+    """Test search method with a step alternative as group zero. The pattern is present in the data."""
+    pattern = '(raw="is"|pos="JJ")'          # [None, [[[None, 'raw="is" '], [None, 'pos="JJ"']]]]
+    expected = [[[{'pos': 'VBZ', 'raw': 'is'}], 1, 2], [[{'pos': 'VBZ', 'raw': 'is'}], 1, 2]]
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
-   
-    result = pyrata.re.search(pattern, data, lexicons=lexicons)
-    #logging.info('Debug: pyrata.re.search={}'.format(result))
-    result = result.groups()
-    #logging.info('Debug: pyrata.re.search.groups={}'.format(result))
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.groups(),expected) 
+# FIXME check the result ! 
 
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
-
-
-  def test_search_sequence_sequence_alternative (self):
-    description = 'test_search_sequence_sequence_alternative'
-    method = 'search'
-    lexicons = {}
-
+  # ----------------------------------------------------------------------
+  def test_greedy_search_of_step_sequences_alternative_of_same_length_wi_a_common_starting_subpart (self):
+    """Test greedy search method of sequences alternatives of same length wi a common starting subpart. The pattern is present in the data."""
     pattern = '(raw="is" pos="NN"|raw="is" pos="JJ")'          # [None, [[[None, 'raw="is" '], [None, 'pos="JJ"']]]]
     expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3], [[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3]]
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
-   
-    result = pyrata.re.search(pattern, data, lexicons=lexicons)
-    result = result.groups()
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.groups(),expected) 
 
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
+  # ----------------------------------------------------------------------
+  def test_greedy_search_of_step_sequences_alternative_of_various_length_wi_a_common_starting_subpart (self):
+    """Test greedy search method of sequences alternatives of various length wi a common starting subpart. The pattern is present in the data."""
+    pattern = '(raw="is" pos="JJ"|raw="is" )'          # [None, [[[None, 'raw="is" '], [None, 'pos="JJ"']]]]
+    expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3], [[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3]]
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.groups(),expected) 
 
-  def test_search_sequence_sequence_sequence_alternative (self):
-    description = 'test_search_sequence_sequence_sequence_alternative'
-    method = 'search'
-    lexicons = {}
+  # ----------------------------------------------------------------------
+  def test_reluctant_search_of_step_sequences_alternative_of_various_length_wi_a_common_starting_subpart (self):
+    """Test reluctant search method of sequences alternatives of various length wi a common starting subpart. The pattern is present in the data."""
+    pattern = '(raw="is" pos="JJ"|raw="is" )'          # [None, [[[None, 'raw="is" '], [None, 'pos="JJ"']]]]
+    expected = [[[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2]]
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    result = pyrata.re.search(pattern, data, mode = 'reluctant')
+    self.assertEqual(result.groups(),expected) 
 
+  # ----------------------------------------------------------------------
+  def test_greedy_search_of_step_sequences_alternative_of_various_length_wo_a_common_starting_subpart (self):
+    """Test greedy search method of sequences alternatives of various length wo a common starting subpart. The pattern is present in the data."""
+    pattern = '(pos="JJ" pos="JJ"|raw="is" )'          # [None, [[[None, 'raw="is" '], [None, 'pos="JJ"']]]]
+    expected = [[[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2]]
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.groups(),expected) 
+
+
+
+  # ----------------------------------------------------------------------
+  def test_greedy_search_of_multiple_step_sequences_alternative_of_same_length_wi_a_common_starting_subpart (self):
+    """Test greedy search method of multiple sequences alternatives of same length wi a common starting subpart. The pattern is present in the data."""
     pattern = '(raw="is" pos="NN"|raw="is" pos="NN"|raw="is" pos="JJ")'          # [None, [[[None, 'raw="is" '], [None, 'pos="JJ"']]]]
     expected = [[[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3], [[{'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}], 1, 3]]
 
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
-   
-    result = pyrata.re.search(pattern, data, lexicons=lexicons)
-    result = result.groups()
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.groups(),expected) 
 
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
+    
 
-  def test_search_multiple_optionnaly_embedded_quantified_step_or_sequence_group (self):
-    description = 'test_search_multiple_optionnaly_embedded_quantified_step_or_sequence_group'
-    method = 'search'
-    lexicons = {}
-
+  # ----------------------------------------------------------------------
+  def test_search_multiple_optionnaly_nested_quantified_step_or_sequence_group_1 (self):
+    """Test greedy search method on multiple quantified step and sequence groups; some being nested. The pattern is present in the data."""
     pattern = 'raw="It" (raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")'
     expected = [[[{'pos': 'PRP', 'raw': 'It'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}], 0, 7], [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], [[{'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}], 3, 5], [[{'raw': 'funny', 'pos': 'JJ'}], 5, 6], [[{'raw': 'to', 'pos': 'TO'}], 6, 7]]
     #self.getLexer().lexer.group_pattern_offsets_group_list= [[0, 7], [1, 2], [2, 6], [2, 6], [3, 5], [5, 6], [6, 7]]
 
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
-   
-    result = pyrata.re.search(pattern, data, lexicons=lexicons)
-    logging.info('Debug: pyrata.re.search={}'.format(result))
-    result = result.groups()
-    logging.info('Debug: pyrata.re.search.groups={}'.format(result))
-
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.groups(),expected) 
 
 
-
-
-  def test_search_multiple_optionnaly_embedded_quantified_step_or_sequence_group_2(self):
-    description = 'test_search_multiple_optionnaly_embedded_quantified_step_or_sequence_group_2'
-    method = 'search'
-    lexicons = {}
-
-
+  # ----------------------------------------------------------------------
+  def test_search_multiple_optionnaly_nested_quantified_step_or_sequence_group_2 (self):
+    """Test greedy search method on multiple quantified step and sequence groups; some being nested (v2). The pattern is present in the data."""
     pattern = 'raw="It" (raw="is") (( (pos="JJ"* pos="JJ") raw="and" (pos="JJ") )) (raw="to")'
     expected = [[[{'raw': 'It', 'pos': 'PRP'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}], 0, 7], 
       [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], 
@@ -785,49 +1467,15 @@ class TestPyrata(object):
       [[{'raw': 'fast', 'pos': 'JJ'}, {'pos': 'JJ', 'raw': 'easy'}], 2, 4], 
       [[{'raw': 'funny', 'pos': 'JJ'}], 5, 6], 
       [[{'raw': 'to', 'pos': 'TO'}], 6, 7]]
-    
-  # [[[{'raw': 'It', 'pos': 'PRP'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}], 0, 7], 
-  # [[{'raw': 'is', 'pos': 'VBZ'}], 1, 2], 
-  # [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6],
-  # [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}], 2, 6], 
-  # [[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}], 2, 4],
-  # [[{'raw': 'funny', 'pos': 'JJ'}], 5, 6],
-  # [[{'raw': 'to', 'pos': 'TO'}], 6, 7]]
-
-    # test only the compilation stage
-    #pattern = 'raw="A" (raw="B") (( raw="C"* (raw="C" raw="D") (raw="E") )) (raw="F")'
-
-    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
-    #data = [{'raw': 'A'}, {'raw': 'B'}, {'raw': 'C'}, {'raw': 'C'}, {'raw': 'D'}, {'raw': 'E'}, {'raw': 'F'}, {'raw': 'G'}, {'raw': 'H'}, {'raw': 'I'}, {'raw': 'J'},{'raw': 'K'}]
-
-
-
-
-    #self.test(description, method, lexicons, pattern, data, expected)  
-    result = pyrata.re.search(pattern, data, lexicons=lexicons)
-    #print ('Debug: type(result)=',type(result))
-    #print ('Debug: type(result.groups)=',type(result.groups()))
-    #print ('Debug: result=',result)
-    
-    logging.info('Debug: pyrata.re.search={}'.format(result))
-    result = result.groups()
-    logging.info('Debug: pyrata.re.search.groups={}'.format(result))
-
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
-    
-
  
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'Pyrata'}]
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.groups(),expected) 
+    
 
-
-  def test_annotate_default_action_sub_default_group_default_iob_annotation_dict_in_data(self):
-
-    description = 'test_annotate_default_action_sub_default_group_default_iob_annotation_dict_in_data'
-    method = 'annotate'
+  # ----------------------------------------------------------------------
+  def test_annotate_default_action_sub_default_group_default_iob(self):
+    """Test annotate method on optional step with default args namely sub action, zero group and iob False. The pattern is present in the data."""
     pattern = 'pos~"NN.?"'
     annotation = {'raw':'smurf', 'pos':'NN' },
     data = [ {'raw':'Over', 'pos':'IN'},
@@ -843,15 +1491,7 @@ class TestPyrata(object):
       {'raw':'story', 'pos':'NN'} ]
     expected = [{'pos': 'IN', 'raw': 'Over'}, {'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'smurf'}, {'pos': 'IN', 'raw': 'of'}, {'pos': 'NN', 'raw': 'smurf'}, {'pos': ',', 'raw': ','}, {'pos': 'NN', 'raw': 'smurf'}, {'pos': 'NN', 'raw': 'smurf'}, {'pos': 'VBD', 'raw': 'told'}, {'pos': 'PRP$', 'raw': 'his'}, {'pos': 'NN', 'raw': 'smurf'}]
     result = pyrata.re.annotate(pattern, annotation, data)
- 
-
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
-    
+    self.assertEqual(result, expected)
 
 
     gold = [ {'raw':'Over', 'pos':'IN'},
@@ -867,12 +1507,10 @@ class TestPyrata(object):
       {'raw':'story', 'pos':'NN', 'chunk':'I-NP'} ]
 
 
-  def test_annotate_default_action_sub_default_group_default_iob_annotation_dict_not_in_data(self):
-    description = 'test_annotate_default_action_sub_default_group_default_iob_annotation_dict_not_in_data'
-    method = 'annotate'
-    action = 'sub'
-    pattern = 'pos="JJ"'
-    lexicons = {}
+  # ----------------------------------------------------------------------
+  def test_annotate_default_action_sub_default_group_default_iob_absent_from_data(self):
+    """Test annotate method on step with default args namely sub action, zero group and iob False. The pattern is non present in the data."""
+    pattern = 'pos="JJ"'    
     annotation = {'raw':'smurf', 'pos':'NN' }
     data = [ {'raw':'Over', 'pos':'IN'},
       {'raw':'a', 'pos':'DT' }, 
@@ -893,15 +1531,13 @@ class TestPyrata(object):
       {'raw':'Mr.', 'pos':'NNP'}, {'raw':'Stone', 'pos':'NNP'},
       {'raw':'told', 'pos':'VBD'},
       {'raw':'his', 'pos':'PRP$'}, {'raw':'story', 'pos':'NN'} ]
-    self.test(description, method, lexicons, pattern, data, expected, action, annotation)
+    result = pyrata.re.annotate(pattern, annotation, data)
+    self.assertEqual(result, expected)
 
-
+  # ----------------------------------------------------------------------
   def test_annotate_default_action_sub_default_group_default_iob_annotation_empty_in_data(self):
-    description = 'test_annotate_default_action_sub_default_group_default_iob_annotation_empty_in_data'
-    method = 'annotate'
-    action = 'sub'
+    """Test annotate method on  step with default args namely sub action, zero group and iob False. The annotation is empty. The pattern is present in the data."""
     pattern = 'pos~"NN.?"'
-    lexicons = {}
     annotation = []
     data = [ {'raw':'Over', 'pos':'IN'},
       {'raw':'a', 'pos':'DT' }, 
@@ -920,16 +1556,14 @@ class TestPyrata(object):
       {'raw':',', 'pos':','},
       {'raw':'told', 'pos':'VBD'},
       {'raw':'his', 'pos':'PRP$'}]
-    self.test(description, method, lexicons, pattern, data, expected, action, annotation)
+    result = pyrata.re.annotate(pattern, annotation, data)
+    self.assertEqual(result, expected)
 
 
-
+  # ----------------------------------------------------------------------
   def test_annotate_default_action_sub_default_group_default_iob_annotation_dict_pattern_sequence_to_annotation_step_in_data(self):
-    description = 'test_annotate_default_action_sub_default_group_default_iob_annotation_dict_pattern_sequence_to_annotation_step_in_data'
-    method = 'annotate'
-    action = 'sub'
+    """Test annotate method on sequence with default args namely sub action, zero group and iob False. The annotation is a sequence. The pattern is present in the data."""
     pattern = 'pos~"(DT|PRP\$)" pos~"NN.?"'
-    lexicons = {}
     annotation = {'raw':'smurf', 'pos':'NN' }
     data = [ {'raw':'Over', 'pos':'IN'},
       {'raw':'a', 'pos':'DT' }, {'raw':'cup', 'pos':'NN' },
@@ -947,16 +1581,14 @@ class TestPyrata(object):
       {'raw': 'Mr.', 'pos': 'NNP'}, {'raw': 'Stone', 'pos': 'NNP'}, 
       {'raw': 'told', 'pos': 'VBD'}, 
       {'raw': 'smurf', 'pos': 'NN'}]
-    self.test(description, method, lexicons, pattern, data, expected, action, annotation)  #def test (self, description = '', method = '', lexicons = {}, pattern = '', data = [], expected = [], verbosity = 0, action = '', annotation= {}, group = [0], iob = False, **kwargs):
+    result = pyrata.re.annotate(pattern, annotation, data)
+    self.assertEqual(result, expected)
 
-
+  # ----------------------------------------------------------------------
   def test_annotate_default_action_sub_group_one_default_iob_annotation_dict_pattern_in_data (self):
-    description = 'test_annotate_default_action_sub_group_one_default_iob_annotation_dict_pattern_in_data'
-    method = 'annotate'
-    action = 'sub'
+    """Test annotate method on sequence with default args namely sub action, and iob False. The annotation is a sequence. The group is one. The pattern is present in the data."""
     pattern = 'pos~"(DT|PRP\$)" (pos~"NN.?")'
     group = [1]
-    lexicons = {}
     annotation = {'raw':'smurf', 'pos':'NN' }
     data = [ {'raw':'Over', 'pos':'IN'},
       {'raw':'a', 'pos':'DT' }, 
@@ -970,17 +1602,35 @@ class TestPyrata(object):
       {'raw':'his', 'pos':'PRP$'}, 
       {'raw':'story', 'pos':'NN'} ]
     expected = [{'raw': 'Over', 'pos': 'IN'}, {'raw': 'a', 'pos': 'DT'}, {'raw': 'smurf', 'pos': 'NN'}, {'raw': 'of', 'pos': 'IN'}, {'raw': 'coffee', 'pos': 'NN'}, {'raw': ',', 'pos': ','}, {'raw': 'Mr.', 'pos': 'NNP'}, {'raw': 'Stone', 'pos': 'NNP'}, {'raw': 'told', 'pos': 'VBD'}, {'raw': 'his', 'pos': 'PRP$'}, {'raw': 'smurf', 'pos': 'NN'}]
-    self.test(description, method, lexicons, pattern, data, expected, action, annotation, group)  
-    #def test (self, description = '', method = '', lexicons = {}, pattern = '', data = [], expected = [], verbosity = 0, action = '', annotation= {}, group = [0], iob = False, **kwargs):
+    result = pyrata.re.annotate(pattern, annotation, data, group = group)
+    self.assertEqual(result, expected)
 
 
+  # ----------------------------------------------------------------------
+  def test__sub_group_one_default_iob_annotation_dict_pattern_in_data (self):
+    """Test sub method on sequence with default args namely sub action, and iob False. The annotation is a sequence. The group is one. The pattern is present in the data."""
+    pattern = 'pos~"(DT|PRP\$)" (pos~"NN.?")'
+    group = [1]
+    annotation = {'raw':'smurf', 'pos':'NN' }
+    data = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' }, 
+      {'raw':'cup', 'pos':'NN' },
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP'}, 
+      {'raw':'Stone', 'pos':'NNP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$'}, 
+      {'raw':'story', 'pos':'NN'} ]
+    expected = [{'raw': 'Over', 'pos': 'IN'}, {'raw': 'a', 'pos': 'DT'}, {'raw': 'smurf', 'pos': 'NN'}, {'raw': 'of', 'pos': 'IN'}, {'raw': 'coffee', 'pos': 'NN'}, {'raw': ',', 'pos': ','}, {'raw': 'Mr.', 'pos': 'NNP'}, {'raw': 'Stone', 'pos': 'NNP'}, {'raw': 'told', 'pos': 'VBD'}, {'raw': 'his', 'pos': 'PRP$'}, {'raw': 'smurf', 'pos': 'NN'}]
+    result = pyrata.re.sub(pattern, annotation, data, group = group)
+    self.assertEqual(result, expected)
 
-  def test_annotate_default_action_update_default_group_default_iob_annotation_dict_pattern_in_data(self):
-    description = 'test_annotate_default_action_update_default_group_default_iob_annotation_dict_pattern_in_data'
-    method = 'annotate'
-    action = 'update'
+  # ----------------------------------------------------------------------
+  def test_update_default_group_default_iob_annotation_dict_pattern_in_data(self):
+    """Test update method on sequence with optional first step and default args namely sub action, and iob False. The annotation is a sequence. The pattern is present in the data."""
     pattern = 'pos~"(DT|PRP\$|NNP)"? pos~"NN.?"'
-    lexicons = {}
     annotation = {'raw':'smurf', 'pos':'NN', 'chunk':'NP'}
     data = [ {'raw':'Over', 'pos':'IN'},
       {'raw':'a', 'pos':'DT' }, 
@@ -994,14 +1644,14 @@ class TestPyrata(object):
       {'raw':'his', 'pos':'PRP$'}, 
       {'raw':'story', 'pos':'NN'} ]
     expected = [{'pos': 'IN', 'raw': 'Over'}, {'chunk': 'NP', 'pos': 'NN', 'raw': 'smurf'}, {'chunk': 'NP', 'pos': 'NN', 'raw': 'smurf'}, {'pos': 'IN', 'raw': 'of'}, {'chunk': 'NP', 'pos': 'NN', 'raw': 'smurf'}, {'pos': ',', 'raw': ','}, {'chunk': 'NP', 'pos': 'NN', 'raw': 'smurf'}, {'chunk': 'NP', 'pos': 'NN', 'raw': 'smurf'}, {'pos': 'VBD', 'raw': 'told'}, {'chunk': 'NP', 'pos': 'NN', 'raw': 'smurf'}, {'chunk': 'NP', 'pos': 'NN', 'raw': 'smurf'}]
-    self.test(description, method, lexicons, pattern, data, expected, action, annotation)  #def test (self, description = '', method = '', lexicons = {}, pattern = '', data = [], expected = [], verbosity = 0, action = '', annotation= {}, group = [0], iob = False, **kwargs):
+    result = pyrata.re.update(pattern, annotation, data)
+    self.assertEqual(result, expected)
 
-  def test_annotate_default_action_extend_default_group_default_iob_annotation_dict_pattern_in_data(self):
-    description = 'test_annotate_default_action_extend_default_group_default_iob_annotation_dict_pattern_in_data'
-    method = 'annotate'
-    action = 'extend'
+  # ----------------------------------------------------------------------
+  def test_extend_wi_default_group_default_iob_pattern_sequence_on_sequence_wi_optional_first_step(self):
+    """Test extend method on sequence with optional first step and default args namely group and iob False. The annotation is a sequence. The pattern is present in the data."""
+
     pattern = 'pos~"(DT|PRP\$|NNP)"? pos~"NN.?"'
-    lexicons = {}
     annotation = {'raw':'smurf', 'pos':'NN', 'chunk':'NP'}
     data = [ {'raw':'Over', 'pos':'IN'},
       {'raw':'a', 'pos':'DT' }, 
@@ -1025,16 +1675,14 @@ class TestPyrata(object):
       {'raw':'told', 'pos':'VBD'},
       {'raw':'his', 'pos':'PRP$', 'chunk':'NP'}, 
       {'raw':'story', 'pos':'NN', 'chunk':'NP'} ]
+    result = pyrata.re.extend(pattern, annotation, data)
+    self.assertEqual(result, expected)
 
-    self.test(description, method, lexicons, pattern, data, expected, action, annotation)  #def test (self, description = '', method = '', lexicons = {}, pattern = '', data = [], expected = [], verbosity = 0, action = '', annotation= {}, group = [0], iob = False, **kwargs):
+  # ----------------------------------------------------------------------
+  def test_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data(self):
+    """Test extend method on sequence with optional first step and default args namely group and iob False. The annotation is one step. The pattern is present in the data."""
 
-
-  def test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data(self):
-    description = 'test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data'
-    method = 'annotate'
-    action = 'extend'
     pattern = 'pos~"(DT|PRP\$|NNP)"? pos~"NN.?"'
-    lexicons = {}
     annotation = {'chunk':'NP'}
     data = [ {'raw':'Over', 'pos':'IN'},
       {'raw':'a', 'pos':'DT' }, 
@@ -1058,17 +1706,14 @@ class TestPyrata(object):
       {'raw':'told', 'pos':'VBD'},
       {'raw':'his', 'pos':'PRP$', 'chunk':'NP'}, 
       {'raw':'story', 'pos':'NN', 'chunk':'NP'} ]
-    self.test(description, method, lexicons, pattern, data, expected, action, annotation)  #def test (self, description = '', method = '', lexicons = {}, pattern = '', data = [], expected = [], verbosity = 0, action = '', annotation= {}, group = [0], iob = False, **kwargs):
+    result = pyrata.re.extend(pattern, annotation, data)
+    self.assertEqual(result, expected)
 
-
-  def test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data(self):
-    description = 'test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data'
-    method = 'annotate'
-    action = 'extend'
+  # ----------------------------------------------------------------------
+  def test_extend_default_group_true_iob_wi_step_pattern_but_sequence_annotation(self):
+    """Test extend method on step wi iob true and a sequence as annotation. The pattern is present in the data."""
     pattern = 'pos~"NN.?"'
-    lexicons = {}
     annotation = [{'raw':'smurf1'}, {'raw':'smurf2'} ]
-    group = [0]
     iob = True
     data = [ {'raw':'Over', 'pos':'IN'},
       {'raw':'a', 'pos':'DT' }, 
@@ -1092,19 +1737,49 @@ class TestPyrata(object):
       {'raw':'told', 'pos':'VBD'},
       {'raw':'his', 'pos':'PRP$'}, 
       {'raw':'story', 'pos':'NN'} ]
-    self.test(description, method, lexicons, pattern, data, expected, action, annotation, group, iob)  
+    result = pyrata.re.extend(pattern, annotation, data, iob = iob)
+    self.assertEqual(result, expected)
 
-
-
-
-  def test_annotate_default_action_extend_default_group_iob_True_annotation_sequence_by_one_dict_in_data(self):
-    description = 'test_annotate_default_action_extend_default_group_iob_True_annotation_sequence_by_one_dict_in_data'
-    method = 'annotate'
-    action = 'extend'
+  # ----------------------------------------------------------------------
+  def test_greedy_extend_default_group_iob_true_wi_sequence_pattern_and_step_annotation(self):
+    """Test greedy extend method on step on zero group and iob True with a step as annotation. The pattern is present in the data."""
     pattern = 'pos~"(DT|PRP\$|NNP)"? pos~"NN.?"'
-    lexicons = {}
     annotation = {'chunk':'NP'}
-    group = [0]
+    iob = True
+    data = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' }, 
+      {'raw':'cup', 'pos':'NN' },
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP'}, 
+      {'raw':'Stone', 'pos':'NNP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$'}, 
+      {'raw':'story', 'pos':'NN'} ]
+
+    # naive approach
+    expected = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' , 'chunk':'B-NP'}, 
+      {'raw':'cup', 'pos':'NN' , 'chunk':'I-NP'},
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN', 'chunk':'B-NP'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP', 'chunk':'B-NP'}, 
+      {'raw':'Stone', 'pos':'NNP', 'chunk':'I-NP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$', 'chunk':'B-NP'}, 
+      {'raw':'story', 'pos':'NN', 'chunk':'I-NP'} ]
+
+    result = pyrata.re.extend(pattern, annotation, data, iob = iob)
+    self.assertEqual(result, expected)
+
+
+  # ----------------------------------------------------------------------
+  def test_reluctant_extend_default_group_iob_true_wi_sequence_pattern_and_step_annotation(self):
+    """Test reluctant extend method on step on zero group and iob True with a step as annotation. The pattern is present in the data."""
+    pattern = 'pos~"(DT|PRP\$|NNP)"? pos~"NN.?"'
+    annotation = {'chunk':'NP'}
     iob = True
     data = [ {'raw':'Over', 'pos':'IN'},
       {'raw':'a', 'pos':'DT' }, 
@@ -1124,23 +1799,62 @@ class TestPyrata(object):
       {'raw':'coffee', 'pos':'NN', 'chunk':'B-NP'},
       {'raw':',', 'pos':','},
       {'raw':'Mr.', 'pos':'NNP', 'chunk':'B-NP'}, 
-      {'raw':'Stone', 'pos':'NNP', 'chunk':'I-NP'},
+      {'raw':'Stone', 'pos':'NNP', 'chunk':'B-NP'},
       {'raw':'told', 'pos':'VBD'},
       {'raw':'his', 'pos':'PRP$', 'chunk':'B-NP'}, 
-      {'raw':'story', 'pos':'NN', 'chunk':'I-NP'} ]
-    self.test(description, method, lexicons, pattern, data, expected, action, annotation, group, iob)  
-    #def test (self, description = '', method = '', lexicons = {}, pattern = '', data = [], expected = [], action = '', annotation= {}, group = [0], iob = False, **kwargs):
+      {'raw':'story', 'pos':'NN', 'chunk':'I-NP'} ]      
+
+    result = pyrata.re.extend(pattern, annotation, data, iob = iob, mode = 'reluctant')
+    self.assertEqual(result, expected)
 
 
 
+  # ----------------------------------------------------------------------
+  def test_greedy_annotate_nfa_fire_on_shortest_match(self):
+    """Test greedy extend method on step on sequence wi optional steps and iob true with a step as annotation. The pattern is present in the data."""
+
+    pattern = 'pos="DT"? pos~"(DT|PRP\$|NNP)"? pos~"NN.?"'
+    pattern = 'pos~"(DT|PRP\$|NNP)"? pos~"NN.?"'
+
+    annotation = {'chunk':'NP'}
+    iob = True
+
+    data = [ {'raw':'Mr.', 'pos':'NNP'}, 
+      {'raw':'Stone', 'pos':'NNP'} ]
+    # longest 
+    expected = [ {'raw':'Mr.', 'pos':'NNP', 'chunk':'B-NP'}, 
+      {'raw':'Stone', 'pos':'NNP', 'chunk':'I-NP'}]
+
+ 
+    result = pyrata.re.extend(pattern, annotation, data, iob = iob)
+    self.assertEqual(result, expected)
+
+  # ----------------------------------------------------------------------
+  def test_reluctant_annotate_nfa_fire_on_shortest_match(self):
+    """Test reluctant extend method on step on sequence wi optional steps and iob true with a step as annotation. The pattern is present in the data."""
+    pattern = 'pos="DT"? pos~"(DT|PRP\$|NNP)"? pos~"NN.?"'
+    pattern = 'pos~"(DT|PRP\$|NNP)"? pos~"NN.?"'
+
+    annotation = {'chunk':'NP'}
+    iob = True
+
+    data = [  {'raw':'Mr.', 'pos':'NNP'}, #{'raw':'The', 'pos':'DT'}, 
+      {'raw':'Stone', 'pos':'NNP'} ]
 
 
-  def test_search_alternative_groups_in_data(self):
+    # shortest  
+    expected = [ {'raw':'Mr.', 'pos':'NNP', 'chunk':'B-NP'}, 
+      {'raw':'Stone', 'pos':'NNP', 'chunk':'B-NP'}]
+ 
+    result = pyrata.re.extend(pattern, annotation, data, iob = iob, mode = 'reluctant')
+    self.assertEqual(result, expected)
 
-    description = 'test_search_alternative_groups_in_data'
-    method = 'search'
-    #group = [1]
-    lexicons = {}
+
+
+  # ----------------------------------------------------------------------
+  def test_search_sequence_wi_alternative_groups_of_sequence_of_various_length(self):
+    """Test search method of a sequence made of groups wi alternatives of various size. The pattern is present in the data."""
+
     pattern = '(raw="a" raw="cup" raw="of" raw="coffee")'
     pattern = '(raw="a" raw="cup" raw="of" raw="coffee" | raw="a" raw="tea" )' # Error: syntactic parsing error - unexpected token type="NAME" with value="raw" at position 54. Search an error before this point.
     pattern = '((raw="a" raw="cup" raw="of" raw="coffee") | (raw="a" raw="tea" ))'
@@ -1162,12 +1876,8 @@ class TestPyrata(object):
     group_id = 2
     expected = [[{'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'cup'}, {'pos': 'IN', 'raw': 'of'}, {'pos': 'NN', 'raw': 'coffee'}], 1, 5]
     #self.test(description, method, lexicons, pattern, data, expected)  
-
     #pattern = '((raw="a" raw="cup" raw="of" raw="coffee")*| (raw="a" raw="tea" ))+'
-
     #pattern = '(raw="is") (( pos="JJ"* (pos="JJ" raw="and") (pos="JJ") )) (raw="to")'
-
-
     data = [ {'raw':'Over', 'pos':'IN'},
       {'raw':'a', 'pos':'DT' }, 
       {'raw':'cup', 'pos':'NN' },
@@ -1180,30 +1890,14 @@ class TestPyrata(object):
       {'raw':'his', 'pos':'PRP$'}, 
       {'raw':'story', 'pos':'NN'} ]
 
-    result = pyrata.re.search(pattern, data, lexicons=lexicons)
-    #print ('Debug: type(result)=',type(result))
-    #print ('Debug: result=',result)
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result._groups[group_id], expected)
 
-    if result != None: result = result._groups[group_id] #group(2)
+   # ----------------------------------------------------------------------
+  def test_group_search_sequence_wi_alternative_groups_of_sequence_of_various_length_and_quantifiers(self):
+    """Test search method of a sequence made of groups wi alternatives of various lengths and various quantifiers. The pattern is present in the data."""
 
-
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
-
-
-
-
-  def test_search_alternative_groups_wi_unmatched_quantifiers_in_data(self):
-
-    description = 'test_search_alternative_groups_wi_unmatched_quantifiers_in_data'
-    method = 'search'
-    group = [1]
-    lexicons = {}
-    pattern = '(pos="IN") (raw="a" raw="tea" | raw="a" raw="cup" raw="of"? raw="coffee" | raw="an" raw="orange"* raw="juice" )+ !pos=";"'
+    pattern = '(pos="IN") (raw="a" raw="tea" | raw="a" raw="cup" raw="of"? raw="coffee" | raw="an" raw="orange"* raw="juice" )+ [!pos=";"]'
 
     data = [ {'raw':'Over', 'pos':'IN'},
       {'raw':'a', 'pos':'DT' }, 
@@ -1218,29 +1912,52 @@ class TestPyrata(object):
       {'raw':'story', 'pos':'NN'} ]
     expected = [[{'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'cup'}, {'pos': 'IN', 'raw': 'of'}, {'pos': 'NN', 'raw': 'coffee'}], 1, 5]
 
-    result = pyrata.re.search(pattern, data, lexicons=lexicons)
-    if result != None: result = result.groups[2] #group(2)
 
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
+    result = pyrata.re.search(pattern, data)
+    # print ('\ttest_search_sequence_wi_alternative_groups_of_sequence_of_various_length_and_quantifiers={}'.format(result))
+    # print ('\tresult.group(2)={}'.format(result.group(2)))
+    # print ('\tresult.groups[2]={}'.format(result.groups()[2]))
+    # print ('\texpected={}'.format(expected))
+    self.assertEqual(result.group(2), expected[0])
+    #self.assertEqual(result.groups()[2], expected)
+
+   # ----------------------------------------------------------------------
+  def test_groups_search_sequence_wi_alternative_groups_of_sequence_of_various_length_and_quantifiers(self):
+    """Test search method of a sequence made of groups wi alternatives of various lengths and various quantifiers. The pattern is present in the data."""
+
+    pattern = '(pos="IN") (raw="a" raw="tea" | raw="a" raw="cup" raw="of"? raw="coffee" | raw="an" raw="orange"* raw="juice" )+ [!pos=";"]'
+
+    data = [ {'raw':'Over', 'pos':'IN'},
+      {'raw':'a', 'pos':'DT' }, 
+      {'raw':'cup', 'pos':'NN' },
+      {'raw':'of', 'pos':'IN'},
+      {'raw':'coffee', 'pos':'NN'},
+      {'raw':',', 'pos':','},
+      {'raw':'Mr.', 'pos':'NNP'}, 
+      {'raw':'Stone', 'pos':'NNP'},
+      {'raw':'told', 'pos':'VBD'},
+      {'raw':'his', 'pos':'PRP$'}, 
+      {'raw':'story', 'pos':'NN'} ]
+    expected = [[{'pos': 'DT', 'raw': 'a'}, {'pos': 'NN', 'raw': 'cup'}, {'pos': 'IN', 'raw': 'of'}, {'pos': 'NN', 'raw': 'coffee'}], 1, 5]
 
 
-  def test_search_groups_wi_matched_quantifiers_in_data(self):
-
-    description = 'test_search_groups_wi_matched_quantifiers_in_data'
-    method = 'search'
-    group = [1]
-    lexicons = {}
-    #pattern = '(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos="."|pos="FAKE")+' # Debug: p[0]=[[[None, 'pos="VB" '], ['?', 'pos="DT"'], ['*', 'pos="JJ"'], [None, 'pos="NN" '], [None, 'pos="."']], [[None, 'pos="FAKE"']]]
-
-    pattern = '(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos=".")+' # Debug: p[0]=['(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos=".")']
+    result = pyrata.re.search(pattern, data)
+    # print ('\ttest_search_sequence_wi_alternative_groups_of_sequence_of_various_length_and_quantifiers={}'.format(result))
+    # print ('\tresult.group(2)={}'.format(result.group(2)))
+    # print ('\tresult.groups[2]={}'.format(result.groups()[2]))
+    # print ('\texpected={}'.format(expected))
+    #self.assertEqual(result.group(2), expected)
+    self.assertEqual(result.groups()[2], expected)
 
 
+
+  # ----------------------------------------------------------------------
+  def test_search_quantified_zero_group_wi_nested_quantified_steps(self):
+    """Test search method of a sequence group made of steps wi quantifiers; the whole group wi a quantifier. The pattern is present in the data."""
     # Choose Life. Choose a job. Choose a career. Choose a family. Choose a fucking big television, choose washing machines, cars, compact disc players and electrical tin openers. Choose good health, low cholesterol, and dental insurance. 
+
+    pattern = '(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos=".")+' 
+
     data = [ {'raw':'Choose', 'pos':'VB'},
       {'raw':'Life', 'pos':'NN' }, 
       {'raw':'.', 'pos':'.' },
@@ -1285,30 +2002,20 @@ class TestPyrata(object):
       {'raw':'television', 'pos':'NN'}, 
       {'raw':'.', 'pos':'.'}  
       ]
-    result = pyrata.re.search(pattern, data, lexicons=lexicons)
-    if result != None: result = result.group(0) #group(2)
-
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.group(0), expected)
+    
 
 
 
-  def test_search_alternatives_groups_wi_matched_quantifiers_in_data(self):
-
-    description = 'test_search_alternatives_groups_wi_matched_quantifiers_in_data'
-    method = 'search'
-    group = [1]
-    lexicons = {}
-    pattern = '(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos="."|pos="FAKE")+' # Debug: p[0]=[[[None, 'pos="VB" '], ['?', 'pos="DT"'], ['*', 'pos="JJ"'], [None, 'pos="NN" '], [None, 'pos="."']], [[None, 'pos="FAKE"']]]
+  # ----------------------------------------------------------------------
+  def test_search_zero_group_made_of_alternatives_wi_nested_quantified_steps(self):
+    """Test search method of sequence alternatives made of steps wi quantifiers; the whole group wi a quantifier. The pattern is present in the data."""
+  
+    # Choose Life. Choose a job. Choose a career. Choose a family. Choose a fucking big television, choose washing machines, cars, compact disc players and electrical tin openers. Choose good health, low cholesterol, and dental insurance. 
 
     pattern = '(pos="VB" [!pos="NN"]* raw="Life" pos="."| pos="VB" [!pos="NN"]* raw="job" pos="."|pos="VB" [!pos="NN"]* raw="career" pos="."|pos="VB" [!pos="NN"]* raw="family" pos="."|pos="VB" [!pos="NN"]* raw="television" pos=".")+' # Debug: p[0]=[[[None, 'pos="VB" '], ['?', 'pos="DT"'], ['*', 'pos="JJ"'], [None, 'pos="NN" '], [None, 'pos="."']], [[None, 'pos="FAKE"']]]
 
-
-    # Choose Life. Choose a job. Choose a career. Choose a family. Choose a fucking big television, choose washing machines, cars, compact disc players and electrical tin openers. Choose good health, low cholesterol, and dental insurance. 
     data = [ {'raw':'Choose', 'pos':'VB'},
       {'raw':'Life', 'pos':'NN' }, 
       {'raw':'.', 'pos':'.' },
@@ -1329,7 +2036,8 @@ class TestPyrata(object):
       {'raw':'fucking', 'pos':'JJ'}, 
       {'raw':'big', 'pos':'JJ'},             
       {'raw':'television', 'pos':'NN'}, 
-      {'raw':'.', 'pos':'.'}  
+      {'raw':'.', 'pos':'.'}
+      ,   {'raw':'foo', 'pos':'bar'}  
       ]
     expected = [ {'raw':'Choose', 'pos':'VB'},
       {'raw':'Life', 'pos':'NN' }, 
@@ -1353,26 +2061,14 @@ class TestPyrata(object):
       {'raw':'television', 'pos':'NN'}, 
       {'raw':'.', 'pos':'.'}  
       ]
-    result = pyrata.re.search(pattern, data, lexicons=lexicons)
-    if result != None: result = result.group(0) #group(2)
-
-    success = False
-    if result == expected:
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.group(0), expected)
     
 
 
-
-  def test_eq_ne_len_operators_on_Matches_and_MatchesList(self):
-
-
-    method = 'search'
-    group = [1]
-    lexicons = {}
-    #pattern = '(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos="."|pos="FAKE")+' # Debug: p[0]=[[[None, 'pos="VB" '], ['?', 'pos="DT"'], ['*', 'pos="JJ"'], [None, 'pos="NN" '], [None, 'pos="."']], [[None, 'pos="FAKE"']]]
+  # ----------------------------------------------------------------------
+  def test_eq_operator_on_Matches(self):
+    """Test eq operator on Matches"""
 
 
     # Choose Life. Choose a job. Choose a career. Choose a family. Choose a fucking big television, choose washing machines, cars, compact disc players and electrical tin openers. Choose good health, low cholesterol, and dental insurance. 
@@ -1422,372 +2118,333 @@ class TestPyrata(object):
       ]
 
     pattern = '(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos=".")+' # Debug: p[0]=['(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos=".")']
-    quantified_group = pyrata.re.search(pattern, data, lexicons=lexicons)
+    quantified_group = pyrata.re.search(pattern, data )
     pattern = '(pos="VB" [!pos="NN"]* raw="Life" pos="."| pos="VB" [!pos="NN"]* raw="job" pos="."|pos="VB" [!pos="NN"]* raw="career" pos="."|pos="VB" [!pos="NN"]* raw="family" pos="."|pos="VB" [!pos="NN"]* raw="television" pos=".")+'
-    quantified_alternatives = pyrata.re.search(pattern, data, lexicons=lexicons)
+    quantified_alternatives = pyrata.re.search(pattern, data)
     
-    description = 'test_eq_operator_on_Matches'
     success = False
     if quantified_group == quantified_alternatives:
       success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
+    self.assertTrue(success)
+  
 
-    description = 'test_ne_operator_on_Matches'
+
+  # ----------------------------------------------------------------------
+  def test_ne_operator_on_Matches(self):
+    """Test ne operator on Matches"""
+
+    # Choose Life. Choose a job. Choose a career. Choose a family. Choose a fucking big television, choose washing machines, cars, compact disc players and electrical tin openers. Choose good health, low cholesterol, and dental insurance. 
+    data = [ {'raw':'Choose', 'pos':'VB'},
+      {'raw':'Life', 'pos':'NN' }, 
+      {'raw':'.', 'pos':'.' },
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'job', 'pos':'NN'},
+      {'raw':'.', 'pos':'.'}, 
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'career', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'family', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'fucking', 'pos':'JJ'}, 
+      {'raw':'big', 'pos':'JJ'},             
+      {'raw':'television', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'}  
+      ]
+    expected = [ {'raw':'Choose', 'pos':'VB'},
+      {'raw':'Life', 'pos':'NN' }, 
+      {'raw':'.', 'pos':'.' },
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'job', 'pos':'NN'},
+      {'raw':'.', 'pos':'.'}, 
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'career', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'family', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'fucking', 'pos':'JJ'}, 
+      {'raw':'big', 'pos':'JJ'},             
+      {'raw':'television', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'}  
+      ]
+    pattern = '(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos=".")+' # Debug: p[0]=['(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos=".")']
+    quantified_group = pyrata.re.search(pattern, data )
+    pattern = '(pos="VB" [!pos="NN"]* raw="Life" pos="."| pos="VB" [!pos="NN"]* raw="job" pos="."|pos="VB" [!pos="NN"]* raw="career" pos="."|pos="VB" [!pos="NN"]* raw="family" pos="."|pos="VB" [!pos="NN"]* raw="television" pos=".")+'
+    quantified_alternatives = pyrata.re.search(pattern, data)
+    
+    success = True
+    if quantified_group != quantified_alternatives:
+      success = False
+    self.assertTrue(success)
+
+    
+
+  # ----------------------------------------------------------------------
+  def test_len_on_Matches_ie_len_groups(self):
+    """Test test_len_on_Matches_ie_len_groups"""
+
+    # Choose Life. Choose a job. Choose a career. Choose a family. Choose a fucking big television, choose washing machines, cars, compact disc players and electrical tin openers. Choose good health, low cholesterol, and dental insurance. 
+    data = [ {'raw':'Choose', 'pos':'VB'},
+      {'raw':'Life', 'pos':'NN' }, 
+      {'raw':'.', 'pos':'.' },
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'job', 'pos':'NN'},
+      {'raw':'.', 'pos':'.'}, 
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'career', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'family', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'fucking', 'pos':'JJ'}, 
+      {'raw':'big', 'pos':'JJ'},             
+      {'raw':'television', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'}  
+      ]
+    expected = [ {'raw':'Choose', 'pos':'VB'},
+      {'raw':'Life', 'pos':'NN' }, 
+      {'raw':'.', 'pos':'.' },
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'job', 'pos':'NN'},
+      {'raw':'.', 'pos':'.'}, 
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'career', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'family', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'fucking', 'pos':'JJ'}, 
+      {'raw':'big', 'pos':'JJ'},             
+      {'raw':'television', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'}  
+      ]
+    pattern = '(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos=".")+' # Debug: p[0]=['(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos=".")']
+    quantified_group = pyrata.re.search(pattern, data )
+    pattern = '(pos="VB" [!pos="NN"]* raw="Life" pos="."| pos="VB" [!pos="NN"]* raw="job" pos="."|pos="VB" [!pos="NN"]* raw="career" pos="."|pos="VB" [!pos="NN"]* raw="family" pos="."|pos="VB" [!pos="NN"]* raw="television" pos=".")+'
+    quantified_alternatives = pyrata.re.search(pattern, data)
+    
     success = False
-    if not(quantified_group != quantified_alternatives):
+    #print ('Debug: do_test - len(quantified_group)={} len (quantified_alternatives)={}'.format(len(quantified_group), len (quantified_alternatives)))
+    if len(quantified_group) == 2 and len(quantified_group) == len (quantified_alternatives):
       success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description)
+    self.assertTrue(success)
 
-    description = 'test_len_on_Matches_ie_len_groups'
-    success = False
-    if len(quantified_group) == 6 and len(quantified_group) == len (quantified_alternatives):
-      success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description) 
 
+     
+  # ----------------------------------------------------------------------
+  def test_eq_on_MatchesList(self):
+    """Test test_eq_on_MatchesList"""
+
+    # Choose Life. Choose a job. Choose a career. Choose a family. Choose a fucking big television, choose washing machines, cars, compact disc players and electrical tin openers. Choose good health, low cholesterol, and dental insurance. 
+    data = [ {'raw':'Choose', 'pos':'VB'},
+      {'raw':'Life', 'pos':'NN' }, 
+      {'raw':'.', 'pos':'.' },
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'job', 'pos':'NN'},
+      {'raw':'.', 'pos':'.'}, 
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'career', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'family', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'fucking', 'pos':'JJ'}, 
+      {'raw':'big', 'pos':'JJ'},             
+      {'raw':'television', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'}  
+      ]
+    expected = [ {'raw':'Choose', 'pos':'VB'},
+      {'raw':'Life', 'pos':'NN' }, 
+      {'raw':'.', 'pos':'.' },
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'job', 'pos':'NN'},
+      {'raw':'.', 'pos':'.'}, 
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'career', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'family', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'fucking', 'pos':'JJ'}, 
+      {'raw':'big', 'pos':'JJ'},             
+      {'raw':'television', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'}  
+      ]
     pattern = 'pos="VB" pos="DT"? pos="JJ"* pos="NN" pos="."' # Debug: p[0]=['(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos=".")']
     aMatchesList = pyrata.re.finditer(pattern, data)
     anotherMatchesList = pyrata.re.finditer(pattern, data)
-
-    description = 'test_eq_on_MatchesList'
+    result = aMatchesList
+    expected = anotherMatchesList
     success = False
     if aMatchesList == anotherMatchesList:
       success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description) 
+    self.assertTrue(success)
+
      
-    description = 'test_ne_on_MatchesList'
+   # ----------------------------------------------------------------------
+  def test_ne_on_MatchesList(self):
+    """Test test_ne_on_MatchesList"""
+
+    # Choose Life. Choose a job. Choose a career. Choose a family. Choose a fucking big television, choose washing machines, cars, compact disc players and electrical tin openers. Choose good health, low cholesterol, and dental insurance. 
+    data = [ {'raw':'Choose', 'pos':'VB'},
+      {'raw':'Life', 'pos':'NN' }, 
+      {'raw':'.', 'pos':'.' },
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'job', 'pos':'NN'},
+      {'raw':'.', 'pos':'.'}, 
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'career', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'family', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'fucking', 'pos':'JJ'}, 
+      {'raw':'big', 'pos':'JJ'},             
+      {'raw':'television', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'}  
+      ]
+    expected = [ {'raw':'Choose', 'pos':'VB'},
+      {'raw':'Life', 'pos':'NN' }, 
+      {'raw':'.', 'pos':'.' },
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'job', 'pos':'NN'},
+      {'raw':'.', 'pos':'.'}, 
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'career', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'family', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'fucking', 'pos':'JJ'}, 
+      {'raw':'big', 'pos':'JJ'},             
+      {'raw':'television', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'}  
+      ]
+    pattern = 'pos="VB" pos="DT"? pos="JJ"* pos="NN" pos="."' # Debug: p[0]=['(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos=".")']
+    aMatchesList = pyrata.re.finditer(pattern, data)
+    anotherMatchesList = pyrata.re.finditer(pattern, data)
+    result = aMatchesList
+    expected = anotherMatchesList
     success = False
     if not(aMatchesList != anotherMatchesList):
       success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description) 
+    self.assertTrue(success)
 
 
-    description = 'test_len_on_MatchesList'
+     
+
+     
+   # ----------------------------------------------------------------------
+  def test_len_on_MatchesList(self):
+    """Test test_len_on_MatchesList"""
+
+    # Choose Life. Choose a job. Choose a career. Choose a family. Choose a fucking big television, choose washing machines, cars, compact disc players and electrical tin openers. Choose good health, low cholesterol, and dental insurance. 
+    data = [ {'raw':'Choose', 'pos':'VB'},
+      {'raw':'Life', 'pos':'NN' }, 
+      {'raw':'.', 'pos':'.' },
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'job', 'pos':'NN'},
+      {'raw':'.', 'pos':'.'}, 
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'career', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'family', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'fucking', 'pos':'JJ'}, 
+      {'raw':'big', 'pos':'JJ'},             
+      {'raw':'television', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'}  
+      ]
+    expected = [ {'raw':'Choose', 'pos':'VB'},
+      {'raw':'Life', 'pos':'NN' }, 
+      {'raw':'.', 'pos':'.' },
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'job', 'pos':'NN'},
+      {'raw':'.', 'pos':'.'}, 
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'career', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'family', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'},
+      {'raw':'Choose', 'pos':'VB'},
+      {'raw':'a', 'pos':'DT'},
+      {'raw':'fucking', 'pos':'JJ'}, 
+      {'raw':'big', 'pos':'JJ'},             
+      {'raw':'television', 'pos':'NN'}, 
+      {'raw':'.', 'pos':'.'}  
+      ]
+    pattern = 'pos="VB" pos="DT"? pos="JJ"* pos="NN" pos="."' # Debug: p[0]=['(pos="VB" pos="DT"? pos="JJ"* pos="NN" pos=".")']
+    aMatchesList = pyrata.re.finditer(pattern, data)
     success = False
     if len(aMatchesList) == 5:
       success = True
-      self.testSuccess += 1
-    self.testCounter +=1
-    print (success,'\t', description) 
-     
+    self.assertTrue(success)
 
 
-  def test_clause(self):
-    # http://www.nltk.org/book/ch07.html # Building Nested Structure with Cascaded Chunkers
-    sentence = [("Mary", "NN"), ("saw", "VBD"), ("the", "DT"), ("cat", "NN"),
-      ("sit", "VB"), ("on", "IN"), ("the", "DT"), ("mat", "NN")]
-    sentence = [("John", "NNP"), ("thinks", "VBZ"), ("Mary", "NN"), ("saw", "VBD"), ("the", "DT"), ("cat", "NN"), ("sit", "VB"), ("on", "IN"), ("the", "DT"), ("mat", "NN")]
-    data = [{'raw':w, 'pos':p} for (w, p) in sentence]
-    print ('Debug:', data)
-
-    # NP: {<DT|JJ|NN.*>+}          # Chunk sequences of DT, JJ, NN :      can   
-    # extend pattern='pos~"DT|JJ|NN.*"+' annotation={'ch1':'NP'} iob = True 
-    method = 'annotate'
-    action = 'extend'
-    group = [0]
-    iob = True
-    pattern = 'pos~"DT|JJ|NN.*"+'
-    annotation = {'ch1':'NP'}
-    result_NP = pyrata.re.annotate (pattern, annotation, data, group, action, iob)
-    print ('Debug: ch1 NP=',result_NP)
-
-    #PP: {<IN><NP>}               # Chunk prepositions followed by NP :  may   
-    #extend pattern='pos="IN" ch1-"NP"' annotation={'ch2':'PP'} iob = True 
-    #       pattern='pos="IN" (ch1="B-NP" ch1="I-NP"*)"
-    pattern = 'pos="IN" (ch1="B-NP" ch1="I-NP"*)'
-    annotation = {'ch2':'PP'}
-    result_PP = pyrata.re.annotate (pattern, annotation, result_NP, group, action, iob)
-    print ('Debug: ch2 PP=',result_PP)
-
-    # VP: {<VB.*><NP|PP|CLAUSE>+$} # Chunk verbs and their arguments :    might 
-    # extend pattern='pos~"VB.*" (ch1-"NP"|ch2-"PP"|ch3-"CLAUSE")+$' annotation={'ch4':'VP'} iob = True
-     #       pattern='pos~"VB.*" (ch1="B-NP" ch1="I-NP"*|ch2="B-PP" ch2="I-PP"*|ch3="B-CLAUSE" ch3="I-CLAUSE"*)+$'
-    pattern = 'pos~"VB.*" (ch1="B-NP" ch1="I-NP"*|ch2="B-PP" ch2="I-PP"*|ch3="B-CLAUSE" ch3="I-CLAUSE"*)+$' 
-    annotation = {'ch4':'VP'}
-    result_VP = pyrata.re.annotate (pattern, annotation, result_PP, group, action, iob)
-    print ('Debug: ch4 VP=',result_VP)
-
-
-    # CLAUSE: {<NP><VP>}           # Chunk NP, VP                         might 
-    #extend pattern='ch1-"NP" ch4-"VP"' annotation={'ch3':'CLAUSE'} iob = True
-    #        pattern='(ch1="B-NP" ch1="B-NP"*) (ch4="B-VP" ch4="I-VP"*)'
-    pattern = '(ch1="B-NP" ch1="I-NP"*) (ch4="B-VP" ch4="I-VP"*)'
-    annotation = {'ch3':'CLAUSE'}
-    result_CLAUSE = pyrata.re.annotate (pattern, annotation, result_VP, group, action, iob)
-    print ('Debug: ch3 CLAUSE=',result_CLAUSE)
-
-    # loop 2
-    pattern = 'pos~"VB.*" (ch3="B-CLAUSE" ch3="I-CLAUSE"*)+$' # it is not an OR all inclusive it is the first presented which match ch1="B-NP" ch1="I-NP"*|ch2="B-PP" ch2="I-PP"*|
-    annotation = {'ch5':'VP'}
-    result_VP = pyrata.re.annotate (pattern, annotation, result_PP, group, action, iob)
-    print ('Debug: ch5 (loop 2) VP=',result_VP)
-
-    pattern = '(ch1="B-NP" ch1="I-NP"*) (ch5="B-VP" ch5="I-VP"*)'
-    annotation = {'ch6':'CLAUSE'}
-    result_CLAUSE = pyrata.re.annotate (pattern, annotation, result_VP, group, action, iob)
-    print ('Debug: ch6 (loop 2) CLAUSE=',result_CLAUSE)
-
-# Debug: [{'raw': 'Mary', 'pos': 'NN'}, {'raw': 'saw', 'pos': 'VBD'}, {'raw': 'the', 'pos': 'DT'}, {'raw': 'cat', 'pos': 'NN'}, {'raw': 'sit', 'pos': 'VB'}, {'raw': 'on', 'pos': 'IN'}, {'raw': 'the', 'pos': 'DT'}, {'raw': 'mat', 'pos': 'NN'}]
-# Debug: ch1 NP= [{'ch1': 'B-NP', 'raw': 'Mary', 'pos': 'NN'}, {'raw': 'saw', 'pos': 'VBD'}, {'ch1': 'B-NP', 'raw': 'the', 'pos': 'DT'}, {'ch1': 'I-NP', 'raw': 'cat', 'pos': 'NN'}, {'raw': 'sit', 'pos': 'VB'}, {'raw': 'on', 'pos': 'IN'}, {'ch1': 'B-NP', 'raw': 'the', 'pos': 'DT'}, {'ch1': 'I-NP', 'raw': 'mat', 'pos': 'NN'}]
-# Debug: ch2 PP= [{'ch1': 'B-NP', 'raw': 'Mary', 'pos': 'NN'}, {'raw': 'saw', 'pos': 'VBD'}, {'ch1': 'B-NP', 'raw': 'the', 'pos': 'DT'}, {'ch1': 'I-NP', 'raw': 'cat', 'pos': 'NN'}, {'raw': 'sit', 'pos': 'VB'}, {'raw': 'on', 'pos': 'IN', 'ch2': 'B-PP'}, {'ch1': 'B-NP', 'raw': 'the', 'pos': 'DT', 'ch2': 'I-PP'}, {'ch1': 'I-NP', 'raw': 'mat', 'pos': 'NN', 'ch2': 'I-PP'}]
-# Debug: ch4 VP= [{'ch1': 'B-NP', 'raw': 'Mary', 'pos': 'NN'}, {'raw': 'saw', 'pos': 'VBD'}, {'ch1': 'B-NP', 'raw': 'the', 'pos': 'DT'}, {'ch1': 'I-NP', 'raw': 'cat', 'pos': 'NN'}, {'ch4': 'B-VP', 'raw': 'sit', 'pos': 'VB'}, {'ch4': 'I-VP', 'raw': 'on', 'pos': 'IN', 'ch2': 'B-PP'}, {'ch4': 'I-VP', 'ch1': 'B-NP', 'raw': 'the', 'pos': 'DT', 'ch2': 'I-PP'}, {'ch4': 'I-VP', 'ch1': 'I-NP', 'raw': 'mat', 'pos': 'NN', 'ch2': 'I-PP'}]
-# [{'ch1': 'B-NP', 'raw': 'Mary', 'pos': 'NN'}, 
-# {'raw': 'saw', 'pos': 'VBD'}, 
-# {'ch1': 'B-NP', 'raw': 'the', 'pos': 'DT'}, {'ch1': 'I-NP', 'raw': 'cat', 'pos': 'NN'}, 
-# {'ch4': 'B-VP', 'raw': 'sit', 'pos': 'VB'}, 
-# {'ch4': 'I-VP', 'raw': 'on', 'pos': 'IN', 'ch2': 'B-PP'}, 
-# {'ch4': 'I-VP', 'ch1': 'B-NP', 'raw': 'the', 'pos': 'DT', 'ch2': 'I-PP'}, 
-# {'ch4': 'I-VP', 'ch1': 'I-NP', 'raw': 'mat', 'pos': 'NN', 'ch2': 'I-PP'}]
-
-# Debug: ch3 CLAUSE= [{'pos': 'NN', 'raw': 'Mary', 'ch1': 'B-NP'}, {'pos': 'VBD', 'raw': 'saw'}, {'pos': 'DT', 'raw': 'the', 'ch1': 'B-NP', 'ch3': 'B-CLAUSE'}, {'pos': 'NN', 'raw': 'cat', 'ch1': 'I-NP', 'ch3': 'I-CLAUSE'}, {'pos': 'VB', 'raw': 'sit', 'ch4': 'B-VP', 'ch3': 'I-CLAUSE'}, {'pos': 'IN', 'raw': 'on', 'ch2': 'B-PP', 'ch3': 'I-CLAUSE', 'ch4': 'I-VP'}, {'ch2': 'I-PP', 'ch4': 'I-VP', 'ch3': 'I-CLAUSE', 'pos': 'DT', 'raw': 'the', 'ch1': 'B-NP'}, {'ch2': 'I-PP', 'ch4': 'I-VP', 'ch3': 'I-CLAUSE', 'pos': 'NN', 'raw': 'mat', 'ch1': 'I-NP'}]
-# (S
-#   (NP Mary/NN)
-#   saw/VBD
-#   (CLAUSE
-#     (NP the/DT cat/NN)
-#     (VP sit/VB (PP on/IN (NP the/DT mat/NN)))))
-
-# [{'pos': 'NN', 'raw': 'Mary', 'ch1': 'B-NP'}, 
-# {'pos': 'VBD', 'raw': 'saw'}, 
-# {'pos': 'DT', 'raw': 'the', 'ch1': 'B-NP', 'ch3': 'B-CLAUSE'}, 
-# {'pos': 'NN', 'raw': 'cat', 'ch1': 'I-NP', 'ch3': 'I-CLAUSE'}, 
-# {'pos': 'VB', 'raw': 'sit', 'ch4': 'B-VP', 'ch3': 'I-CLAUSE'}, 
-# {'pos': 'IN', 'raw': 'on', 'ch2': 'B-PP', 'ch3': 'I-CLAUSE', 'ch4': 'I-VP'},
-# {'ch2': 'I-PP', 'ch4': 'I-VP', 'ch3': 'I-CLAUSE', 'pos': 'DT', 'raw': 'the', 'ch1': 'B-NP'}, 
-# {'ch2': 'I-PP', 'ch4': 'I-VP', 'ch3': 'I-CLAUSE', 'pos': 'NN', 'raw': 'mat', 'ch1': 'I-NP'}]
-
-#Debug: ch4 (loop 2) VP= [{'raw': 'Mary', 'ch1': 'B-NP', 'pos': 'NN'}, {'raw': 'saw', 'pos': 'VBD'}, {'ch3': 'B-CLAUSE', 'raw': 'the', 'ch1': 'B-NP', 'pos': 'DT'}, {'ch3': 'I-CLAUSE', 'raw': 'cat', 'ch1': 'I-NP', 'pos': 'NN'}, {'ch3': 'I-CLAUSE', 'raw': 'sit', 'ch4': 'B-VP', 'pos': 'VB'}, {'ch3': 'I-CLAUSE', 'raw': 'on', 'ch4': 'I-VP', 'ch2': 'B-PP', 'pos': 'IN'}, {'ch3': 'I-CLAUSE', 'raw': 'the', 'ch2': 'I-PP', 'ch4': 'I-VP', 'pos': 'DT', 'ch1': 'B-NP'}, {'ch3': 'I-CLAUSE', 'raw': 'mat', 'ch2': 'I-PP', 'ch4': 'I-VP', 'pos': 'NN', 'ch1': 'I-NP'}]
-#Debug: ch3 (loop 2) CLAUSE= [{'raw': 'Mary', 'ch1': 'B-NP', 'pos': 'NN'}, {'raw': 'saw', 'pos': 'VBD'}, {'ch3': 'B-CLAUSE', 'raw': 'the', 'ch1': 'B-NP', 'pos': 'DT'}, {'ch3': 'I-CLAUSE', 'raw': 'cat', 'ch1': 'I-NP', 'pos': 'NN'}, {'ch3': 'I-CLAUSE', 'raw': 'sit', 'ch4': 'B-VP', 'pos': 'VB'}, {'ch3': 'I-CLAUSE', 'raw': 'on', 'ch4': 'I-VP', 'ch2': 'B-PP', 'pos': 'IN'}, {'ch3': 'I-CLAUSE', 'raw': 'the', 'ch2': 'I-PP', 'ch4': 'I-VP', 'pos': 'DT', 'ch1': 'B-NP'}, {'ch3': 'I-CLAUSE', 'raw': 'mat', 'ch2': 'I-PP', 'ch4': 'I-VP', 'pos': 'NN', 'ch1': 'I-NP'}]
-
-# [{'raw': 'Mary', 'ch1': 'B-NP', 'pos': 'NN'}, 
-# {'raw': 'saw', 'pos': 'VBD'}, 
-# {'ch3': 'B-CLAUSE', 'raw': 'the', 'ch1': 'B-NP', 'pos': 'DT'}, 
-# {'ch3': 'I-CLAUSE', 'raw': 'cat', 'ch1': 'I-NP', 'pos': 'NN'}, 
-# {'ch3': 'I-CLAUSE', 'raw': 'sit', 'ch4': 'B-VP', 'pos': 'VB'}, 
-# {'ch3': 'I-CLAUSE', 'raw': 'on', 'ch4': 'I-VP', 'ch2': 'B-PP', 'pos': 'IN'}, 
-# {'ch3': 'I-CLAUSE', 'raw': 'the', 'ch2': 'I-PP', 'ch4': 'I-VP', 'pos': 'DT', 'ch1': 'B-NP'}, 
-# {'ch3': 'I-CLAUSE', 'raw': 'mat', 'ch2': 'I-PP', 'ch4': 'I-VP', 'pos': 'NN', 'ch1': 'I-NP'}]
-
-# sentence 2
-#Debug: [{'pos': 'NNP', 'raw': 'John'}, {'pos': 'VBZ', 'raw': 'thinks'}, {'pos': 'NN', 'raw': 'Mary'}, {'pos': 'VBD', 'raw': 'saw'}, {'pos': 'DT', 'raw': 'the'}, {'pos': 'NN', 'raw': 'cat'}, {'pos': 'VB', 'raw': 'sit'}, {'pos': 'IN', 'raw': 'on'}, {'pos': 'DT', 'raw': 'the'}, {'pos': 'NN', 'raw': 'mat'}]
-#Debug: ch1 NP= [{'pos': 'NNP', 'ch1': 'B-NP', 'raw': 'John'}, {'pos': 'VBZ', 'raw': 'thinks'}, {'pos': 'NN', 'ch1': 'B-NP', 'raw': 'Mary'}, {'pos': 'VBD', 'raw': 'saw'}, {'pos': 'DT', 'ch1': 'B-NP', 'raw': 'the'}, {'pos': 'NN', 'ch1': 'I-NP', 'raw': 'cat'}, {'pos': 'VB', 'raw': 'sit'}, {'pos': 'IN', 'raw': 'on'}, {'pos': 'DT', 'ch1': 'B-NP', 'raw': 'the'}, {'pos': 'NN', 'ch1': 'I-NP', 'raw': 'mat'}]
-#Debug: ch2 PP= [{'pos': 'NNP', 'ch1': 'B-NP', 'raw': 'John'}, {'pos': 'VBZ', 'raw': 'thinks'}, {'pos': 'NN', 'ch1': 'B-NP', 'raw': 'Mary'}, {'pos': 'VBD', 'raw': 'saw'}, {'pos': 'DT', 'ch1': 'B-NP', 'raw': 'the'}, {'pos': 'NN', 'ch1': 'I-NP', 'raw': 'cat'}, {'pos': 'VB', 'raw': 'sit'}, {'pos': 'IN', 'ch2': 'B-PP', 'raw': 'on'}, {'pos': 'DT', 'ch1': 'B-NP', 'ch2': 'I-PP', 'raw': 'the'}, {'pos': 'NN', 'ch1': 'I-NP', 'ch2': 'I-PP', 'raw': 'mat'}]
-#Debug: ch4 VP= [{'pos': 'NNP', 'ch1': 'B-NP', 'raw': 'John'}, {'pos': 'VBZ', 'raw': 'thinks'}, {'pos': 'NN', 'ch1': 'B-NP', 'raw': 'Mary'}, {'pos': 'VBD', 'raw': 'saw'}, {'pos': 'DT', 'ch1': 'B-NP', 'raw': 'the'}, {'pos': 'NN', 'ch1': 'I-NP', 'raw': 'cat'}, {'pos': 'VB', 'raw': 'sit', 'ch4': 'B-VP'}, {'pos': 'IN', 'ch2': 'B-PP', 'raw': 'on', 'ch4': 'I-VP'}, {'pos': 'DT', 'ch1': 'B-NP', 'ch2': 'I-PP', 'raw': 'the', 'ch4': 'I-VP'}, {'pos': 'NN', 'ch1': 'I-NP', 'ch2': 'I-PP', 'raw': 'mat', 'ch4': 'I-VP'}]
-#Debug: ch3 CLAUSE= [{'pos': 'NNP', 'ch1': 'B-NP', 'raw': 'John'}, {'pos': 'VBZ', 'raw': 'thinks'}, {'pos': 'NN', 'ch1': 'B-NP', 'raw': 'Mary'}, {'pos': 'VBD', 'raw': 'saw'}, {'pos': 'DT', 'ch1': 'B-NP', 'raw': 'the', 'ch3': 'B-CLAUSE'}, {'pos': 'NN', 'ch1': 'I-NP', 'raw': 'cat', 'ch3': 'I-CLAUSE'}, {'pos': 'VB', 'raw': 'sit', 'ch3': 'I-CLAUSE', 'ch4': 'B-VP'}, {'pos': 'IN', 'ch2': 'B-PP', 'raw': 'on', 'ch3': 'I-CLAUSE', 'ch4': 'I-VP'}, {'ch1': 'B-NP', 'ch2': 'I-PP', 'ch3': 'I-CLAUSE', 'ch4': 'I-VP', 'pos': 'DT', 'raw': 'the'}, {'ch1': 'I-NP', 'ch2': 'I-PP', 'ch3': 'I-CLAUSE', 'ch4': 'I-VP', 'pos': 'NN', 'raw': 'mat'}]
-#Debug: ch5 (loop 2) VP= [{'ch1': 'B-NP', 'raw': 'John', 'pos': 'NNP'}, {'raw': 'thinks', 'pos': 'VBZ'}, {'ch1': 'B-NP', 'raw': 'Mary', 'pos': 'NN'}, {'raw': 'saw', 'pos': 'VBD'}, {'ch1': 'B-NP', 'raw': 'the', 'pos': 'DT', 'ch3': 'B-CLAUSE'}, {'ch1': 'I-NP', 'raw': 'cat', 'pos': 'NN', 'ch3': 'I-CLAUSE'}, {'ch4': 'B-VP', 'raw': 'sit', 'ch5': 'B-VP', 'pos': 'VB', 'ch3': 'I-CLAUSE'}, {'ch4': 'I-VP', 'pos': 'IN', 'ch2': 'B-PP', 'raw': 'on', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE'}, {'ch4': 'I-VP', 'ch1': 'B-NP', 'pos': 'DT', 'ch2': 'I-PP', 'raw': 'the', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE'}, {'ch4': 'I-VP', 'ch1': 'I-NP', 'pos': 'NN', 'ch2': 'I-PP', 'raw': 'mat', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE'}]
-#Debug: ch6 (loop 2) CLAUSE= [{'ch1': 'B-NP', 'raw': 'John', 'pos': 'NNP'}, {'raw': 'thinks', 'pos': 'VBZ'}, {'ch1': 'B-NP', 'raw': 'Mary', 'pos': 'NN'}, {'raw': 'saw', 'pos': 'VBD'}, {'ch1': 'B-NP', 'raw': 'the', 'ch6': 'B-CLAUSE', 'pos': 'DT', 'ch3': 'B-CLAUSE'}, {'ch1': 'I-NP', 'raw': 'cat', 'ch6': 'I-CLAUSE', 'pos': 'NN', 'ch3': 'I-CLAUSE'}, {'ch4': 'B-VP', 'pos': 'VB', 'ch6': 'I-CLAUSE', 'raw': 'sit', 'ch5': 'B-VP', 'ch3': 'I-CLAUSE'}, {'ch4': 'I-VP', 'ch6': 'I-CLAUSE', 'pos': 'IN', 'ch2': 'B-PP', 'raw': 'on', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE'}, {'ch4': 'I-VP', 'ch1': 'B-NP', 'ch6': 'I-CLAUSE', 'pos': 'DT', 'ch2': 'I-PP', 'raw': 'the', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE'}, {'ch4': 'I-VP', 'ch1': 'I-NP', 'ch6': 'I-CLAUSE', 'pos': 'NN', 'ch2': 'I-PP', 'raw': 'mat', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE'}]
-#Debug: ch5 (loop 2) VP= [{'ch1': 'B-NP', 'pos': 'NNP', 'raw': 'John'}, {'pos': 'VBZ', 'raw': 'thinks'}, {'ch1': 'B-NP', 'pos': 'NN', 'raw': 'Mary'}, {'ch5': 'B-VP', 'pos': 'VBD', 'raw': 'saw'}, {'ch1': 'B-NP', 'ch3': 'B-CLAUSE', 'pos': 'DT', 'raw': 'the', 'ch5': 'I-VP'}, {'ch1': 'I-NP', 'ch3': 'I-CLAUSE', 'pos': 'NN', 'raw': 'cat', 'ch5': 'I-VP'}, {'ch3': 'I-CLAUSE', 'pos': 'VB', 'raw': 'sit', 'ch4': 'B-VP', 'ch5': 'I-VP'}, {'ch2': 'B-PP', 'pos': 'IN', 'raw': 'on', 'ch4': 'I-VP', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE'}, {'ch1': 'B-NP', 'ch2': 'I-PP', 'pos': 'DT', 'raw': 'the', 'ch4': 'I-VP', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE'}, {'ch1': 'I-NP', 'ch2': 'I-PP', 'pos': 'NN', 'raw': 'mat', 'ch4': 'I-VP', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE'}]
-#Debug: ch6 (loop 2) CLAUSE= [{'ch1': 'B-NP', 'pos': 'NNP', 'raw': 'John'}, {'pos': 'VBZ', 'raw': 'thinks'}, {'ch1': 'B-NP', 'pos': 'NN', 'raw': 'Mary', 'ch6': 'B-CLAUSE'}, {'ch5': 'B-VP', 'pos': 'VBD', 'raw': 'saw', 'ch6': 'I-CLAUSE'}, {'ch1': 'B-NP', 'ch5': 'I-VP', 'pos': 'DT', 'ch3': 'B-CLAUSE', 'raw': 'the', 'ch6': 'I-CLAUSE'}, {'ch1': 'I-NP', 'ch5': 'I-VP', 'pos': 'NN', 'ch3': 'I-CLAUSE', 'raw': 'cat', 'ch6': 'I-CLAUSE'}, {'ch5': 'I-VP', 'pos': 'VB', 'ch3': 'I-CLAUSE', 'ch4': 'B-VP', 'raw': 'sit', 'ch6': 'I-CLAUSE'}, {'ch2': 'B-PP', 'pos': 'IN', 'raw': 'on', 'ch4': 'I-VP', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE', 'ch6': 'I-CLAUSE'}, {'ch1': 'B-NP', 'ch2': 'I-PP', 'pos': 'DT', 'raw': 'the', 'ch4': 'I-VP', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE', 'ch6': 'I-CLAUSE'}, {'ch1': 'I-NP', 'ch2': 'I-PP', 'pos': 'NN', 'raw': 'mat', 'ch4': 'I-VP', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE', 'ch6': 'I-CLAUSE'}]
-
-
-# (S
-#   (NP John/NNP)
-#   thinks/VBZ
-#   (CLAUSE
-#     (NP Mary/NN)
-#     (VP
-#       saw/VBD
-#       (CLAUSE
-#         (NP the/DT cat/NN)
-#         (VP sit/VB (PP on/IN (NP the/DT mat/NN)))))))
-
-# [{'ch1': 'B-NP', 'pos': 'NNP', 'raw': 'John'}, 
-# {'pos': 'VBZ', 'raw': 'thinks'}, 
-# {'ch1': 'B-NP', 'pos': 'NN', 'raw': 'Mary', 'ch6': 'B-CLAUSE'}, 
-# {'ch5': 'B-VP', 'pos': 'VBD', 'raw': 'saw', 'ch6': 'I-CLAUSE'}, 
-# {'ch1': 'B-NP', 'ch5': 'I-VP', 'pos': 'DT', 'ch3': 'B-CLAUSE', 'raw': 'the', 'ch6': 'I-CLAUSE'}, 
-# {'ch1': 'I-NP', 'ch5': 'I-VP', 'pos': 'NN', 'ch3': 'I-CLAUSE', 'raw': 'cat', 'ch6': 'I-CLAUSE'}, 
-# {'ch5': 'I-VP', 'pos': 'VB', 'ch3': 'I-CLAUSE', 'ch4': 'B-VP', 'raw': 'sit', 'ch6': 'I-CLAUSE'}, 
-# {'ch2': 'B-PP', 'pos': 'IN', 'raw': 'on', 'ch4': 'I-VP', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE', 'ch6': 'I-CLAUSE'}, 
-# {'ch1': 'B-NP', 'ch2': 'I-PP', 'pos': 'DT', 'raw': 'the', 'ch4': 'I-VP', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE', 'ch6': 'I-CLAUSE'}, 
-# {'ch1': 'I-NP', 'ch2': 'I-PP', 'pos': 'NN', 'raw': 'mat', 'ch4': 'I-VP', 'ch5': 'I-VP', 'ch3': 'I-CLAUSE', 'ch6': 'I-CLAUSE'}]
-
-    self.testCounter +=1
-
-  def test_simple_clause_timit(self):
-    from nltk.corpus import brown
-    brown_sents = brown.sents()
-    import nltk
-    brown_pos_tag_sents = [nltk.pos_tag(sentence) for sentence in brown_sents[:1000]] 
-    #print (brown_pos_tag_sents[0])
-    data = []
-    for s in brown_pos_tag_sents:
-      data.append([{'raw':w, 'pos':p} for (w, p) in s])
-    #data = data[0]
-    data = [val for sublist in data for val in sublist]
-
-    print (data[:10])
-    print ('len(data):', len(data))
-
-    pattern = 'pos="DT"? pos="JJ"* pos="NN"' #
-    pattern = '[pos~"NN.*" | ( pos="JJ" & !pos="") ]* pos~"NN.*"' # INFO:   [['*', '[pos~"NN.*" | ( pos="JJ" & !pos="") ]'], [None, 'pos~"NN.*"']]
-    #pattern = '(pos="DT"? pos="JJ"*)+ pos="NN"'                   # INFO:   [['?', [[['?', 'pos="DT"'], ['*', 'pos="JJ"']]]], [None, 'pos="NN"']]
-
-    #findall_result = pyrata.re.findall(pattern, data)
-
-    #import pyrata.compiled_data
-    #cd = pyrata.compiled_data.CompiledData(data=data)
-
-    token = {'raw': 'The', 'pos': 'DT'}
-    pattern_step = pos="DT"
-    #print ('cd.has_key(',token,')=',cd.has_key(token))
-    
-    #pos="DT" {'raw': 'The', 'pos': 'DT'}
-    # token -> pattern -> evaluation
-
-    #matcheslist = pyrata.semantic_pattern_parser.MatchesList() 
-    # the following lines computes times
-    def measure_pyrata_findall():
-      #global pyrata_findall_result
-    #   #for dictlist in dictlistlist:
-    #   #  pyrata_findall_result.append(pyrata_re.findall('[pos~"NN.*" | pos="JJ"]* pos~"NN.*"', data))
-      pyrata.re.findall(pattern, data)
-      #print(pyrata.re.findall(pattern, data))
-    #     #print (pyrata_findall_result[-1])
-
-    #pyrata_findall_result = []
-
-    from timeit import Timer
-    pyrata_findall_time = Timer(measure_pyrata_findall)
-    #print ('timit:', pyrata_findall_time.timeit(number=1))
-    n = 1
-    runtimes = [pyrata_findall_time.timeit(number=1) for i in range (0, n)]
-    average = sum(runtimes)/len(runtimes)
-    print ('timit: #runs=', n, '; average=',average,'; min=', min(runtimes))
-
-
-    self.testCounter +=1
-
-
-
-# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-# Declare here all the tests you want to run
-# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-  def __init__(self):
-
-
-    self.test_search_step_in_data()
-    self.test_findall_step_in_data()
-    self.test_finditer_step_in_data()
-
-    self.test_search_step_absent_in_data()
-    self.test_findall_step_absent_in_data()
-
-    self.test_search_class_step_in_data()
-    self.test_search_rich_class_step_in_data()
-
-    self.test_findall_regex_step_in_data()
-    self.test_findall_lexicon_step_in_data()
-    self.test_findall_undefined_lexicon_step_in_data()
-
-    self.test_findall_multiple_lexicon_step_in_data()
-
-    self.test_search_optional_step_in_data()
-    self.test_findall_optional_step_in_data()
-    
-    self.test_findall_step_step_in_data()
-
-    self.test_findall_optional_step_step_in_data()
-    self.test_findall_any_step_step_in_data()
-    self.test_findall_at_least_one_step_step_in_data()
-
-    self.test_findall_any_step_step_nbar_in_data()
-    self.test_findall_at_least_one_step_step_nbar_in_data()
-
-    self.test_findall_step_step_partially_matched_in_data_ending()
-    self.test_findall_optional_step_step_partially_matched_in_data_ending()
-    self.test_findall_any_step_step_partially_matched_in_data_ending()
-    self.test_findall_at_least_one_step_step_partially_matched_in_data_ending()
-
-    self.test_findall_step_at_least_one_not_step_step_in_data()
-    self.test_findall_step_present_optional_step_step_in_data()
-    self.test_findall_step_absent_optional_step_step_in_data()
-
-    self.test_findall_step_optional_step_in_data()
-    self.test_findall_step_any_step_in_data()
-    self.test_findall_step_optinal_step_optional_step_step_in_data()
-
-    self.test_findall_step_any_not_step1_step1_in_data()
-
-    self.test_pattern_starting_with_the_first_token_of_data_present_as_expected_in_data()
-    self.test_pattern_ending_with_the_last_token_of_data_present_as_expected_in_data()
-    self.test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_present_as_expected_in_data()
-    self.test_pattern_starting_with_the_first_token_of_data_not_present_as_expected_in_data()
-    self.test_pattern_ending_with_the_last_token_of_data_not_present_as_expected_in_data()
-    self.test_pattern_starting_with_the_first_token_of_data_and_ending_with_the_last_token_of_data_not_present_as_expected_in_data()
-
-
-    self.test_search_no_group_marked()
-    self.test_search_group_zero_marked()
-
-    self.test_search_emdedded_group_zero_marked()
-    self.test_search_step_group_inside_a_sequence()
-    self.test_search_multiple_optionnaly_embedded_step_group_inside_a_sequence()
-    self.test_search_class_as_group_zero()
-    self.test_search_sequence_as_group_zero()
-    self.test_search_sequence_of_step_groups()
-    self.test_search_sequence_group_wi_step_group()
-    logging.info('test_search_sequence_step_alternative')
-
-    self.test_search_sequence_step_alternative()
-    self.test_search_sequence_sequence_alternative()
-    self.test_search_sequence_sequence_sequence_alternative()
-    self.test_search_multiple_optionnaly_embedded_quantified_step_or_sequence_group()
-    self.test_search_multiple_optionnaly_embedded_quantified_step_or_sequence_group_2()
-
-
-    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_in_data()
-    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_not_in_data()
-    self.test_annotate_default_action_sub_default_group_default_iob_annotation_dict_pattern_sequence_to_annotation_step_in_data()
-    self.test_annotate_default_action_sub_group_one_default_iob_annotation_dict_pattern_in_data()
-    self.test_annotate_default_action_sub_default_group_default_iob_annotation_empty_in_data()
-
-
-    self.test_annotate_default_action_update_default_group_default_iob_annotation_dict_pattern_in_data()
-    self.test_annotate_default_action_extend_default_group_default_iob_annotation_dict_pattern_in_data()
-    self.test_annotate_default_action_extend_default_group_default_iob_annotation_sequence_of_dict_for_single_token_match_in_data()
-    self.test_annotate_default_action_extend_default_group_iob_True_annotation_sequence_by_one_dict_in_data()
-
-    self.test_search_groups_wi_matched_quantifiers_in_data()
-
-    self.test_search_alternative_groups_in_data()
-    self.test_search_alternatives_groups_wi_matched_quantifiers_in_data()
-
-    self.test_eq_ne_len_operators_on_Matches_and_MatchesList()
-
-
-
-    #self.test_simple_clause_timit()
-
-    #self.test_clause()
-
-    #self.test_search_any_class_step_error_step_in_data()
-
-
-
+         
     
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # Run all the tests
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 if __name__ == '__main__':
 
-
-  logging.basicConfig(format='%(levelname)s:\t%(message)s', filename='test_pyrata.py.log', level=logging.DEBUG)
-  #logging.basicConfig(format='%(levelname)s:\t%(message)s', filename='test_pyrata.py.log', level=logging.INFO)
+  logging.basicConfig(format='%(levelname)s:\t%(message)s', filename='do_tests_py.log', level=logging.DEBUG)
+  # logging.basicConfig(format='%(levelname)s:\t%(message)s', filename='do_tests_py.log', level=logging.INFO)
   logger = logging.getLogger()
+
+  # SET HERE True or False
   logger.disabled = True
+
+  unittest.main()
   
-  tests = TestPyrata()
-  
-  accuracy=tests.testSuccess/float(tests.testCounter)
-  print ("PyRATA - testCounter=",tests.testCounter,'; testSuccess=',tests.testSuccess,'; accuracy=',accuracy)

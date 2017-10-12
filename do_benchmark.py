@@ -1,26 +1,54 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# PyRATA
+#
+# Authors: 
+#         Nicolas Hernandez <nicolas.hernandez@gmail.com>
+#         Guan Gui 2014-08-10 13:20:03 https://www.guiguan.net/a-beautiful-linear-time-python-regex-matcher-via-nfa
+# URL: 
+#         https://github.com/nicolashernandez/PyRATA/
+#
+#
+# Copyright 2017 Nicolas Hernandez
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License. 
+#
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-# Nicolas Hernandez 2017
-# 
-# compare the time performance of pyrata with
-# 
-# pattern
-# http://www.clips.ua.ac.be/pages/pattern-search
-# The search() function takes a string (e.g., a word or a sequence of words) and returns a list of non-overlapping matches in the given sentence. 
-# The match() function returns the first match, or None.
-#
-# python.chunk
-# http://www.nltk.org/book/ch07.html
-# http://www.nltk.org/howto/chunk.html
-# http://www.nltk.org/_modules/nltk/chunk.html
 
-# spacy
-#
-# textblob
-# http://rwet.decontextualize.com/book/textblob/
-#
-# to find all patterns of noun phrases Determiner Adjectives Nouns
-# """"""
+"""
+compare the time performance of pyrata with
+
+pattern
+http://www.clips.ua.ac.be/pages/pattern-search
+The search() function takes a string (e.g., a word or a sequence of words) and returns a list of non-overlapping matches in the given sentence. 
+The match() function returns the first match, or None.
+
+python.chunk
+http://www.nltk.org/book/ch07.html
+http://www.nltk.org/howto/chunk.html
+http://www.nltk.org/_modules/nltk/chunk.html
+
+spacy
+https://spacy.io/
+
+textblob
+http://rwet.decontextualize.com/book/textblob/
+
+re
+
+to find all patterns of noun phrases Determiner Adjectives Nouns
+"""
 
 import logging
 from timeit import Timer
@@ -29,6 +57,14 @@ import nltk
 from nltk.corpus import brown
 import nltk.chunk
 from nltk.chunk.regexp import *
+
+
+import spacy                           # See "Installing spaCy"
+from spacy.matcher import Matcher
+# https://github.com/explosion/spaCy/blob/master/spacy/attrs.pyx
+# https://github.com/explosion/spaCy/issues/882
+from spacy.attrs import IS_PUNCT, LOWER, POS
+
 
 import pyrata.re as pyrata_re
 
@@ -99,23 +135,33 @@ def nltk_regex_chunker_parser():
   nltk_regex_chunk_parser_result = chunk_parser.parse(pos_tags)
   #print ('nltk_regex_chunk_parser_result:', nltk_regexparser_result) 
 
+
+def spacy_rule_based_matcher():
+  global spacy_rule_based_matcher_result # tree
+  spacy_rule_based_matcher_result = matcher(doc)
+  #print ('nltk_regex_chunk_parser_result:', nltk_regexparser_result) 
+
+
 def measure_pyrata_findall():
   global pyrata_findall_result
-  pyrata_findall_result = pyrata_re.findall(grammar, dictlist)
+  pyrata_findall_result = pyrata_re.findall(pyrata_grammar, dictlist)
 
+def measure_nfa_pyrata_findall():
+  global nfa_pyrata_findall_result
+  nfa_pyrata_findall_result = pyrata_re.findall(pyrata_grammar, dictlist)
 
 def test_noun_phrase():
   """                            
   """
 
   print ('Measuring time performance on # {} words over # {} iterations for recognizing Noun Phrases'.format(size, iteration_number))
+  print ('analyzer_name,\tpattern_grammar,\taveragetime,\tmintime')
 
   # # ----------------------------------------------------
   # # pattern 
   # # ----------------------------------------------------
   analyzer_name = 'clips.pattern'
   global grammar 
-  grammar = 'DT? JJ|NN?+ NN|NNS'
   # http://www.clips.ua.ac.be/pages/pattern-search
   # | ADJP|ADVP Separator for different options.
   # * JJ* Used as a wildcard character.
@@ -130,13 +176,18 @@ def test_noun_phrase():
   # # # python benchmark/measure_pattern_time_v1.py 1 1000 "DT? JJ|NN?+ NN"
 
   # v2
-  #pattern_time = measure_pattern_time_v2(iteration_number, size, grammar)
-  runtimes, averagetime, mintime = measure_pattern_time_v2(iteration_number, size, grammar)
-  print ('{}\t{}\t{}\t{}'.format(analyzer_name, grammar, averagetime, mintime))
+  pattern_grammar = 'DT? JJ?+ NN+'
+  runtimes, averagetime, mintime = measure_pattern_time_v2(iteration_number, size, pattern_grammar)
+  print ('{}\t{}\t{}\t{}'.format(analyzer_name, pattern_grammar, averagetime, mintime))
 
-  grammar = 'DT? JJ|NN?+ NN*'
-  runtimes, averagetime, mintime = measure_pattern_time_v2(iteration_number, size, grammar)
-  print ('{}\t{}\t{}\t{}'.format(analyzer_name, grammar, averagetime, mintime))
+  #pattern_time = measure_pattern_time_v2(iteration_number, size, grammar)
+  pattern_grammar = 'DT? JJ|NN?+ NN|NNS'
+  runtimes, averagetime, mintime = measure_pattern_time_v2(iteration_number, size, pattern_grammar)
+  print ('{}\t{}\t{}\t{}'.format(analyzer_name, pattern_grammar, averagetime, mintime))
+
+  pattern_grammar = 'DT? JJ|NN?+ NN|NNS+'
+  runtimes, averagetime, mintime = measure_pattern_time_v2(iteration_number, size, pattern_grammar)
+  print ('{}\t{}\t{}\t{}'.format(analyzer_name, pattern_grammar, averagetime, mintime))
 
   #print ('pattern_time_v2: grammar={} {}'.format(grammar,pattern_time))
 
@@ -159,26 +210,31 @@ def test_noun_phrase():
   # nltk chunker regexparser
   # ----------------------------------------------------
   analyzer_name = 'nltk_regex_parser'
-
-
-  grammar = "NP: {<DT>?<JJ|NN>*<NN|NNS>}"
-  nltk_regexparser_result = []
   global regex_parser 
-  regex_parser = nltk.RegexpParser(grammar)
+
+  nltk_grammar = "NP: {<DT>?<JJ>*<NN>+}"
+  nltk_regexparser_result = []
+  regex_parser = nltk.RegexpParser(nltk_grammar)
+  runtimes, averagetime, mintime = measure_time(nltk_regex_parser, iteration_number)
+  print ('{}\t{}\t{}\t{}'.format(analyzer_name, nltk_grammar, averagetime, mintime))
+
+
+  nltk_regexparser_result = []
+  nltk_grammar = "NP: {<DT>?<JJ|NN>*<NN|NNS>}"
+  regex_parser = nltk.RegexpParser(nltk_grammar)
   #for subtree in nltk_regexparser_result.subtrees():
   #  if subtree.label() == "NP":
   #    print("NP: "+str(subtree.leaves()))
  
   runtimes, averagetime, mintime = measure_time(nltk_regex_parser, iteration_number)
-  print ('{}\t{}\t{}\t{}'.format(analyzer_name, grammar, averagetime, mintime))
+  print ('{}\t{}\t{}\t{}'.format(analyzer_name, nltk_grammar, averagetime, mintime))
 
 
-  grammar = "NP: {<DT>?<JJ|NN>*<NN.*>}"
+  nltk_grammar = "NP: {<DT>?<JJ|NN>*<NN.*>}"
   nltk_regexparser_result = []
-  regex_parser = nltk.RegexpParser(grammar)
-
+  regex_parser = nltk.RegexpParser(nltk_grammar)
   runtimes, averagetime, mintime = measure_time(nltk_regex_parser, iteration_number)
-  print ('{}\t{}\t{}\t{}'.format(analyzer_name, grammar, averagetime, mintime))
+  print ('{}\t{}\t{}\t{}'.format(analyzer_name, nltk_grammar, averagetime, mintime))
 
 
   # ----------------------------------------------------
@@ -186,25 +242,61 @@ def test_noun_phrase():
   # ----------------------------------------------------
 
   analyzer_name = 'nltk_regex_chunk_parser'
-
-
-  grammar = "<DT>?<JJ|NN>*<NN|NNS>"
-  chunk_rule = ChunkRule(grammar, "Noun Phrase")
   global chunk_parser 
+
+  nltk_regex_chunk_grammar = "<DT>?<JJ>*<NN>+"
+  chunk_rule = ChunkRule(nltk_regex_chunk_grammar, "Noun Phrase")
   chunk_parser = RegexpChunkParser([chunk_rule], chunk_label='NP')
   nltk_regex_chunk_parser_result = []
-
   runtimes, averagetime, mintime = measure_time(nltk_regex_chunker_parser, iteration_number)
-  print ('{}\t{}\t{}\t{}'.format(analyzer_name, grammar, averagetime, mintime))
+  print ('{}\t{}\t{}\t{}'.format(analyzer_name, nltk_regex_chunk_grammar, averagetime, mintime))
 
 
-  grammar = "<DT>?<JJ|NN>*<NN.*>"
-  chunk_rule = ChunkRule(grammar, "Noun Phrase")
+  nltk_regex_chunk_grammar = "<DT>?<JJ|NN>*<NN|NNS>"
+  chunk_rule = ChunkRule(nltk_regex_chunk_grammar, "Noun Phrase")
   chunk_parser = RegexpChunkParser([chunk_rule], chunk_label='NP')
   nltk_regex_chunk_parser_result = []
-
   runtimes, averagetime, mintime = measure_time(nltk_regex_chunker_parser, iteration_number)
-  print ('{}\t{}\t{}\t{}'.format(analyzer_name, grammar, averagetime, mintime))
+  print ('{}\t{}\t{}\t{}'.format(analyzer_name, nltk_regex_chunk_grammar, averagetime, mintime))
+
+
+  nltk_regex_chunk_grammar = "<DT>?<JJ|NN>*<NN.*>"
+  chunk_rule = ChunkRule(nltk_regex_chunk_grammar, "Noun Phrase")
+  chunk_parser = RegexpChunkParser([chunk_rule], chunk_label='NP')
+  nltk_regex_chunk_parser_result = []
+  runtimes, averagetime, mintime = measure_time(nltk_regex_chunker_parser, iteration_number)
+  print ('{}\t{}\t{}\t{}'.format(analyzer_name, nltk_regex_chunk_grammar, averagetime, mintime))
+
+
+
+  # ----------------------------------------------------
+  # spacy
+  # ----------------------------------------------------
+  text = ' '.join(tokens)
+  nlp = spacy.load('en')                 # You are here.
+  global matcher 
+  analyzer_name = 'spaCy'
+  
+  spacy_grammar = [{POS: "DET", 'OP':"?"}, {POS: "ADJ", 'OP':"*"}, {POS: "NOUN", 'OP':"+"}]
+  matcher = Matcher(nlp.vocab)
+  matcher.add_pattern("NounPhrase", spacy_grammar)
+  # # matcher.add_pattern("NounPhrase", [{POS: "DET", 'OP':"?"}, {POS: "ADJ", 'OP':"*"}, {POS: "NOUN"}])
+  # #<DT>?<JJ|NN>*<NN|NNS>
+  global doc
+  doc = nlp(text)
+  # matches = matcher(doc)
+  # matches
+  # for ent_id, label, start, end in matches:
+  #   span = doc[start:end]
+  #   # First token is our noun_phrase_0
+  #   np_0 = span[0]
+  #   # Last token is noun_phrase_1
+  #   np_1 = span[-1]
+  #   print("span({})".format(span))
+  spacy_rule_based_matcher_result = []
+  runtimes, averagetime, mintime = measure_time(spacy_rule_based_matcher, iteration_number)
+  print ('{}\t{}\t{}\t{}'.format(analyzer_name, spacy_grammar, averagetime, mintime))
+
 
 
   # ----------------------------------------------------
@@ -214,21 +306,28 @@ def test_noun_phrase():
 
   #sentence = 'A great sentence .'
   #dictlist =  [{'raw':word, 'pos':pos} for (word, pos) in nltk.pos_tag(nltk.word_tokenize(sentence))]
-
-  grammar = 'pos="DT"? [pos="NN" | pos="JJ"]* [pos="NN" | pos="NNS"]'
-  pyrata_findall_result = []
   global dictlist 
   dictlist = [{'raw':w, 'pos':p} for (w, p) in pos_tags]
-  
-  runtimes, averagetime, mintime = measure_time(measure_pyrata_findall, iteration_number)
-  print ('{}\t{}\t{}\t{}'.format(analyzer_name, grammar, averagetime, mintime))
+  global pyrata_grammar
+
+  pyrata_grammar = 'pos="DT"? pos="JJ"* pos="NN"+'
+  nfa_pyrata_findall_result = []
+  #runtimes, averagetime, mintime = measure_time(measure_pyrata_findall, iteration_number)  
+  runtimes, averagetime, mintime = measure_time(measure_nfa_pyrata_findall, iteration_number)
+  print ('{}\t{}\t{}\t{}'.format(analyzer_name, pyrata_grammar, averagetime, mintime))
+
+  pyrata_grammar = 'pos="DT"? [pos="NN" | pos="JJ"]* [pos="NN" | pos="NNS"]'
+  nfa_pyrata_findall_result = []
+   #runtimes, averagetime, mintime = measure_time(measure_pyrata_findall, iteration_number)  
+  runtimes, averagetime, mintime = measure_time(measure_nfa_pyrata_findall, iteration_number)
+  print ('{}\t{}\t{}\t{}'.format(analyzer_name, pyrata_grammar, averagetime, mintime))
 
 
-  grammar = 'pos="DT"? [pos~"NN|JJ"]* pos~"NN.*"'
-  pyrata_findall_result = []
-  
-  runtimes, averagetime, mintime = measure_time(measure_pyrata_findall, iteration_number)
-  print ('{}\t{}\t{}\t{}'.format(analyzer_name, grammar, averagetime, mintime))
+  pyrata_grammar = 'pos="DT"? [pos~"NN|JJ"]* pos~"NN.*"'
+  nfa_pyrata_findall_result = []
+# #  runtimes, averagetime, mintime = measure_time(measure_pyrata_findall, iteration_number)  
+  runtimes, averagetime, mintime = measure_time(measure_nfa_pyrata_findall, iteration_number)
+  print ('{}\t{}\t{}\t{}'.format(analyzer_name, pyrata_grammar, averagetime, mintime))
 
 
 def nltk_parse_clause(sentence):
@@ -454,8 +553,8 @@ if __name__ == '__main__':
 
 # SET
   size = 10000 # 1161192 # # brown corpus 1 161 192 words ; can also be interpreted as number of sentences
-  iteration_number = 10
-  sizes = [10000*i for i in range (2, 11)]
+  iteration_number = 10 #0
+  sizes = [10000*i for i in range (2, iteration_number)]
   for size in sizes:
     print(size) 
     test_noun_phrase()

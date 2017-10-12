@@ -1,67 +1,91 @@
-# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-# Nicolas Hernandez 2017
-# 
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 #
-# 
+# PyRATA
+#
+# Authors: 
+#         Nicolas Hernandez <nicolas.hernandez@gmail.com>
+# URL: 
+#         https://github.com/nicolashernandez/PyRATA/
+#
+#
+# Copyright 2017 Nicolas Hernandez
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License. 
+#
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+"""RE API to operate the data with a pattern"""
+
 import logging
+# logging.info() Report events that occur during normal operation of a program (e.g. for status monitoring or fault investigation)
+# logging.debug() for very detailed output for diagnostic purposes
+# logging.warning() Issue a warning regarding a particular runtime event
+
 import re
 
 from pyrata.lexer import *
-import pyrata.compiled_pattern_re
-import pyrata.semantic_pattern_parser
+import pyrata.match
+from pyrata.nfa import *
+import copy
 
-
+#from graph_tool.all import *
    
-# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def normalize_chunk_operator (pattern, **kwargs):    
-  '''
-  Here is a trick. The chunk operator does not exist. 
-  It is turn into a specific sequence of steps with equal operators.
-  Indeed 'ch-"NP"' is rewritten in '(ch="B-NP" ch="I-NP"*)'
-  '''
-  return re.sub('([a-zA-Z_][a-zA-Z0-9_]*)-\"(([^\\\n]|(\\.))*?)\"', '(\g<1>="B-\g<2>" \g<1>="I-\g<2>"*)', pattern) 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def compile (pattern, **kwargs):    
+def compile (pattern, lexicons = {}, **kwargs):    
   """ 
   Compile a regular expression pattern into a regular expression object, 
   which can be used for matching using match(), search()... methods, described below.
   """
 
-  lexicons = {}
-  if 'lexicons' in kwargs.keys():
-    lexicons = kwargs['lexicons']
-    kwargs.pop('lexicons', None)
+  logging.info("re - compile")
 
-  l = pyrata.compiled_pattern_re.parse_syntactic(normalize_chunk_operator(pattern), lexicons=lexicons, **kwargs)
+  # build nfa  
+  compiled_nfa = CompiledPattern()
 
-  return pyrata.compiled_pattern_re.CompiledPattern(lexer=l, **kwargs)
+  compiled_nfa.compile(pattern)
+
+  #
+  compiled_nfa.lexicons = lexicons
+
+  return compiled_nfa
+
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def search (pattern, data, **kwargs):
+def search (pattern, data, lexicons = {}, **kwargs):
   """ Scan through data looking for the first location where the regular expression pattern produces a match, 
       and return a corresponding match object. 
       Return None if no position in the data matches the pattern."""
 
-  # cannot be called in compiled since the pop will not modify the kwargs which is passed in search
-  # this would lead to a TypeError: yacc() got an unexpected keyword argument 'lexicons' 
-  # in File "/media/hernandez-n/ext4/workspace/17/PyRATA/pyrata/pyrata/semantic_step_parser.py", line 203, in build
-  lexicons = {}
-  if 'lexicons' in kwargs.keys():
-    lexicons = kwargs['lexicons']
-    kwargs.pop('lexicons', None)
+  # build nfa
+  compiled_nfa = compile(pattern, lexicons = lexicons, **kwargs) # lexicons = {}
+        
+  #
+  try:
+    r = None
+    r = compiled_nfa.search(data, **kwargs)  # greedy = True
 
-  # lexicons are passed by parameters via kwargs
-  compiledPattern = compile(pattern, lexicons=lexicons, **kwargs)
+  #except pyrata.nfa.CompiledPattern.InvalidRegexPattern as e:
+  except CompiledPattern.InvalidRegexPattern as e:
+    sys.exit('Error: re - search - %s' % e)
+  return r
 
-  return compiledPattern.search(data, **kwargs)
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def findall (pattern, data, **kwargs):
+def findall (pattern, data, lexicons = {}, **kwargs):
   """ Return all non-overlapping matches of pattern in data, as a list of datas. 
       The data is scanned left-to-right, and matches are returned in the order found. 
       #If one or more groups are present in the pattern, return a list of groups; 
@@ -69,44 +93,39 @@ def findall (pattern, data, **kwargs):
       #Empty matches are included in the result unless they touch the beginning of another match.
   """
 
-  # cannot be called in compiled since the pop will not modify the kwargs which is passed in search
-  # this would lead to a TypeError: yacc() got an unexpected keyword argument 'lexicons' 
-  # in File "/media/hernandez-n/ext4/workspace/17/PyRATA/pyrata/pyrata/semantic_step_parser.py", line 203, in build
-  lexicons = {}
-  if 'lexicons' in kwargs.keys():
-    lexicons = kwargs['lexicons']
-    kwargs.pop('lexicons', None)
+  # build nfa
+  compiled_nfa = compile(pattern, lexicons = lexicons, **kwargs) # 
 
-  # lexicons are passed by parameters via kwargs
-  compiledPattern = compile(pattern,  lexicons=lexicons, **kwargs)
-
-  return compiledPattern.findall(data, **kwargs)
-
+  #
+  try:
+    r = None
+    r = compiled_nfa.findall(data, **kwargs)          # greedy = True
+  except CompiledPattern.InvalidRegexPattern as e:
+    sys.exit('Error: re - findall - %s' % e)
+  return r
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
-def finditer (pattern, data, **kwargs):
+def finditer (pattern, data, lexicons = {},  **kwargs):
   """
   Return an iterator yielding match objects over all non-overlapping matches for the RE pattern in data. 
   The data is scanned left-to-right, and matches are returned in the order found. 
   #Empty matches are included in the result unless they touch the beginning of another match.
   """
 
-  # cannot be called in compiled since the pop will not modify the kwargs which is passed in search
-  # this would lead to a TypeError: yacc() got an unexpected keyword argument 'lexicons' 
-  # in File "/media/hernandez-n/ext4/workspace/17/PyRATA/pyrata/pyrata/semantic_step_parser.py", line 203, in build
-  lexicons = {}
-  if 'lexicons' in kwargs.keys():
-    lexicons = kwargs['lexicons']
-    kwargs.pop('lexicons', None)
+  # build nfa
+  compiled_nfa = compile(pattern, lexicons = lexicons, **kwargs) # lexicons = {}
 
-  # lexicons are passed by parameters via kwargs
-  compiledPattern = compile(pattern, lexicons=lexicons, **kwargs)
-
-  return compiledPattern.finditer(data, **kwargs)
+  #
+  try:
+    r = None
+    r = compiled_nfa.finditer(data, **kwargs) # greedy = True
+  except CompiledPattern.InvalidRegexPattern as e:
+    sys.exit('Error: re - finditer - %s' % e)
+  return r
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
-def annotate (pattern, annotation, data, group = [0], action = 'sub', iob = False, **kwargs): # group=[0]
+def annotate (pattern, annotation, data, group = [0], action = 'sub', iob = False, lexicons = {}, **kwargs):  
   """ 
   Do one of the following process on a copy of the data
   * sub/substitutes a match or a group of a match with a dict or a sequence of dicts (in case of dict we turn it into list of dict to process it the same way)
@@ -116,27 +135,20 @@ def annotate (pattern, annotation, data, group = [0], action = 'sub', iob = Fals
   Return the data obtained.  If the pattern isn't found, data is returned unchanged.
   """
 
-  # cannot be called in compiled since the pop will not modify the kwargs which is passed in search
-  # this would lead to a TypeError: yacc() got an unexpected keyword argument 'lexicons' 
-  # in File "/media/hernandez-n/ext4/workspace/17/PyRATA/pyrata/pyrata/semantic_step_parser.py", line 203, in build
-  lexicons = {}
-  if 'lexicons' in kwargs.keys():
-    lexicons = kwargs['lexicons']
-    kwargs.pop('lexicons', None)
-
   # lexicons are passed by parameters via kwargs
-  compiledPattern = compile(pattern, lexicons=lexicons, **kwargs)
-            
-  return compiledPattern.annotate(annotation, data, group, action, iob, **kwargs)
+  compiledPattern = compile(pattern, lexicons = lexicons, **kwargs) # lexicons = {}
+
+  #             
+  return compiledPattern.annotate(annotation, data, group, action, iob, **kwargs) # greedy = True
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
-def sub (pattern, repl, data, group = [0], **kwargs):
+def sub (pattern, repl, data, group = [0], lexicons = {}, **kwargs):
   """
   Return the data obtained by replacing the leftmost non-overlapping occurrences of 
   pattern matches or group of matches in data by the replacement repl. 
   """
-  return annotate (pattern, repl, data, group, action = 'sub', iob = False, **kwargs)
+  return annotate (pattern, repl, data, group, action = 'sub', iob = False, lexicons = lexicons,**kwargs)
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
@@ -147,21 +159,21 @@ def subn (pattern, repl, data, **kwargs):
   raise Exception ("Not implemented yet !")
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
-def update (pattern, repl, data, group = [0], iob = False, **kwargs):
+def update (pattern, repl, data, group = [0], iob = False, lexicons = {}, **kwargs):
   """
   Return the data after updating (and extending) the features of a match or a group of a match 
   with the features of a dict or a sequence of dicts (of the same size as the group/match). 
   """
-  return annotate (pattern, repl, data, group = group, action = 'update', iob = iob, **kwargs)
+  return annotate (pattern, repl, data, group = group, action = 'update', iob = iob, lexicons = lexicons, **kwargs)
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
-def extend (pattern, repl, data, group = [0], iob = False, **kwargs):
+def extend (pattern, repl, data, group = [0], iob = False, lexicons = {}, **kwargs):
   """
   Return the data after updating (and extending) the features of a match or a group of a match 
   with the features of a dict or a sequence of dicts (of the same size as the group/match). 
   """
-  return annotate (pattern, repl, data, group = group, action = extend, iob = iob, **kwargs)
+  return annotate (pattern, repl, data, group = group, action = 'extend', iob = iob, lexicons = lexicons, **kwargs)
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # Run all the tests

@@ -2,7 +2,22 @@ Revision History
 ================
 
 
-v0.3.3 (July 25, 2017)
+v0.4 (October 12, 2017)  
+---------------------
+* api/engine pattern parser and search engine replaced by Thompson NFA implementation of Guan Gui  
+* api/engine extension of the finding methods with the possibility to set a greedy or a reluctant matching mode
+* grammar extension of the language to consider '.' as wildcard
+* ihm creation of a command line script pyrata_re.py with PDF drawing facility to export NFA
+* api/engine DFA extraction facility corresponding to matched parts of NFA on data
+* quality revise do_tests.py code by using the unittest library + tests extension
+* quality do_benchmark.py on simple noun phrases + includes comparison with spaCy
+* fix data immutability in nfa annotate (extend...) which works on a data copy. Switching 'data_copy = list(data)' with 'data_copy  = copy.deepcopy(data)'
+* fix re extend fix action from extend to 'extend' with quotes
+* doc user-guide revised: grammar modification with wildcard, maching mode exploration (global, greedy, reluctant), pyrata_re, DFA generation, pdf export, logging, time performance
+* logging facilities partially maintained 
+        
+
+v0.3.3/v0.3.4 (July 25, 2017) ; latter one wo logging instructions to run faster
 ---------------------
 * implement annotation methods (annotate, sub, update, extend) for working with a compiled pattern (see compiled_pattern_re) 
 * code refactoring to increase time performance: removing the semantic_step_parser and replacing it by compiling the step tokens into symbolic expressions (use the sympy module) evaluated on fly for each data token (changes in syntactic_pattern_parser and in evaluate of semantic_pattern_parser)
