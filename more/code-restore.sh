@@ -6,7 +6,6 @@ then
   cp pyrata/*.py /tmp
 
   # restore
-  mv pyrata/syntactic_pattern_parser.py.save pyrata/syntactic_pattern_parser.py
   mv pyrata/re.py.save  pyrata/re.py    
   mv pyrata/nfa.py.save  pyrata/nfa.py 
   mv pyrata/state.py.save pyrata/state.py 

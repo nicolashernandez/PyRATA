@@ -14,10 +14,13 @@ User guide
 Brief introduction
 ============================
 
-:: 
 
-    Regular expressions (RE) are traditionally known as a sequence of characters that define a search pattern. Usually this pattern is then used by string searching algorithms for "finding" or "finding and replacing" operations on strings. (Wikipedia)
-.. https://en.wikipedia.org/wiki/Regular_expression
+.. epigraph::
+
+   Regular expressions (RE) are [traditionally known as] a sequence of characters that define a search pattern. Usually this pattern is then used by string searching algorithms for "finding" or "finding and replacing" operations on strings.
+
+   -- `Wikipedia <https://en.wikipedia.org/wiki/Regular_expression>`_
+
 
 The data structure
 ------------------
@@ -91,7 +94,7 @@ Download and installation procedure
 
 The simplest way
 ------------------------
-Right now pyrata is `published on PyPI <https://pypi.python.org/pypi/PyRATA>`_, so the simplest procedure to install is to type in a console:
+Right now PyRATA is `published on PyPI <https://pypi.python.org/pypi/PyRATA>`_, so the simplest procedure to install is to type in a console:
 
 ::
 
@@ -115,12 +118,12 @@ or clone it
     git clone https://github.com/nicolashernandez/PyRATA.git
     cd pyrata/
 
-Then install pyrata 
+Then install PyRATA 
 ::
 
     sudo pip3 install . 
 
-Of course, as any python module you can barely copy the pyrata sub dir in your project to make it available. This solution can be an alternative if you do not have root privileges or do not want to use a virtualenv.
+Of course, as any python module you can barely copy the PyRATA sub dir in your project to make it available. This solution can be an alternative if you do not have root privileges or do not want to use a virtualenv.
 
 Requirement
 ------------------------
@@ -133,7 +136,7 @@ PyRATA uses
 
 You do not need to care about this stage if you performed the pip3 install procedure above.
 
-If you do not properly install pyrata, you will have to manually install ply (or download it manually to copy it in your local working dir).
+If you do not properly install PyRATA, you will have to manually install ply (or download it manually to copy it in your local working dir).
 ::
 
     sudo pip3 install ply
@@ -211,7 +214,7 @@ There is *no requirement on the names of the features*.
 In the previous code, you see that the names ``raw`` and ``pos`` have been arbitrary chosen to respectively mean the surface form of a word and its part-of-speech.
 
 PyRATA pattern
-  PyRATA allows to define *regular expressions* on the pyrata data structure. It is made of an ordered list of pattern elements.
+  PyRATA allows to define *regular expressions* on the PyRATA data structure. It is made of an ordered list of pattern elements.
 
 PyRATA pattern element
   The elementary component of a PyRATA pattern defines the combination of constraints (at least one) a data token should match. A pattern element is also named a *step* in reference to the XPath Language. 
@@ -327,7 +330,7 @@ but cannot be considered as a simple constraint.
 
 
 
-It can also easily be simulated by using a non wanted value or non-existing attribute. Below ``[!raw="to"]`` and ``[!foo="bar"]`` correspond to a non wanted data token. All give the same results as the dot wildcard. 
+It can also easily be simulated by using a not wanted value or not-existing attribute. Below ``[!raw="to"]`` and ``[!foo="bar"]`` correspond to a not wanted data token. All give the same results as the dot wildcard. 
 
 .. doctest ::
 

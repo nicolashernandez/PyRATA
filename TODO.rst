@@ -13,6 +13,12 @@ TODO list (almost following a decreasing priority order)
 -------------------------------
 
 * communication make tutorial to recognize NP and NP of NP, clause, Opinion mining or sentiment analysis
+http://www.aclweb.org/anthology/S13-2085
+http://www.aclweb.org/anthology/W14-5905
+http://www.aclweb.org/anthology/S17-2089
+http://sentic.net/downloads/
+https://github.com/cjhutto/vaderSentiment
+http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf
 * quality - do_benchmark.py - evaluate performance time `[pos="NNS" | pos="NNP"]`, `pos~"NN[SP]"` and 'pos~"(NNS|NNP)"', more fined grained comparison with alternatives
 * ihm pyrata_re add more features such as input-file lexicon, lexicon-file, output-dfa, output-group, 
 * communication organize the documentation http://www.sphinx-doc.org/en/stable/ ; publish on github pages

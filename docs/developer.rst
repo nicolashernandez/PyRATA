@@ -15,11 +15,14 @@ Release procedure
 - update CHANGES.md
 - last update TODO.rst
 
-- update setup.py # version odd value (logging version)
+- update setup.py #  (logging version ; keep the same v for pupy)
 - status/add/commit/push on github (with the diff content of CHANGES.md in comment)
-- merge branch
+- delete branch
 - tag on github
+- check MANIFEST.in to list files/dir to include in pypi module 
 - publish on pypi
+
+
 
 License application
 ----------------
@@ -95,18 +98,18 @@ list checksum of each commit
 annotated tag of a previous commited
 :: 
 
-    git tag -a v0.3.2 -m "Integration of group, alternative, chunk, ^$, compiled sections" 8ef9baeb0a90987e85dd29db56e9e9896affc7c3
+    git tag -a v0.4 -m "Thompson's algorithm of NFA and Guan Gui implementation" efce8347d81b6bff6a7e1caa2e563d848e51b99b
 
 push the tag
 :: 
-    git push origin v0.3.2 
+    git push origin v0.4 
 
 
 pypi publication
 ---------------
 the pypi version is without logging instruction for performance reason. If 2 versions are uploaded the odd first one is with logging and the even one is without
 
-update setup.py # version even value (wo logging information)
+do not update setup.py # keep the same version as the tag. The only difference would be the logging information which will be not present.
 
 prepare zip file to upload
 ::
