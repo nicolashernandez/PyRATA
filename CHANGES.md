@@ -14,7 +14,7 @@ v0.4 (October 12, 2017)
 * fix data immutability in nfa annotate (extend...) which works on a data copy. Switching 'data_copy = list(data)' with 'data_copy  = copy.deepcopy(data)'
 * fix re extend fix action from extend to 'extend' with quotes
 * doc user-guide revised: grammar modification with wildcard, maching mode exploration (global, greedy, reluctant), pyrata_re, DFA generation, pdf export, logging, time performance
-* logging facilities partially maintained 
+* logging facilities partially maintained  
         
 
 v0.3.3/v0.3.4 (July 25, 2017) ; latter one wo logging instructions to run faster

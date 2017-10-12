@@ -18,6 +18,7 @@ TODO list (almost following a decreasing priority order)
 * communication organize the documentation http://www.sphinx-doc.org/en/stable/ ; publish on github pages
 * communication developer write code explanation: in particular Running an NFA ...
 * communication developer make diagrams to explain process and relations between files
+* communication - user doc - illustrates the use of groups(), explains the resulting output Match, Matchlist, insert pdf of NFA when presenting CompiledPattern 
 * quality revise logging information
 * quality test - anchors wi each matching methods
 * quality test - if lexicon argument kwargs is well handled in re compile is it necessary?

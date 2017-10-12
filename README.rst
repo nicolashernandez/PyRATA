@@ -25,8 +25,7 @@ PyRATA
 
 * provides **regular expression (re) matching methods** on a more complex structure than a list of characters (string), namely a **sequence of features set** (i.e. ``list`` of ``dict`` in python jargon);
 * is **free from the information encapsulated in the features** and consequently can work with word features, sentences features, calendar event features...   Indeed, PyRATA is not only dedicated to process textual data.
-.. So it can be used for processing textual data but is not limited to. The only restriction is that the written patterns must specify the features actually present in the data structure to explore;
-* offers a **similar re API to the python re module** in order not to disturb python re users;
+* offers a **similar re API to the python re module** in order not to confuse the python re users;
 * in addition to the re methods, it provides **edit methods to substitute, update or extend (sub-parts of) the data structure** itself (this process can be named *annotation*);
 * defines a pattern grammar whose **syntax follows the Perl regexes** de facto standard;
 * the matching engine is based on a Gui Guan's implementation [#]_ of the **Thompson's algorithm** for converting Regular Expressions (RE) to Non-deterministic Finite Automata (NFA) and running them in a linear time efficiency of ``O(n)`` [#]_;
@@ -34,11 +33,12 @@ PyRATA
 * can draw out beautifully the *NFA to a PDF file*;
 * can output the actual matches as *Deterministic Finite Automata (DFA)*;
 * uses the `PLY <http://www.dabeaz.com/ply/ply.html>`_ implementation of lex and yacc parsing tools for Python (version 3.10), the `sympy <http://www.sympy.org/fr>`_ library for symbolic evaluation of logical expression, the `graph_tool <http://graph-tool.skewed.de>`_ library for drawing out PDF (optional)
-..* is released under the **MIT Licence** which is *a short and simple permissive license*;
 * is released under the **`Apache License 2.0 <https://www.apache.org/licenses/LICENSE-2.0>`_** which allows you to *do what you like with the software, as long as you include the required notice*;
 * published on `PyPI <https://pypi.python.org/pypi/PyRATA>`_;
 * is *fun and easy to use* to explore data for research study, solve deterministic problems, formulate expert knowledge in a declarative way, prototype quickly models and generate training data for Machine Learning (ML) systems, extract ML features, augment ML models...
 
+.. * is released under the **MIT Licence** which is *a short and simple permissive license*;
+.. So it can be used for processing textual data but is not limited to. The only restriction is that the written patterns must specify the features actually present in the data structure to explore;
 
 .. [#] Gui Guan, "A Beautiful Linear Time Python Regex Matcher via NFA", August 19, 2014 `<https://www.guiguan.net/a-beautiful-linear-time-python-regex-matcher-via-nfa>`_
 .. [#] Thompson, K. (1968). Programming techniques: Regular expression search algorithm. Commun. ACM, 11(6):419–422, June.
@@ -94,8 +94,9 @@ To demonstrate how easily this data structure can be generated, we simulated you
     >>> data =  [{'raw':word, 'pos':pos} for (word, pos) in nltk.pos_tag(nltk.word_tokenize(sentence))]
 
 There is **no requirement on the names of the features**. Value type is String. 
-.. s are primitives (String, Boolean, Numerical). 
 In the previous code, you see that the names ``raw`` and ``pos`` have been arbitrary chosen to mean respectively the surface form of a word and its part-of-speech.
+
+.. s are primitives (String, Boolean, Numerical). 
 
 At this point you can use the regular expression methods available to explore the data. Let's say you want to search all the adjectives in the sentence. By chance there is a property which specifies the part of speech of tokens, *pos*, the value of *pos* which stands for adjectives is *JJ*. Your pattern will be:
 
@@ -116,6 +117,8 @@ And you get the following output:
     >>> [[{'pos': 'JJ', 'raw': 'fast'}], [{'pos': 'JJ', 'raw': 'easy'}], [{'pos': 'JJ', 'raw': 'funny'}], [{'pos': 'JJ', 'raw': 'regular'}]]]
 
 In python, ``list`` are marked by squared brackets, ``dict`` by curly brackets. Elements of ``list`` or ``dict``  are then separated by commas. Feature names are quoted. And so values when they are Strings. Names and values  are separated by a colon.
+
+Here you can read an ordered list of four matches, each one corresponding to one specific adjective of the sentence. 
 
 Documentation
 ===========

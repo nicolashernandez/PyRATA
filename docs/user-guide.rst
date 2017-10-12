@@ -50,6 +50,7 @@ The language to express pattern
 ------------------
 
 A **pattern** is made of one or several **ordered elements**. We also called them **steps** in reference to the `XPath language <https://www.w3.org/TR/xpath/>`_. A **pattern element** is, in its simplest form, the specification of a single constraint (**NAME OPERATOR"VALUE"**) that a data token should satisfy. For a given attribute name, you can specify its required exact value (with `=` operator), a regex definition of its value (`~` operator), a list of possible values (`@` operator) or if it is part of a IOB tag (`-` operator).  
+
 These constraint operators are probably the second major innovation offered by PyRATA in the regex world.
 
 A more complex element can be a *quantified element*, an *element class*, a *group*, *alternatives* or a combination of these various types.
@@ -65,15 +66,15 @@ Alternatives
 
 * `python re module <https://docs.python.org/3/library/re.html>`_ python 3, PSF (open source) License
 * `python nltk chunk module <http://www.nltk.org/_modules/nltk/chunk/regexp.html#RegexpChunkParser>`_ python 3, Apache v2 
-.. [nltk.RegexpParser](https://gist.github.com/alexbowe/879414) ; http://nbviewer.jupyter.org/github/lukewrites/NP_chunking_with_nltk/blob/master/NP_chunking_with_the_NLTK.ipynb ; https://gist.github.com/alexbowe/879414
 * `clips pattern <http://www.clips.ua.ac.be/pattern>`_ python 2.6, BSD-3
-.. https://github.com/clips/pattern
 * `spaCy <https://github.com/explosion/spaCy>`_ python 3, MIT
 * `GATE JAPE <https://gate.ac.uk/sale/tao/splitch8.html>`_ Java 8, GNU
 * `Apache UIMA RUTA <https://uima.apache.org/ruta.html>`_ JAVA 8, Apache v2
 * `Nooj <http://www.nooj-association.org>`_ C++/Java 1.7, LGPL
 * `unitex <http://unitexgramlab.org>`_ GPL restricted license: Academic Only, Non Commercial Use Only.
-* 
+
+.. [nltk.RegexpParser](https://gist.github.com/alexbowe/879414) ; http://nbviewer.jupyter.org/github/lukewrites/NP_chunking_with_nltk/blob/master/NP_chunking_with_the_NLTK.ipynb ; https://gist.github.com/alexbowe/879414
+.. https://github.com/clips/pattern
 .. * xpath from me over graph of objects
 .. * linguastream
 
@@ -125,6 +126,7 @@ Requirement
 ------------------------
 
 PyRATA uses 
+
 * the `PLY <http://www.dabeaz.com/ply/ply.html>`_ implementation of lex and yacc parsing tools for Python (version 3.10). 
 * the `sympy <http://www.sympy.org/fr>`_ library for symbolic evaluation of logical expression.
 * the `graph_tool <http://graph-tool.skewed.de>`_ library for drawing out PDF (optional)
@@ -144,7 +146,7 @@ Run tests (optional)
 
     python3 do_tests.py
 
-Uses the `unittest` module
+Uses the ``unittest`` module. You may also edit the file to set ``logger.disabled`` to ``False``. By default, the logging file is ``do_tests.py.log``.
 
 
 Running PyRATA
@@ -281,9 +283,10 @@ The metacharacter which means a chunk is ``-`` (dash).
 The actual chunk implementation uses the chunk operator `-` as a rewriting rule to turn the constraint into two with equality operator (e.g. ``chunk-"PERSON"`` would be rewritten in ``(chunk="B-PERSON" chunk="I-PERSON"*)``). 
 This is done before starting the syntax analysis (compilation stage) or when building the compilation representation.
 
-This trick has some consequences 
-* 1) implicit groups are introduced around each chunk which be considered when referencing the groups
-* it prevents us from including chunk constraints in classes (e.g. ``[chunk-"PERSON" & raw="Mark"]``). 
+This trick has some consequences:
+
+* Implicit groups are introduced around each chunk which be considered when referencing the groups
+* It prevents us from including chunk constraints in classes (e.g. ``[chunk-"PERSON" & raw="Mark"]``). 
 
 
 Element class
@@ -292,21 +295,23 @@ Element class
 An **element class** offers a way to combine several simple constraints in the definition of a pattern element. The definition is marked by *squared brackets* (``[...]``). *Logical operators* (and ``&``, or ``|`` and not ``!``) and *parenthesis* are available to combine the constraints.
 
 .. doctest ::
+
     >>> data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'PyRATA'}]
     >>> pyrata_re.findall('[(pos="NNS" | pos="NNP") & !raw="expressions"]', data)
     [[{'pos': 'NNP', 'raw': 'PyRATA'}]]
 
 
-Consequently ``[pos="NNS" | pos="NNP"]``, ``pos~"NN[SP]"`` and 'pos~"(NNS|NNP)"' are equivalent (give the same result). They may not have the same processing time.
+Consequently ``[pos="NNS" | pos="NNP"]``, ``pos~"NN[SP]"`` and ``pos~"(NNS|NNP)"`` are equivalent (give the same result). They may not have the same processing time.
 
 
 
 Wildcard element
 ------------------
 
-The  **wildcard element** can match any single data token. It is represented by the `.` (dot) metacharacter. 
+The  **wildcard element** can match any single data token. It is represented by the ``.`` (dot) metacharacter. 
 
 .. doctest ::
+
     >>> data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'},{'pos': 'NNP', 'raw': 'PyRATA'}]
     >>> pyrata_re.search('. raw="PyRATA"', data)
     <pyrata.re Match object; groups=[[[{'raw': 'with', 'pos': 'IN'}, {'raw': 'PyRATA', 'pos': 'NNP'}], 10, 12]]>
@@ -314,6 +319,7 @@ The  **wildcard element** can match any single data token. It is represented by 
 It can be used with any quantifiers 
 
 .. doctest ::
+
     >>> pyrata_re.search('.+ raw="PyRATA"', data)
     <pyrata.re Match object; groups=[[[{'raw': 'It', 'pos': 'PRP'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}, {'raw': 'write', 'pos': 'VB'}, {'raw': 'regular', 'pos': 'JJ'}, {'raw': 'expressions', 'pos': 'NNS'}, {'raw': 'with', 'pos': 'IN'}, {'raw': 'PyRATA', 'pos': 'NNP'}], 0, 12]]>
 
@@ -321,7 +327,7 @@ but cannot be considered as a simple constraint.
 
 
 
-It can also easily be simulated by using a non wanted value or non-existing attribute. Below `[!raw="to"]` and [!foo="bar"] correspond to a non wanted data token. All give the same results as the dot wildcard. 
+It can also easily be simulated by using a non wanted value or non-existing attribute. Below ``[!raw="to"]`` and ``[!foo="bar"]`` correspond to a non wanted data token. All give the same results as the dot wildcard. 
 
 .. doctest ::
 
@@ -335,7 +341,7 @@ It can also easily be simulated by using a non wanted value or non-existing attr
 
 
 
-Element sequence
+Elements sequence
 ------------------
 
 You can search a **sequence of elements**, for example an adjective (tagged *JJ*) followed by a noun in plural form (tagged *NNS*). The natural separator between the ordered elements is the whitespace character.
@@ -686,16 +692,24 @@ Matching mode: global, greedy, reluctant
 -------------------------
 
 The PyRATA matching engine operates with a **global matching mode**. 
+
 * If the match succeeds, the matching engine moves jumps just after the position of the last matched data token and starts a new search from this new position. Quantifiers in an expression benefit from this mode.  
 * If the match fails, the matching engine moves to the next position in the data (from the current to the current+1) and starts a new search from this new position.
 
 In addition, it allows to perform greedy or reluctant matching.
-By default, a quantified subpattern is **greedy**, that is, it will match as many times as possible (given a particular starting location) while still allowing the rest of the pattern to match. In the example below ``greedy`` is explicitely specified (it is not needed since it is the default mode).
+By default, a quantified subpattern is **greedy**, that is, it will match as many times as possible (given a particular starting location) while still allowing the rest of the pattern to match. 
+
+Let's work with the following pattern and data:
 
 .. doctest ::
 
     >>> pattern = 'pos="JJ"* pos="JJ"'
     >>> data = [ {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'JJ', 'raw': 'neat'}, {'pos': 'TO', 'raw': 'to'}]
+
+In the example below ``greedy`` is explicitely specified (actually there is no need since it is the default mode).
+
+.. doctest ::
+
     >>> pyrata_re.search(pattern, data, mode = 'greedy')
     <pyrata.re Match object; groups=[[[{'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'neat', 'pos': 'JJ'}], 1, 5]]>
 
@@ -707,6 +721,7 @@ By default, a quantified subpattern is **greedy**, that is, it will match as man
     >>> pyrata_re.search(pattern, data, mode = 'reluctant')
     <pyrata.re Match object; groups=[[[{'raw': 'fast', 'pos': 'JJ'}], 1, 2]]>
 
+Same data, same pattern, same search method but distinct matching mode. We get two distinct object. The former being longer than the latter.
 
 .. turns on "ungreedy mode", which switches the syntax for greedy and lazy quantifiers. So (?U)a* is lazy and (?U)a*? is greedy. 
 .. g  - globally match the pattern repeatedly in the string
@@ -767,9 +782,9 @@ By default, a quantified subpattern is **greedy**, that is, it will match as man
 Debugging the pattern compilation or the pattern matching
 ------------------
 
-The logging facility was interrupted in v0.4. The following may not work.
+The logging facility was partially interrupted in v0.4. The following may not work as expected.
 
-__For some performance reason, the debugging facility is not available on the pip version but on the github version.__ 
+__ For some performance reason, the debugging facility is not available on the pip version but on the github version. __ 
 
 PyRATA uses the `python logging facility <https://docs.python.org/3/howto/logging.html>`_. 
 
@@ -824,6 +839,8 @@ And observe the logging file in the current directory.
 
 To dynamically change the log level without restarting the application, just type:
 
+.. doctest :: 
+
     >>> logging.getLogger().setLevel(logging.DEBUG)
 
 Log messages are incrementally appended at the end of the previous ones.
@@ -854,7 +871,7 @@ Below an example of use with the ``findall`` method
 
 A compiled regular expression object is made of a Non-deterministic Finite Automata (NFA), the specification of having to start/end with the data and the lexicons which are used in its pattern elements.
 
-*Warning* v0.4 may have some display bugs and some states may not be displayed.
+*Warning* v0.4 may have some display bugs and some states may not be present.
 
 The following expression ``IN[pos~"JJ"]->CHAR(#S)->OUT[pos~"NN.",pos~"JJ"]`` defines the character state ``#S`` which can be get by the input state ``pos~"JJ"``and lead to two output states ``pos~"NN."`` and ``pos~"JJ"``. Characters ``#S``, ``#S`` and ``#S`` mean respectively *Start*, *Matching* and *Empty*.
 
@@ -904,7 +921,7 @@ Here the representation of a compiled pattern with quantified groups and alterna
 .. A compiled regular expression is made of a list of quantified elements. A quantified step is a quantifier with either a simple or complex step. A simple step is combination of one or several single constraints (e.g. a class step). A complex step is a list of alternatives, themself being a sequence of quantified steps.
 
 
-Data Feature structure edit methods
+Data feature structure edit methods
 ====================================
 
 By edit methods we mean substitution, updating, extension of the data feature structure. 
@@ -1075,7 +1092,7 @@ Example of uses of PyRATA dedicated conversion methods: See the ``nltk.py`` scri
 Drawing NFA in pdf file
 ====================================
 
-So far (v0.4), the drawing option are only available in the pyrata_re.py script. See the command line running section.
+So far (v0.4), the drawing option are only available in the ``pyrata_re.py`` script. See the command line running section.
 
 Time performance
 ===========================
@@ -1115,5 +1132,6 @@ To go further
 In addition to this current documentation, you may have look at ``do_tests.py`` to see the implemented examples and more.
 
 You can also read
+
 .. [#] `Regular Expression Matching Can Be Simple And Fast <http://swtch.com/~rsc/regexp/regexp1.html>`_ 
 .. [#] An Efficient and Elegant Regular Expression Matcher in Python: http://morepypy.blogspot.com.au/2010/05/efficient-and-elegant-regular.html
