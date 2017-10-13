@@ -12,6 +12,8 @@ Last report
 TODO list (almost following a decreasing priority order)
 -------------------------------
 
+* how to launch a beta test campaign
+* quality test real use cases (search lexicon made of multi words, lowercase... e.g. [raw@"POSITIVE" & raw~"^[A-Z]"])
 * communication make tutorial to recognize NP and NP of NP, clause, Opinion mining or sentiment analysis
 http://www.aclweb.org/anthology/S13-2085
 http://www.aclweb.org/anthology/W14-5905
