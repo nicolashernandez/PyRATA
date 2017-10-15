@@ -109,6 +109,9 @@ def main(argv):
         result = compiled_nfa.findall(s, mode = mode)
       elif method == 'finditer':
         result = compiled_nfa.finditer(s, mode = mode)
+      elif method == 'sub':
+        a = ast.literal_eval(annotation)
+        result = compiled_nfa.sub(a,  s, group = [group], iob = iob, mode = mode)  
       elif method == 'extend':
         a = ast.literal_eval(annotation)
         result = compiled_nfa.extend(a,  s, group = [group], iob = iob, mode = mode)  
@@ -148,14 +151,19 @@ if __name__ == '__main__':
 
   # -------------------------------------------------------------------
   parser = argparse.ArgumentParser()
+  # wo -- we are in presence of positional arguments
   parser.add_argument("pattern",  help="a pattern")
-  parser.add_argument("data",  help="a data (default formulated as a list of dict or user --nlp)")
+  parser.add_argument("data",  help="data string or path to a data file. Use --path to mean a path. By default the data is expressed as a list of dicts. Use --nlp to process.")
+  
+  # wi -- we are in presence of optional arguments
+  parser.add_argument("--path", help="force the interpretation of the data argument as a file path", action="store_true")
+
   parser.add_argument("--draw", help="draw the internal NFA to a pdf file (default is NFA.pdf)", action="store_true")
   parser.add_argument("--pdf_file_name", help="output pdf filename for the draw (--draw must be set) ",  nargs=1)
 
   parser.add_argument("--step", help="draw the internal NFA at every step to NFA.pdf", action="store_true")
   parser.add_argument("--nlp", help="perform nlp on the sentence (default is to interprete the string as a list of dict)", action="store_true")
-  parser.add_argument("--method", help="set the method to perform among search, findall, finditer, extend (default is 'search')", nargs=1, default=['search'])
+  parser.add_argument("--method", help="set the method to perform among search, findall, finditer, sub, extend (default is 'search')", nargs=1, default=['search'])
   parser.add_argument("--annotation", help="extend method requires to specify the annotation extension", nargs=1, default=[])
   parser.add_argument("--group", help="extend method allow to specify the group you want to extend", nargs=1, default=[0])
   parser.add_argument("--iob", help="extend method allow to specify if the annotation to extend will be iob", action="store_true", default = False)
@@ -183,6 +191,20 @@ if __name__ == '__main__':
 
   pattern = args.pattern
   data = args.data
+
+  # interpret data as a data path
+  if args.path:
+    #infile=open(data)
+    #lines=infile.readlines()
+    #f = open(fname, encoding="utf-8")
+    #text = open(data).read().decode("utf-8",'replace')
+  # close the connection
+    #infile.close()
+    with open(data) as f: # no need to close the connection
+      data = f.read()
+
+
+
   method = args.method[0]
   if len(args.annotation) >0:
     annotation = args.annotation[0]

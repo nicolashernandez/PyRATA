@@ -1,6 +1,10 @@
 Revision History
 ================
 
+v0.4.1 
+---------------------
+* add demo phrase-extraction.py Justeson and Katz 1005, Handel et al 2016.
+* update pyrata_re.py (data path)
 
 v0.4 (October 12, 2017)  
 ---------------------

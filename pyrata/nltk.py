@@ -30,6 +30,7 @@ Turn common nltk process to pyrata data structure to perform re precessing
 
 rawFeatureName = 'raw'
 posFeatureName = 'pos'
+chunkFeatureName = 'chunk'
 
 def list2pyrata (**kwargs):
   """ 
@@ -114,6 +115,27 @@ def listList2pyrata (**kwargs):
       dictList.append(adict)
   
   return dictList 
+
+def pyrata2conll (dictList, **kwargs):
+  """ 
+  See 3.1   Reading IOB Format and the CoNLL 2000 Corpus http://www.nltk.org/book/ch07.html
+  
+  can be used wi
+  nltk.chunk.conllstr2tree(text, chunk_types=['NP']).draw()
+  """
+
+  if 'raw' in kwargs.keys(): 
+    rawFeatureName = kwargs['raw']
+  if 'pos' in kwargs.keys(): 
+    posFeatureName = kwargs['pos']   
+  if 'chunk' in kwargs.keys(): 
+    chunkFeatureName = kwargs['chunk']
+
+  text = ''
+  for e in dictList:
+    text.append(' '.join([e[rawFeatureName], e[posFeatureName], e[chunkFeatureName], '\n']))
+
+  return text
 
 
 # extend a given dictList 

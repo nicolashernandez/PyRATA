@@ -97,6 +97,9 @@ constituents that match this grammar are bare NPs
 (with optional PP attachments), N-bars, and names.
 We do not include any determiners at the root NP.
 
+In the sentence "Here is the big house", both house and big house are N-bars, while the big house is a noun phrase. In the sentence I like big houses, both houses and big houses are N-bars, but big houses also functions as a noun phrase (in this case without an explicit determiner)
+(https://en.wikipedia.org/wiki/Noun_phrase)
+
 FullNP extends SimpleNP by adding coordination
 of pairs of words with the same tag (e.g., (VB
 CC VB) in (cease and desist) order); coordination
@@ -163,6 +166,9 @@ from nltk.corpus import brown
 import pyrata.re as pyrata_re
 
 
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+# PHRASE EXTRACTION METHODS
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -240,6 +246,12 @@ where
 A is an ADJECTIVE, but not a determiner.
 N is a LEXICAL NOUN (i.e. not a pronoun).
 P is a PREPOSITION.
+defined over a coarse tag set of adjectives, nouns
+(both common and proper), prepositions, and deter-
+miners. We refer to this grammar as SimpleNP. The
+constituents that match this grammar are bare NPs
+(with optional PP attachments), N-bars, and names
+
 Of lengh 2 or more
 
 # do not generate the right NFA...
@@ -249,6 +261,8 @@ python3 pyrata_re.py '((pos="JJ"|pos="NN")+ | ((pos="JJ"|pos="NN")* (pos="NN" po
 python3 pyrata_re.py '(  ((pos="JJ"|pos="NN")* (pos="NN" pos="IN")? (pos="JJ"|pos="NN")* | (pos="JJ"|pos="NN")+) pos="NN" ' "[{'name':'value'}]" --draw
 """
   pattern = '(pos="JJ"|pos="NN")* pos="NN" (pos="IN" pos="DT"* (pos="JJ"|pos="NN")* pos="NN")*'
+  pattern = '(pos~"JJ|JJR|JJS" pos~"NN|NNS|NNP|NNPS")* pos~"NN|NNS|NNP|NNPS" (pos="IN" pos="DT"* (pos~"JJ|JJR|JJS"|pos~"NN|NNS|NNP|NNPS")* pos~"NN|NNS|NNP|NNPS")*'
+
   return pyrata_re.findall(pattern, data)
 
 
@@ -290,6 +304,7 @@ define NP1 BaseNP [PP | ParenP]*;
 define NP NP1 [CC [Det|Adj]* NP1]*;
 regex NP -> START ... END;"""
 
+# normalize pos tags whatever tag set source
   data = pyrata_re.update('pos~"JJ|JJR|JJS|CD|CoarseADJ"', {'pos':"Adj1"}, data)
   data = pyrata_re.update('pos~"DT|CoarseDET"', {'pos':"Det1"}, data)
   data = pyrata_re.update('pos~"IN|TO|CoarseADP"', {'pos':"Prep1"}, data)
@@ -301,7 +316,7 @@ regex NP -> START ... END;"""
   data = pyrata_re.update('pos~"-LRB-|-LSB-|-LCB-"', {'pos':"Lparen"}, data)
   data = pyrata_re.update('pos~"-RRB-|-RSB-|-RCB-"', {'pos':"Rparen"}, data)
 
-# for each transducer level inc the chk argument
+# for each transducer level increment the chk indice (chk stands for chunk)
   data = pyrata_re.extend('pos="Adj1" (pos="CC" pos="Adj1")*', {'chk1':"Adj"}, data, iob = True)
   data = pyrata_re.extend('pos="Det1" (pos="CC" pos="Det1")*', {'chk1':"Det"}, data, iob = True)
   data = pyrata_re.extend('pos="Adv1" (pos="CC" pos="Adv1")*', {'chk1':"Adv"}, data, iob = True)
@@ -323,7 +338,9 @@ regex NP -> START ... END;"""
 
 
 
-
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+# DATA IMPORT AND PROCESSING 
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def brown_data():
@@ -334,6 +351,11 @@ def brown_data():
   pos_tags = nltk.pos_tag(tokens)
 
   return [{'raw':w, 'pos':p} for (w, p) in pos_tags]
+
+
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+# TEST 
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -375,8 +397,6 @@ def test_Handel_simpleNP_Penn_brown():
       if np in np_counter:
         print ('{}'.format(np))
       np_counter.add(np)
-
-
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def test_Handel_FullNP_multi_tag_set_brown():

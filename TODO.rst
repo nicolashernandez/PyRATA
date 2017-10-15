@@ -14,14 +14,17 @@ TODO list (almost following a decreasing priority order)
 
 * how to launch a beta test campaign?
 * quality test real use cases (search lexicon made of multi words, lowercase... e.g. [raw@"POSITIVE" & raw~"^[A-Z]"])
-* communication make tutorial to recognize noun-phrase, clause, verb-phrase (cf. handel diaporama), opinion mining/sentiment analysis
+* communication demo for noun-phrase extraction http://slanglab.cs.umass.edu/phrasemachine/ ; see chunk/ne evaluation http://www.nltk.org/book/ch07.html
+* communication demo for opinion analysis https://github.com/cjhutto/vaderSentiment ; 
+* communication demo for clause http://www.nltk.org/book/ch07.html, verb-phrase (cf. handel diaporama)
 
-* quality - do_benchmark.py - evaluate performance time `[pos="NNS" | pos="NNP"]`, `pos~"NN[SP]"` and 'pos~"(NNS|NNP)"', more fined grained comparison with alternatives
 * ihm pyrata_re add more features such as input-file lexicon, lexicon-file, output-dfa, output-group, 
 * communication organize the documentation http://www.sphinx-doc.org/en/stable/ ; publish on github pages
 * communication developer write code explanation: in particular Running an NFA ...
 * communication developer make diagrams to explain process and relations between files
 * communication - user doc - illustrates the use of groups(), explains the resulting output Match, Matchlist, insert pdf of NFA when presenting CompiledPattern 
+* quality test pyrata2conll http://www.nltk.org/book/ch07.html
+* quality - do_benchmark.py - evaluate performance time `[pos="NNS" | pos="NNP"]`, `pos~"NN[SP]"` and 'pos~"(NNS|NNP)"', more fined grained comparison with alternatives
 * quality revise logging information
 * quality test - anchors wi each matching methods
 * quality test - if lexicon argument kwargs is well handled in re compile is it necessary?
