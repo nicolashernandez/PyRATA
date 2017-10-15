@@ -27,6 +27,8 @@
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 """
+part-of-speech (POS) patterns to find and extract NPs
+
 compare the time performance of pyrata with
 
 pattern
@@ -47,7 +49,13 @@ http://rwet.decontextualize.com/book/textblob/
 
 re
 
-to find all patterns of noun phrases Determiner Adjectives Nouns
+Reference
+=========
+
+Justeson, J., & Katz, S. (1995). Technical terminology: Some linguistic properties and an algorithm for identification in text. Natural Language Engineering, 1(1), 9-27.
+https://brenocon.com/JustesonKatz1995.pdf
+
+
 """
 
 import logging
