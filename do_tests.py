@@ -124,6 +124,145 @@ class PyrataReTest(unittest.TestCase):
     self.assertEqual(result, expected)
 
   # ----------------------------------------------------------------------
+  def test_match_step(self):
+    """Test match method with a simple step pattern. The pattern is present at the beginning."""
+    pattern = 'pos="PRP"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [{'pos': 'PRP', 'raw': 'It'}]
+    result = pyrata.re.match(pattern, data)
+    self.assertEqual(result.group(),expected)
+
+  # ----------------------------------------------------------------------
+  def test_match_step_not_present_at_the_beginning(self):
+    """Test match method with a simple step pattern. The pattern is not present at the beginning."""
+    pattern = 'pos="JJ"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    result = pyrata.re.match(pattern, data)
+    self.assertEqual(result,expected)
+
+
+  # ----------------------------------------------------------------------
+  def test_match_quantified_wildcard(self):
+    """Test match method with a quantified wildcard. The pattern is present at the beginning."""
+    pattern = '.*'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    result = pyrata.re.match(pattern, data)
+    self.assertEqual(result.group(),expected)
+
+  # ----------------------------------------------------------------------
+  def test_match_sequence_not_present_at_the_beginning(self):
+    """Test match method with a sequence. The pattern is not present at the beginning."""
+    pattern = 'pos="JJ" raw="easy"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    result = pyrata.re.match(pattern, data)
+    self.assertEqual(result,expected)
+
+
+  # ----------------------------------------------------------------------
+  def test_fullmatch_quantified_wildcard_wi_search(self):
+    """Test fullmatch method with a sequence. The pattern matches the data."""
+    pattern = '.*'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.group(),expected)
+
+  # ----------------------------------------------------------------------
+  def test_fullmatch_quantified_wildcard(self):
+    """Test fullmatch method with a sequence. The pattern matches the data."""
+    pattern = '.*'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    result = pyrata.re.fullmatch(pattern, data)
+    self.assertEqual(result.group(),expected)
+
+  # ----------------------------------------------------------------------
+  def test_fullmatch_sequence_matching_from_beginning_to_end_the_data(self):
+    """Test fullmatch method matching from beginning to end the data."""
+    pattern = 'pos="VBZ" raw="easy"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'},  {'pos': 'JJ', 'raw': 'easy'}]
+    expected = [ {'pos': 'VBZ', 'raw': 'is'},  {'pos': 'JJ', 'raw': 'easy'}]
+    result = pyrata.re.fullmatch(pattern, data)
+    self.assertEqual(result.group(),expected)
+
+  # ----------------------------------------------------------------------
+  def test_fullmatch_sequence_matching_only_the_beginning_of_the_data(self):
+    """Test fullmatch method matching from beginning to end the data."""
+    pattern = 'pos="VBZ" raw="easy"'
+    data = [ {'pos': 'VBZ', 'raw': 'is'},  {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}]
+    expected = None
+    result = pyrata.re.fullmatch(pattern, data)
+    self.assertEqual(result,expected)
+
+      # ----------------------------------------------------------------------
+  def test_fullmatch_sequence_matching_only_the_end_of_the_data(self):
+    """Test fullmatch method matching from beginning to end the data."""
+    pattern = 'pos="VBZ" raw="easy"'
+    data = [ {'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'},  {'pos': 'JJ', 'raw': 'easy'}]
+    expected = None
+    result = pyrata.re.fullmatch(pattern, data)
+    self.assertEqual(result,expected)
+
+
+
+# --------------------------------------------------------------------------------------
+# test empty pattern wi all the matching methods 
+# --------------------------------------------------------------------------------------
+
+
+  # ----------------------------------------------------------------------
+  def test_search_wi_empty_pattern(self):
+    """Test search method with an empty pattern. The data is not empty."""
+    pattern = ''
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result,expected)
+  # ----------------------------------------------------------------------
+  def test_match_wi_empty_pattern(self):
+    """Test match method with an empty pattern. The data is not empty."""
+    pattern = ''
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    result = pyrata.re.match(pattern, data)
+    self.assertEqual(result,expected)
+  # ----------------------------------------------------------------------
+  def test_fullmatch_wi_empty_pattern(self):
+    """Test fullmatch method with an empty pattern. The data is not empty."""
+    pattern = ''
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    result = pyrata.re.fullmatch(pattern, data)
+    self.assertEqual(result,expected)
+
+  # ----------------------------------------------------------------------
+  def test_findall_wi_empty_pattern(self):
+    """Test findall method with an empty pattern. The data is not empty."""
+    pattern = ''
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result,expected)
+  # ----------------------------------------------------------------------
+  def test_finditer_wi_empty_pattern(self):
+    """Test finditer method with an empty pattern. The data is not empty."""
+    pattern = ''
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    result = pyrata.re.finditer(pattern, data)
+    self.assertEqual(result,expected)
+
+
+# --------------------------------------------------------------------------------------
+# test all sort of elements
+# --------------------------------------------------------------------------------------
+
+
+
+  # ----------------------------------------------------------------------
   def test_search_class_step(self):
     """Test search method with a class step pattern. The class is present present in the data."""
     pattern = '[pos="VBZ"]'
@@ -239,6 +378,107 @@ class PyrataReTest(unittest.TestCase):
     expected = [[ {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}]]
     result = pyrata.re.findall(pattern, data)
     self.assertEqual(result, expected) 
+
+
+
+# --------------------------------------------------------------------------------------
+# test pos/endpos  
+# --------------------------------------------------------------------------------------
+
+
+  # ----------------------------------------------------------------------
+  def test_match_step_pos_present(self):
+    """Test match method at a given pos."""
+    pattern = 'raw="is"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [ {'pos': 'VBZ', 'raw': 'is'}]
+    result = pyrata.re.match(pattern, data, pos = 1)
+    self.assertEqual(result.group(),expected)
+
+  # ----------------------------------------------------------------------
+  def test_match_step_pos_and_endpos_present(self):
+    """Test match method at a given pos and endpos."""
+    pattern = 'raw="is"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [ {'pos': 'VBZ', 'raw': 'is'}]
+    result = pyrata.re.match(pattern, data, pos = 1, endpos=2)
+    self.assertEqual(result.group(),expected)
+
+  # ----------------------------------------------------------------------
+  def test_search_step_pos_present(self):
+    """Test search method at a given pos."""
+    pattern = 'raw="is"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [ {'pos': 'VBZ', 'raw': 'is'}]
+    result = pyrata.re.search(pattern, data, pos = 1)
+    self.assertEqual(result.group(),expected)
+
+  # ----------------------------------------------------------------------
+  def test_search_step_pos_and_endpos_present(self):
+    """Test search method at a given pos and endpos."""
+    pattern = 'raw="is"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [ {'pos': 'VBZ', 'raw': 'is'}]
+    result = pyrata.re.search(pattern, data, pos = 1, endpos=2)
+    self.assertEqual(result.group(),expected)
+
+  # ----------------------------------------------------------------------
+  def test_findall_step_pos_present(self):
+    """Test findall method at a given pos."""
+    pattern = 'raw="is"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [[ {'pos': 'VBZ', 'raw': 'is'}]]
+    result = pyrata.re.findall(pattern, data, pos = 1)
+    self.assertEqual(result, expected)
+
+  # ----------------------------------------------------------------------
+  def test_findall_step_pos_and_endpos_present(self):
+    """Test findall method at a given pos and endpos."""
+    pattern = 'raw="is"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [[ {'pos': 'VBZ', 'raw': 'is'}]]
+    result = pyrata.re.findall(pattern, data, pos = 1, endpos=2)
+    self.assertEqual(result,expected)
+
+
+
+  # ----------------------------------------------------------------------
+  def test_match_step_pos_present(self):
+    """Test match method at a given pos."""
+    pattern = 'raw="it"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    result = pyrata.re.match(pattern, data, pos = 1)
+    self.assertEqual(result,expected)
+
+  # ----------------------------------------------------------------------
+  def test_match_step_pos_and_endpos_present(self):
+    """Test match method at a given pos and endpos."""
+    pattern = 'raw="is"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    result = pyrata.re.match(pattern, data, pos = 1, endpos=2)
+    self.assertEqual(result,expected)
+
+
+  # ----------------------------------------------------------------------
+  def test_search_step_negative_pos(self):
+    """Test search method at a negative pos."""
+    pattern = 'raw="is"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    result = pyrata.re.search(pattern, data, pos = -20)
+    self.assertEqual(result,expected)
+
+  # ----------------------------------------------------------------------
+  def test_search_step_pos_gt_endpos(self):
+    """Test search method at a pos greater than a endpos."""
+    pattern = 'raw="is"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    result = pyrata.re.search(pattern, data, pos = 1, endpos = 0)
+    self.assertEqual(result,expected)
+
 
 
 # --------------------------------------------------------------------------------------

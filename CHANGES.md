@@ -3,8 +3,12 @@ Revision History
 
 v0.4.1 
 ---------------------
-* add demo phrase-extraction.py Justeson and Katz 1005, Handel et al 2016.
-* update pyrata_re.py (data path)
+* demo implementation of phrase-extraction.py (Justeson and Katz 1995) and (Handel et al 2016)
+* enhancement of pyrata_re.py wi data path parameter, match and fullmatch methods
+* api/engine implementation of match and fullmatch methods + some tests
+* api/engine implementation of pos and endpos arguments for all matching methods + some tests
+
+
 
 v0.4 (October 12, 2017)  
 ---------------------

@@ -109,6 +109,10 @@ def main(argv):
         result = compiled_nfa.findall(s, mode = mode)
       elif method == 'finditer':
         result = compiled_nfa.finditer(s, mode = mode)
+      elif method == 'match':
+        result = compiled_nfa.match(s, mode = mode)
+      elif method == 'fullmatch':
+        result = compiled_nfa.fullmatch(s, mode = mode)
       elif method == 'sub':
         a = ast.literal_eval(annotation)
         result = compiled_nfa.sub(a,  s, group = [group], iob = iob, mode = mode)  
@@ -163,7 +167,7 @@ if __name__ == '__main__':
 
   parser.add_argument("--step", help="draw the internal NFA at every step to NFA.pdf", action="store_true")
   parser.add_argument("--nlp", help="perform nlp on the sentence (default is to interprete the string as a list of dict)", action="store_true")
-  parser.add_argument("--method", help="set the method to perform among search, findall, finditer, sub, extend (default is 'search')", nargs=1, default=['search'])
+  parser.add_argument("--method", help="set the method to perform among search, findall, match, fullmatch, finditer, sub, extend (default is 'search')", nargs=1, default=['search'])
   parser.add_argument("--annotation", help="extend method requires to specify the annotation extension", nargs=1, default=[])
   parser.add_argument("--group", help="extend method allow to specify the group you want to extend", nargs=1, default=[0])
   parser.add_argument("--iob", help="extend method allow to specify if the annotation to extend will be iob", action="store_true", default = False)

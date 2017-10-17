@@ -12,6 +12,7 @@ Last report
 TODO list (almost following a decreasing priority order)
 -------------------------------
 
+* communication add a note to specify the language evolution to 3.3 ; <3.3 admit !pos="JJ" ; now you must do a [!pos="JJ"] 
 * how to launch a beta test campaign?
 * quality test real use cases (search lexicon made of multi words, lowercase... e.g. [raw@"POSITIVE" & raw~"^[A-Z]"])
 * communication demo for noun-phrase extraction http://slanglab.cs.umass.edu/phrasemachine/ ; see chunk/ne evaluation http://www.nltk.org/book/ch07.html
@@ -49,7 +50,6 @@ TODO list (almost following a decreasing priority order)
 * api/engine - revise - by default only the zero group is compared with eq and ne ; should be all the groups ?
 * api/engine - implement methods to save, load and run previously saved DFA
 * api/engine - implement draw option in main API to generate drawing when compiling
-* api/engine - integrate match/exact_match in the re API, and make it evolve as search (in particular to generate DFA)
 * api/engine - implement split, sub... in compiled_pattern_re module
 * api/engine - implement insert, delete (sub with [] ; check), insert-to-the-leftmost (~ sub with reference)... 
 * api/engine - implement "possessive matching" mode

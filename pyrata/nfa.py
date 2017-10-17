@@ -278,9 +278,8 @@ class CompiledPattern(object):
 
     # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def compile(self, p):
-        """ 
-  Compile a regular expression pattern into a regular expression object, 
-  which can be used for matching using match(), search()... methods, described below.
+        """ Compile a regular expression pattern into a regular expression object, 
+            which can be used for matching using match(), search()... methods, described below.
         """
         logging.debug('----------------------------------------------------------------------------------------------------------')
         logging.debug("CompiledPattern - compile")
@@ -291,12 +290,13 @@ class CompiledPattern(object):
         self.pattern =  pattern_to_guiguan_nfa_pattern_input(normalize_chunk_operator(p))
 
         # set if there are pattern start and end constraints on the data 
-        if self.pattern[0] == '^':
-            self.pattern_must_match_data_start = True
-            del self.pattern[0]
-        if self.pattern[len(self.pattern)-1] == '$':
-            self.pattern_must_match_data_end = True
-            del self.pattern[len(self.pattern)-1]
+        if len(self.pattern) > 0:
+          if self.pattern[0] == '^':
+              self.pattern_must_match_data_start = True
+              del self.pattern[0]
+          if self.pattern[len(self.pattern)-1] == '$':
+              self.pattern_must_match_data_end = True
+              del self.pattern[len(self.pattern)-1]
 
         return self.compile_nfa_pattern()
 
@@ -496,64 +496,17 @@ class CompiledPattern(object):
     class InvalidRegexPattern(Exception):
         pass
 
-    # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def exact_match(self, s):
-        """
-        The matching must cover the entire input string (not partial).
-        Return a corresponding match object. 
-        Return None if the string does not match the pattern; 
-        """
-        logging.debug('----------------------------------------------------------------------------------------------------------')
-        logging.debug("CompiledPattern - exact_match")
-
-        groups_start = dict () # position where the given group starts (first seen)
-        groups_end = dict () # position where the given group ends (last seen)
-        
-        for i, c in enumerate(s):
-            #print ('-----------------------------------------------------')
-            #print ("Debug: nfa.step({})".format(c))
-            self.nfa.step(c, self.lexicons)
-
-            # keep tracks of the groups position
-            # for g in self.nfa.matched_groups:
-            #     if not (g in groups_start):
-            #         groups_start[g] = i -1
-            #     groups_end[g] = i -1    
-            # self.nfa.matched_groups = set()
-            
-            if not len(self.nfa.cur_states):
-                return None
-
-        if self.nfa.contains_matching_state():
-            groups_start[0] = 0
-            groups_end[0] = len (s) -1
-            matcheslist = MatchesList()
-            current_groups = []
-            for g in (groups_start.keys() | groups_end.keys()):
-                current_groups.append([s[groups_start[g]:groups_end[g]], groups_start[g], groups_end[g]])
-                # debug group
-                #print ('Debug: create group={} start={} end={}'.format(g, groups_start[g], groups_end[g]))  
-            matcheslist.append(Match(groups=current_groups))
-            #print('Debug: {} {} {}'.format(matcheslist.group(), matcheslist.group(0).start, matcheslist.group(0).end))
- # m.setStart(m.start(g_id) + data_cursor, g_id)
- #          m.setEnd(m.end(g_id) + data_cursor, g_id)
- #          logging.debug ('update m={} from=[{}, {}] to [{}, {}]'.format(m.group(g_id), m.start(g_id), m.end(g_id), m.start(g_id)+ data_cursor, m.end(g_id) + data_cursor))
- #  match = Match (start=start, end=end, value=data[start:end])
- #    matcheslist = pyrata.semantic_pattern_parser.MatchesList()  
- #    matcheslist.append(pyrata.semantic_pattern_parser.Match (start=2, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}]))
- #    matcheslist.append(pyrata.semantic_pattern_parser.Match (start=3, end=4, value=[{'pos': 'JJ', 'raw': 'easy'}]))
-            if len(matcheslist) > 0 :
-                return matcheslist.group(0)
-        
-        return None
 
     # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def search (self, s, mode = 'greedy', **kwargs):
+    def search (self, s, mode = 'greedy', matchMethod = False, fullmatchMethod = False, pos = 0, endpos = None, **kwargs):
         """ Scan through data looking for the first location where the regular expression pattern produces a match, 
         and return a corresponding match object. 
         Return None if no position in the data matches the pattern."""
         logging.debug('----------------------------------------------------------------------------------------------------------')
         logging.debug("CompiledPattern - search")
+
+        endpos = len(s) if endpos == None else endpos
+        if pos <0 or endpos < pos: return None
 
         # while parsing the data we parse and alter the nfa
         # each time the nfa did not match we reinit it by copying it from its original form 
@@ -568,104 +521,101 @@ class CompiledPattern(object):
         #for i in range(0, len(s)):
         #    for j in range(i, len(s)):
         #        print ("Debug: search - i={} j={} s[j]={}".format(i, j, s[j]))
-        i = 0
-        while i < len(s):           # data exploration  
+        i = pos
+        while i < endpos:           # data exploration  
             j = i      
-            while j < len(s):       # pattern exploration 
+            
+            while j < endpos:       # pattern exploration 
+                    if (self.pattern_must_match_data_start  or matchMethod or fullmatchMethod) and i != 0:
+                        return None
+                    
+                    c = s[j]
 
-                if self.pattern_must_match_data_start and i != 0:
-                    return None
-                
-                c = s[j]
+                    logging.debug ('-----------------------------------------------------')
+                    logging.debug ("search - nfa.step({}) data_index={} pattern_index={}".format(c, i, j))
 
-                logging.debug ('-----------------------------------------------------')
-                logging.debug ("search - nfa.step({}) data_index={} pattern_index={}".format(c, i, j))
+                    an_nfa.step(c, self.lexicons)
+                    
+                    if not len(an_nfa.cur_states):
+                        # there is no more state to explore
+                        #print ("Debug: search - there is no more state to explore")
 
-
-
-    
-                an_nfa.step(c, self.lexicons)
-                
-                if not len(an_nfa.cur_states):
-                    # there is no more state to explore
-                    #print ("Debug: search - there is no more state to explore")
-
-                    # if there was a backup we compute and create all the stuff with the current nfa
-                    if last_matched_nfa != None:
-                        #print ("Debug: search - no more state to explore and previously matched nfa so we build_matching_result")
+                        # if there was a backup we compute and create all the stuff with the current nfa
+                        if last_matched_nfa != None:
+                            #print ("Debug: search - no more state to explore and previously matched nfa so we build_matching_result")
 
 
-                        # if we are here then it means we did a step too far
-                        # the same for i and j
-                        an_nfa.step_counter -= 1
-                        #print ("Debug: search - i={} j={}".format(i, j))
-                        j -= 1
-                        if j == 0: 
-                            j = len(s)
-                            i -= 1
-                        # FIXME if i == 0 : there will be a bug when doing i-1 ...
+                            # if we are here then it means we did a step too far
+                            # the same for i and j
+                            an_nfa.step_counter -= 1
+                            #print ("Debug: search - i={} j={}".format(i, j))
+                            # j -= 1
+                            # if j == 0: 
+                            #     j = endpos
+                            #     i -= 1
+                            # FIXME if i == 0 : there will be a bug when doing i-1 ...
 
-                        #
-                        matcheslist = build_matching_result (last_matched_nfa, s, last_matched_i, last_matched_j, MatchesList())
+                            #
+                            matcheslist = build_matching_result (last_matched_nfa, s, last_matched_i, last_matched_j, MatchesList())
 
-                        if len(matcheslist) > 0:
-                            if self.pattern_must_match_data_end and j +1 != len(s):
-                                return None
+                            if len(matcheslist) > 0:
+                                if (self.pattern_must_match_data_end  or fullmatchMethod) and j +1 != endpos:
+                                    return None
 
-                            return matcheslist.group(0)
-                        # i = last_matched_i
-                        # j = last_matched_j
-                        last_matched_nfa = None
-                        last_matched_i = -1
-                        last_matched_j = -1    
+                                return matcheslist.group(0)
+                            # i = last_matched_i
+                            # j = last_matched_j
+                            last_matched_nfa = None
+                            last_matched_i = -1
+                            last_matched_j = -1    
 
-                    # then we reinit so that next exploration starts after the end of the match
-                    an_nfa = copy.deepcopy(self.nfa)
+                        # then we reinit so that next exploration starts after the end of the match
+                        an_nfa = copy.deepcopy(self.nfa)
 
-                    break
+                        break
 
-                #
-                if an_nfa.contains_matching_state():
-                    #print ("Debug: search - the nfa contains_matching_state")
+                    #
+                    if an_nfa.contains_matching_state():
+                        #print ("Debug: search - the nfa contains_matching_state")
 
-                    if mode == 'greedy':
-                        #print ("Debug: search - we are in greedy mode")
-                        if len(an_nfa.cur_states) >=2 or an_nfa.have_out_states():
-                            # at least one nfa path which could be explored
-                            #print ("Debug: search - the nfa contains_matching_state but we are in greedy mode so we save the nfa and pursue the exploration")
+                        if mode == 'greedy':
+                            #print ("Debug: search - we are in greedy mode")
+                            if len(an_nfa.cur_states) >=2 or an_nfa.have_out_states():
+                                # at least one nfa path which could be explored
+                                #print ("Debug: search - the nfa contains_matching_state but we are in greedy mode so we save the nfa and pursue the exploration")
 
-                            # we backup what do we need for computing and creating all the stuff
-                            last_matched_nfa = copy.deepcopy(an_nfa)
-                            last_matched_i = i
-                            last_matched_j = j
-                            j += 1
-                            continue # we cut here and pursue the embedding loop at the next iteration
+                                # we backup what do we need for computing and creating all the stuff
+                                last_matched_nfa = copy.deepcopy(an_nfa)
+                                last_matched_i = i
+                                last_matched_j = j
+                                j += 1
+                                continue # we cut here and pursue the embedding loop at the next iteration
+                            #else: 
+                               # no more path to explore, so we stop here
+                               # we compute and create all the stuff with the current nfa   
                         #else: 
-                           # no more path to explore, so we stop here
-                           # we compute and create all the stuff with the current nfa   
-                    #else: 
-                        # we compute and create all the stuff with the current nfa
-                    #print ("Debug: search - the current step ends the nfa (either no greedy or no more out_states) so we build_matching_result")
-                    matcheslist = build_matching_result (an_nfa, s, i, j, MatchesList())
+                            # we compute and create all the stuff with the current nfa
+                        #print ("Debug: search - the current step ends the nfa (either no greedy or no more out_states) so we build_matching_result")
+                        matcheslist = build_matching_result (an_nfa, s, i, j, MatchesList())
 
-                    if len(matcheslist) > 0 :
+                        if len(matcheslist) > 0 :
 
-                        if self.pattern_must_match_data_end and j +1 != len(s):
-                            return None
-                        # debug group FIXME remove it    
-                        #print('SEARCH-----------------\nlast_appended_state={}\nstart_state={}\nmatching_state={}\ncur_states={}'
-                        #    .format(an_nfa.last_appended_state, an_nfa.start_state, an_nfa.matching_state, an_nfa.cur_states))
-                        #print ("Debug: search - some matcheslist to return ")
-                        return matcheslist.group(0)
-                j += 1    
-            if last_matched_nfa != None and j == len(s):
+                            if (self.pattern_must_match_data_end  or fullmatchMethod) and j +1 != endpos:
+                                return None
+                            # debug group FIXME remove it    
+                            #print('SEARCH-----------------\nlast_appended_state={}\nstart_state={}\nmatching_state={}\ncur_states={}'
+                            #    .format(an_nfa.last_appended_state, an_nfa.start_state, an_nfa.matching_state, an_nfa.cur_states))
+                            #print ("Debug: search - some matcheslist to return ")
+                            return matcheslist.group(0)
+                    j += 1  
+
+            if last_matched_nfa != None and j == endpos:
                 # to prevent from restarting to i+1 when incrementing j in greedy mode; indeed when j = len(s), then i +=1 and j = i 
                 # the underlying idea in the greedy mode is that a larger matching nfa may be possible and we try to get it 
                 break    
-            if self.pattern_must_match_data_start:
+            if self.pattern_must_match_data_start or matchMethod or fullmatchMethod:
                 break    
             i += 1       
-
 
         # if there was a backup we compute and create all the stuff with the current nfa
         if last_matched_nfa != None:
@@ -680,14 +630,33 @@ class CompiledPattern(object):
             matcheslist = build_matching_result (last_matched_nfa, s, last_matched_i, last_matched_j, MatchesList())
 
             if len(matcheslist) > 0:
-                if self.pattern_must_match_data_end and j +1 != len(s):
+                #print ('Debug: fullmatchMethod last one j={} len(s)={}'.format(j,len(s)))
+                if (self.pattern_must_match_data_end or fullmatchMethod) and j != endpos:
                     return None
 
                 return matcheslist.group(0)
         return None
 
+
     # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def finditer (self, s, mode = 'greedy'):
+    def match (self, s, mode = 'greedy', **kwargs):
+      """ If zero or more tokens at the beginning of data match this regular expression, return a corresponding match object. 
+      Return None if the data does not match the pattern; """
+      logging.debug('----------------------------------------------------------------------------------------------------------')
+      logging.debug ("match - we call search the get the match")      
+      return  self.search (s, mode, matchMethod = True, **kwargs)
+
+    # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def fullmatch (self, s, mode = 'greedy', **kwargs):
+      """ If zero or more tokens at the beginning of data match this regular expression, return a corresponding match object. 
+      Return None if the data does not match the pattern; """
+      logging.debug('----------------------------------------------------------------------------------------------------------')
+      logging.debug ("match - we call search the get the match")      
+      return  self.search (s, mode, fullmatchMethod = True,  **kwargs)
+
+
+    # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def finditer (self, s, mode = 'greedy', pos = 0, endpos = None, **kwargs):
         """
           Return an iterator yielding match objects over all non-overlapping matches for the RE pattern in data. 
           The data is scanned left-to-right, and matches are returned in the order found. 
@@ -695,6 +664,9 @@ class CompiledPattern(object):
         """
         logging.debug('----------------------------------------------------------------------------------------------------------')
         logging.debug("CompiledPattern - finditer")
+
+        endpos = len(s) if endpos == None else endpos
+        if pos <0 or endpos < pos: return None
 
         # while parsing the data we parse and alter the nfa
         # each time the nfa did not match we reinit it by copying it from its original form 
@@ -709,10 +681,10 @@ class CompiledPattern(object):
         #
         matcheslist = MatchesList()
 
-        i = 0
-        while i < len(s):           # i position in data   
+        i = pos
+        while i < endpos:           # i position in data   
             j = i      
-            while j < len(s):       # j position in the current explored pattern 
+            while j < endpos:       # j position in the current explored pattern 
 
                 c = s[j]            # c current data token
 
@@ -736,7 +708,7 @@ class CompiledPattern(object):
                         if self.pattern_must_match_data_end:
                             logging.debug ("finditer - pattern_must_match_data_end so eventually we will build the result only if we are at the data end")
 
-                            if last_matched_j +1 == len(s):
+                            if last_matched_j +1 == endpos:
                                 logging.debug ("finditer - we are at the data end, so we consume last_matched_nfa and build the result")
                                 matcheslist = build_matching_result (last_matched_nfa, s, last_matched_i, last_matched_j, matcheslist)
 
@@ -788,7 +760,7 @@ class CompiledPattern(object):
 
                     if self.pattern_must_match_data_end:
                         logging.debug ("finditer - pattern_must_match_data_end so eventually we will build the result only if we are at the data end")
-                        if j +1 == len(s):
+                        if j +1 == endpos:
                             logging.debug ("finditer - we are at the data end, so we build the result")
                             matcheslist = build_matching_result (an_nfa, s,  i, j, matcheslist)
                     else:
@@ -808,7 +780,7 @@ class CompiledPattern(object):
                 #print ("Debug: finditer -about to inc j and maybe i")
 
                 j += 1    
-            if last_matched_nfa != None and j == len(s):
+            if last_matched_nfa != None and j == endpos:
                 # to prevent from restarting to i+1 when incrementing j in greedy mode; indeed when j = len(s), then i +=1 and j = i 
                 # the underlying idea in the greedy mode is that a larger matching nfa may be possible and we try to get it 
                 logging.debug ("finditer - actually the next j does not exist (the data ends)")
@@ -859,7 +831,7 @@ class CompiledPattern(object):
 
             #if self.pattern_must_match_data_start and last_matched_i != 0:
             #    return None
-            if self.pattern_must_match_data_end and last_matched_j +1 != len(s):
+            if self.pattern_must_match_data_end and last_matched_j +1 != endpos:
                 logging.debug ("finditer - matcheslist but pattern_must_match_data_end and last_matched_j+1 does not correspond to the last data position so we return None")
                 return None    
 
@@ -872,7 +844,7 @@ class CompiledPattern(object):
 
 
     # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def findall(self, s, mode = 'greedy'):
+    def findall(self, s, **kwargs):
         """ Return all non-overlapping matches of pattern in data, as a list of data. 
       The data is scanned left-to-right, and matches are returned in the order found. 
       If one or more groups are present in the pattern, return a list of groups; 
@@ -883,7 +855,7 @@ class CompiledPattern(object):
         """
         logging.debug('----------------------------------------------------------------------------------------------------------')
         logging.debug ("findall - we call finditer the get the matchlist")
-        matcheslist = self.finditer(s, mode)
+        matcheslist = self.finditer(s, **kwargs)
         if matcheslist != None:
             matches = []
             for m in range(len(matcheslist)):

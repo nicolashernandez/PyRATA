@@ -63,15 +63,23 @@ def compile (pattern, lexicons = {}, **kwargs):
 
 
 
+
+
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def search (pattern, data, lexicons = {}, **kwargs):
+def search (pattern, data, lexicons = {},  **kwargs):
   """ Scan through data looking for the first location where the regular expression pattern produces a match, 
       and return a corresponding match object. 
-      Return None if no position in the data matches the pattern."""
+      Return None if no position in the data matches the pattern.
+      The optional parameter lexicon FIXME
+      The optional parameter pos gives an index in the data where the search is to start; it defaults to 0.
+      The optional parameter endpos limits how far the data will be searched; 
+      it will be as if the data is endpos characters long, so only the elements from pos to endpos - 1 will be searched for a match. 
+      If endpos is less than pos, no match will be found;  
+      """
 
   # build nfa
   compiled_nfa = compile(pattern, lexicons = lexicons, **kwargs) # lexicons = {}
-        
+          
   #
   try:
     r = None
@@ -83,14 +91,53 @@ def search (pattern, data, lexicons = {}, **kwargs):
   return r
 
 
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def match (pattern, data, lexicons = {},  **kwargs):
+  """ If zero or more tokens at the beginning of data match this regular expression, return a corresponding match object. 
+      Return None if the data does not match the pattern.
+      Zero-length match returns None.
+      """
+
+  # build nfa
+  compiled_nfa = compile(pattern, lexicons = lexicons, **kwargs) # lexicons = {}
+        
+  #
+  try:
+    r = None
+    r = compiled_nfa.match(data, **kwargs)  # greedy = True
+
+  #except pyrata.nfa.CompiledPattern.InvalidRegexPattern as e:
+  except CompiledPattern.InvalidRegexPattern as e:
+    sys.exit('Error: re - match - %s' % e)
+  return r
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def findall (pattern, data, lexicons = {}, **kwargs):
+def fullmatch (pattern, data, lexicons = {},  **kwargs):
+  """ If the whole data matches the regular expression pattern, return a corresponding match object. 
+      Return None if the data does not match the pattern.
+      Zero-length match returns None. """
+  # build nfa
+  compiled_nfa = compile(pattern, lexicons = lexicons, **kwargs) # lexicons = {}
+        
+  #
+  try:
+    r = None
+    r = compiled_nfa.fullmatch(data, **kwargs)  # greedy = True
+
+  #except pyrata.nfa.CompiledPattern.InvalidRegexPattern as e:
+  except CompiledPattern.InvalidRegexPattern as e:
+    sys.exit('Error: re - fullmatch - %s' % e)
+  return r
+
+
+  
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def findall (pattern, data, lexicons = {},  **kwargs):
   """ Return all non-overlapping matches of pattern in data, as a list of datas. 
       The data is scanned left-to-right, and matches are returned in the order found. 
-      #If one or more groups are present in the pattern, return a list of groups; 
-      #this will be a list of tuples if the pattern has more than one group. 
-      #Empty matches are included in the result unless they touch the beginning of another match.
+      If one or more groups are present in the pattern, return a list of groups; 
+      this will be a list of tuples if the pattern has more than one group. 
+      Zero-length match returns None. 
   """
 
   # build nfa
@@ -106,10 +153,9 @@ def findall (pattern, data, lexicons = {}, **kwargs):
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
 def finditer (pattern, data, lexicons = {},  **kwargs):
-  """
-  Return an iterator yielding match objects over all non-overlapping matches for the RE pattern in data. 
-  The data is scanned left-to-right, and matches are returned in the order found. 
-  #Empty matches are included in the result unless they touch the beginning of another match.
+  """ Return an iterator yielding match objects over all non-overlapping matches for the RE pattern in data. 
+      The data is scanned left-to-right, and matches are returned in the order found. 
+      Zero-length match returns None.
   """
 
   # build nfa
@@ -118,14 +164,14 @@ def finditer (pattern, data, lexicons = {},  **kwargs):
   #
   try:
     r = None
-    r = compiled_nfa.finditer(data, **kwargs) # greedy = True
+    r = compiled_nfa.finditer(data,  **kwargs) # greedy = True
   except CompiledPattern.InvalidRegexPattern as e:
     sys.exit('Error: re - finditer - %s' % e)
   return r
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
-def annotate (pattern, annotation, data, group = [0], action = 'sub', iob = False, lexicons = {}, **kwargs):  
+def annotate (pattern, annotation, data, group = [0], action = 'sub', iob = False, lexicons = {},  **kwargs):  
   """ 
   Do one of the following process on a copy of the data
   * sub/substitutes a match or a group of a match with a dict or a sequence of dicts (in case of dict we turn it into list of dict to process it the same way)
@@ -143,23 +189,23 @@ def annotate (pattern, annotation, data, group = [0], action = 'sub', iob = Fals
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
-def sub (pattern, repl, data, group = [0], lexicons = {}, **kwargs):
+def sub (pattern, repl, data, group = [0], lexicons = {},  **kwargs):
   """
   Return the data obtained by replacing the leftmost non-overlapping occurrences of 
   pattern matches or group of matches in data by the replacement repl. 
   """
-  return annotate (pattern, repl, data, group, action = 'sub', iob = False, lexicons = lexicons,**kwargs)
+  return annotate (pattern, repl, data, group, action = 'sub', iob = False, lexicons = lexicons, **kwargs)
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
-def subn (pattern, repl, data, **kwargs):
+def subn (pattern, repl, data,  **kwargs):
   """
   Perform the same operation as sub(), but return a tuple (new_string, number_of_subs_made).
   """
   raise Exception ("Not implemented yet !")
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
-def update (pattern, repl, data, group = [0], iob = False, lexicons = {}, **kwargs):
+def update (pattern, repl, data, group = [0], iob = False, lexicons = {},  **kwargs):
   """
   Return the data after updating (and extending) the features of a match or a group of a match 
   with the features of a dict or a sequence of dicts (of the same size as the group/match). 
@@ -168,7 +214,7 @@ def update (pattern, repl, data, group = [0], iob = False, lexicons = {}, **kwar
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""  
-def extend (pattern, repl, data, group = [0], iob = False, lexicons = {}, **kwargs):
+def extend (pattern, repl, data, group = [0], iob = False, lexicons = {},  **kwargs):
   """
   Return the data after updating (and extending) the features of a match or a group of a match 
   with the features of a dict or a sequence of dicts (of the same size as the group/match). 
