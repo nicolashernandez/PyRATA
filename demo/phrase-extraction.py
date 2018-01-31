@@ -266,6 +266,7 @@ python3 pyrata_re.py '(  ((pos="JJ"|pos="NN")* (pos="NN" pos="IN")? (pos="JJ"|po
   return pyrata_re.findall(pattern, data)
 
 
+
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def Handel_FullNP_multi_tag_set(data):
   """ 
@@ -422,7 +423,7 @@ def test_Handel_FullNP_multi_tag_set_brown_wo_filter():
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-# Run benchmark
+# Run 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 if __name__ == '__main__':
 

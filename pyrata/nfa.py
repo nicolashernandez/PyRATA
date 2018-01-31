@@ -57,9 +57,6 @@ STEP = False
 (PREFIX_BEGIN, PREFIX_INSIDE, PREFIX_OTHER) = ('B-', 'I-', 'O-')
 
 
-(PREFIX_BEGIN, PREFIX_INSIDE, PREFIX_OTHER) = ('B-', 'I-', 'O-')
-
-
 
 #if DEBUG:
 from graph_tool.all import *
@@ -123,6 +120,7 @@ def pattern_to_guiguan_nfa_pattern_input (pattern):
     elif c == '^' and not(in_constraint_value):
       guiguan_nfa_pattern_input.append(c)
       last_char_was_special = True
+
     else:
       # create a new element
       if last_char_was_special or cur_pos == 0:
@@ -132,12 +130,16 @@ def pattern_to_guiguan_nfa_pattern_input (pattern):
         guiguan_nfa_pattern_input[len(guiguan_nfa_pattern_input)-1] = ''.join([guiguan_nfa_pattern_input[len(guiguan_nfa_pattern_input)-1],c])
       last_char_was_special = False
 
-      # in order not to create an element when a whitespace is encountered inside of a single contraint value
-      # assume " can not be in a constraint value
-      # TODO consider the escape case ; do not change the constraint value when escaped
+      # in order not to create an element when a whitespace is encountered inside of a single constraint value
+
       if c == '"':
         if in_constraint_value:
-          in_constraint_value = False
+          # case where " is in a constraint value
+          # do not change the constraint value when escaped
+          # cur_pos >0 if in_constraint_value so we can test cur_pos-1
+
+          if pattern[cur_pos-1] != '\\': 
+            in_constraint_value = False
         else:
           in_constraint_value = True  
       # in order to consider a class constraint as a single element 
@@ -149,11 +151,17 @@ def pattern_to_guiguan_nfa_pattern_input (pattern):
     cur_pos += 1
   return guiguan_nfa_pattern_input
 
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def turn_backslashed_double_quote_into_unicode(pattern):
+  return pattern.replace('\\"','\u0022')
+
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def evaluate_single_constraint (data, name, operator, value, lexicons):
   # checking if the given value, interpreted as a string, matches the current dict feature of the data   
   logging.debug("CompiledPattern - evaluate_single_constraint")
+
+  #print ("Debug: CompiledPattern - evaluate_single_constraint")
 
   if name in data:
     if operator == '=':
@@ -177,12 +185,16 @@ def evaluate_single_constraint (data, name, operator, value, lexicons):
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def build_matching_result (an_nfa, s, i, j, matcheslist):
     logging.debug("CompiledPattern - build_matching_result")
-    #print ('Debug: build_matching_result - i={} j={} step_counter={}'.format(i, j, an_nfa.step_counter))
+
+    # print ('Debug: build_matching_result ------------------------------------------')
+
+    # print ('Debug: build_matching_result - i={} j={} step_counter={}'.format(i, j, an_nfa.step_counter))
+    # print ('Debug: build_matching_result an_nfa.cur_states={}'.format(an_nfa.cur_states))
 
     # print ('Debug: build_matching_result - contains_matching_state #={} cur_states={}'.format(len(an_nfa.cur_states), an_nfa.cur_states))
 
     # print ('Debug: build_matching_result - nfa_step_counter={}'.format(an_nfa.step_counter))
-    # print ('Debug: build_matching_result - nfa_step_os_is_leaf={}'.format( pformat(an_nfa.step_os_is_leaf)))
+    #print ('Debug: build_matching_result - nfa_step_os_is_leaf={}'.format( pformat(an_nfa.step_os_is_leaf)))
 
     #print ('Debug: build_matching_result - nfa_states_dict={}'.format( an_nfa.states_dict))
     # print ('Debug: build_matching_result - nfa_states_dict={}'.format(pformat( an_nfa.states_dict)))
@@ -195,31 +207,38 @@ def build_matching_result (an_nfa, s, i, j, matcheslist):
 
     # DFA + group
     DFA = []
-    last_state_id = list(an_nfa.step_os_is_leaf[an_nfa.step_counter-1])[0] #.keys()
+    #other_possible_last_state_id = list(an_nfa.step_os_is_leaf[an_nfa.step_counter])[0] #.keys()
+    #print ('Debug: build_matching_result - DFA building - At step={}, the other_possible_last_state_id reference is {} '.format(an_nfa.step_counter-1, other_possible_last_state_id))
+
+    #print ('Debug: build_matching_result - nfa_step_os_is_leaf[an_nfa.step_counter-1]={}'.format( pformat(an_nfa.step_os_is_leaf[an_nfa.step_counter-1])))
+    #print ('Debug: build_matching_result - list(an_nfa.step_os_is_leaf[an_nfa.step_counter-1])={}'.format( pformat(list(an_nfa.step_os_is_leaf[an_nfa.step_counter-1]))))
+
+    #last_state_id = list(an_nfa.step_os_is_leaf[an_nfa.step_counter-1])[0] #.keys()
+    last_state_id = an_nfa.last_state_id
     for l in range(an_nfa.step_counter-1, -1, -1):  # 3rd argument for the reverse order
         #print ('Debug: build_matching_result - DFA building - At step={}, the last_state_id reference is {} '.format(l, last_state_id))
-        # print ('Debug: build_matching_result - DFA building - The corresponding state is={}'.format(an_nfa.states_dict[last_state_id]))
+        #if last_state_id != -1: print ('Debug: build_matching_result - DFA building - The corresponding state is={}'.format(an_nfa.states_dict[last_state_id])) # if wildcard then laststateid = -1 and so error 
 
         # get the state corresponding to an id which is a leaf (second arg of list), value of state_id at a given matching step 
-        # print ('Debug: build_matching_result - DFA building - At this step, there are the following back associations={}'.format(an_nfa.step_os_is_leaf[l]))
+        #print ('Debug: build_matching_result - DFA building - At this step, there are the following back associations={}'.format(an_nfa.step_os_is_leaf[l]))
         if not (last_state_id in an_nfa.step_os_is_leaf[l]):
-            # print ('Debug: build_matching_result - DFA building - But none of them from the reference !!!')
-            # print ('Debug: build_matching_result - DFA building - In that case we assume to be back to the first root state')
-            # print ('Debug: build_matching_result - DFA building - and that there is actually one association at this stage')
-            # print ('Debug: build_matching_result - DFA building - and that the corresponding state is #S')
-            # print ('Debug: build_matching_result - DFA building - In that case we simply take the present io id')
-            # FIXME should to some tests (only one association and char #S)
-            last_state_id = list(an_nfa.step_os_is_leaf[l])[0] #.keys()
+          #print ('Debug: build_matching_result - DFA building - But none of them from the reference !!!')
+          #print ('Debug: build_matching_result - DFA building - In that case we assume to be back to the first root state')
+          #print ('Debug: build_matching_result - DFA building - and that there is actually one association at this stage')
+          #print ('Debug: build_matching_result - DFA building - and that the corresponding state is #S')
+          #print ('Debug: build_matching_result - DFA building - In that case we simply take the present io id')
+          # FIXME should to some tests (only one association and char #S)
+          last_state_id = list(an_nfa.step_os_is_leaf[l])[0] #.keys()
 
 
 
-        # print ('Debug: build_matching_result - DFA building - The one from the reference is={}'.format(an_nfa.step_os_is_leaf[l][last_state_id]))
+        #print ('Debug: build_matching_result - DFA building - The one from the reference is={}'.format(an_nfa.step_os_is_leaf[l][last_state_id]))
         
         leaf_id = an_nfa.step_os_is_leaf[l][last_state_id][1]
         is_id = an_nfa.step_os_is_leaf[l][last_state_id][0] if an_nfa.step_os_is_leaf[l][last_state_id][0] != -1 else leaf_id
-        # print ('Debug: build_matching_result - DFA building - It said we go in reverse order from(os)={} to(is)={}'.format(last_state_id, is_id))
+        #print ('Debug: build_matching_result - DFA building - It said we go in reverse order from(os)={} to(is)={}'.format(last_state_id, is_id))
 
-        # print ('Debug: build_matching_result - DFA building - The corresponding leaf of is_id={} is leaf_id={} '.format(is_id, leaf_id))
+        #print ('Debug: build_matching_result - DFA building - The corresponding leaf of is_id={} is leaf_id={} '.format(is_id, leaf_id))
 
         # track of the groups position
         for g in an_nfa.step_os_is_leaf[l][last_state_id][2]:
@@ -232,7 +251,7 @@ def build_matching_result (an_nfa, s, i, j, matcheslist):
         #
         DFA.insert(0, an_nfa.states_dict[leaf_id])
         last_state_id = is_id
-    # print ('Debug: build_matching_result - DFA=\n{}'.format(pformat(DFA)))
+    #print ('Debug: build_matching_result - DFA=\n{}'.format(pformat(DFA)))
 
     
     current_groups = []
@@ -240,7 +259,7 @@ def build_matching_result (an_nfa, s, i, j, matcheslist):
     for g in (groups_start.keys()):
         current_groups.append([s[groups_start[g]:groups_end[g]], groups_start[g], groups_end[g]])
         # debug group
-        # print ('Debug: build_matching_result - create group={} start={} end={}'.format(g, groups_start[g], groups_end[g]))  
+        #print ('Debug: build_matching_result - create group={} start={} end={}'.format(g, groups_start[g], groups_end[g]))  
     #matcheslist.append(Match(start=groups_start[0], end=groups_end[0], value=s[groups_start[0]:groups_end[0]],groups=current_groups))
     matcheslist.append(Match(groups=current_groups, DFA=DFA))
     return matcheslist
@@ -276,18 +295,25 @@ class CompiledPattern(object):
 
 
 
+
     # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def compile(self, p):
+    def compile(self, p, lexicons = {}, **kwargs):
         """ Compile a regular expression pattern into a regular expression object, 
             which can be used for matching using match(), search()... methods, described below.
         """
         logging.debug('----------------------------------------------------------------------------------------------------------')
         logging.debug("CompiledPattern - compile")
 
+      #
+        self.lexicons = lexicons    
+
         self.group_pile.append (self.group_counter)
 
         # build guiguan_nfa_pattern_input
+        #self.pattern =  pattern_to_guiguan_nfa_pattern_input(normalize_chunk_operator(turn_backslashed_double_quote_into_unicode(p)))
         self.pattern =  pattern_to_guiguan_nfa_pattern_input(normalize_chunk_operator(p))
+
+        #print ('Debug: guiguan_nfa_pattern_input={}'.format(self.pattern))
 
         # set if there are pattern start and end constraints on the data 
         if len(self.pattern) > 0:
@@ -316,7 +342,6 @@ class CompiledPattern(object):
     # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def __parse_current_pattern_pos(self, p, start_pos):
         """Build a NFA for pattern p starting at position pos
-
         """
         logging.debug("CompiledPattern - __parse_current_pattern_pos")
 
@@ -461,12 +486,13 @@ class CompiledPattern(object):
                 symbolic_step_expression = single_constraint_tuple_list = single_constraint_variable_list = []
                 if c != '.':
                     l = Lexer(pattern=c) 
+                    #print ('Debug: SyntacticStepParser of c={}'.format(c))
                     #y = SyntacticPatternParser(tokens=l.tokens, start='step') #,**kwargs
                     y = SyntacticPatternParser(tokens=l.tokens) #,**kwargs
 
                     logging.debug('CompiledPattern - ply parse the current pattern element')
 
-                    y.parser.parse(c, l.lexer, tracking=False)
+                    y.parser.parse(c, l.lexer,  tracking=False)
                     # debug group
                     #print ('Debug: c={}, group={}, depth={}, sym_expr={}, single_constr_tuple_list={}, single_constr_var_list={}'
                     #    .format(c, self.group_counter, self.group_depth, l.lexer.symbolic_step_expression, l.lexer.single_constraint_tuple_list, l.lexer.single_constraint_variable_list))
@@ -506,8 +532,11 @@ class CompiledPattern(object):
         logging.debug("CompiledPattern - search")
 
         endpos = len(s) if endpos == None else endpos
-        if pos <0 or endpos < pos: return None
-
+        #if pos <0 or endpos < pos or endpos > len(s): return None
+        if pos <0: pos = 0
+        if endpos > len(s): endpos = len(s)
+        if endpos < pos: return None
+        
         # while parsing the data we parse and alter the nfa
         # each time the nfa did not match we reinit it by copying it from its original form 
         an_nfa = copy.deepcopy(self.nfa)       
@@ -526,10 +555,13 @@ class CompiledPattern(object):
             j = i      
             
             while j < endpos:       # pattern exploration 
-                    if (self.pattern_must_match_data_start  or matchMethod or fullmatchMethod) and i != 0:
+
+                    if (self.pattern_must_match_data_start or matchMethod or fullmatchMethod) and i != pos:
                         return None
                     
                     c = s[j]
+                    #print ('-----------------------------------------------------')
+                    #print ("search - nfa.step({}) data_index={} pattern_index={}".format(c, i, j))
 
                     logging.debug ('-----------------------------------------------------')
                     logging.debug ("search - nfa.step({}) data_index={} pattern_index={}".format(c, i, j))
@@ -555,10 +587,12 @@ class CompiledPattern(object):
                             #     i -= 1
                             # FIXME if i == 0 : there will be a bug when doing i-1 ...
 
+                            #print ('Debug: search last_matched_nfa.cur_states={}'.format(last_matched_nfa.cur_states))
                             #
                             matcheslist = build_matching_result (last_matched_nfa, s, last_matched_i, last_matched_j, MatchesList())
 
                             if len(matcheslist) > 0:
+
                                 if (self.pattern_must_match_data_end  or fullmatchMethod) and j +1 != endpos:
                                     return None
 
@@ -580,7 +614,7 @@ class CompiledPattern(object):
 
                         if mode == 'greedy':
                             #print ("Debug: search - we are in greedy mode")
-                            if len(an_nfa.cur_states) >=2 or an_nfa.have_out_states():
+                            if len(an_nfa.cur_states) >=2 or an_nfa.have_out_states(): # FIXME =>2 or =>1
                                 # at least one nfa path which could be explored
                                 #print ("Debug: search - the nfa contains_matching_state but we are in greedy mode so we save the nfa and pursue the exploration")
 
@@ -600,6 +634,7 @@ class CompiledPattern(object):
 
                         if len(matcheslist) > 0 :
 
+
                             if (self.pattern_must_match_data_end  or fullmatchMethod) and j +1 != endpos:
                                 return None
                             # debug group FIXME remove it    
@@ -608,11 +643,11 @@ class CompiledPattern(object):
                             #print ("Debug: search - some matcheslist to return ")
                             return matcheslist.group(0)
                     j += 1  
-
             if last_matched_nfa != None and j == endpos:
                 # to prevent from restarting to i+1 when incrementing j in greedy mode; indeed when j = len(s), then i +=1 and j = i 
                 # the underlying idea in the greedy mode is that a larger matching nfa may be possible and we try to get it 
                 break    
+
             if self.pattern_must_match_data_start or matchMethod or fullmatchMethod:
                 break    
             i += 1       
@@ -666,7 +701,10 @@ class CompiledPattern(object):
         logging.debug("CompiledPattern - finditer")
 
         endpos = len(s) if endpos == None else endpos
-        if pos <0 or endpos < pos: return None
+        if pos <0 or endpos < pos or endpos > len(s): return None
+        if pos <0: pos = 0
+        if endpos > len(s): endpos = len(s)
+        if endpos < pos: return None
 
         # while parsing the data we parse and alter the nfa
         # each time the nfa did not match we reinit it by copying it from its original form 
@@ -677,7 +715,7 @@ class CompiledPattern(object):
         last_matched_nfa = None
         last_matched_i = -1
         last_matched_j = -1
-
+        j = -1 # to process when data is empty
         #
         matcheslist = MatchesList()
 
@@ -818,6 +856,7 @@ class CompiledPattern(object):
             # build results and update matchlist
             matcheslist = build_matching_result (last_matched_nfa, s, last_matched_i, last_matched_j, matcheslist)
         else:
+            # Warning we get here even when len(s) is 0
             last_matched_i = i
             last_matched_j = j
 
@@ -1034,6 +1073,7 @@ class NFA(object):
 
         self.states_dict = dict()   # each state referenced by its id
 
+        self.last_state_id = -1     # state id of the last state matching #M   
 
     #if DEBUG:
     def draw(self, filename = "NFA.pdf"):
@@ -1158,20 +1198,20 @@ class NFA(object):
 
             #if state.char == '.' or state.char == char:
             if state.char == '.' or step_evaluation:  
-                # print ('Debug: __step_special_state - current char matches the state')
+                #print ('Debug: __step_special_state - current char={} matches the state'.format(state.char))
                                   
                 ps_id = -1 if previous_state == None  else previous_state.id                  
                 
                 # store the back reference to the in_state
                 # the structure step_os_is_leaf will be used to build the actual matching DFA among the NFA
-                for os in  state.out_states:
-                    # print ('Debug: __step_special_state - id(is)={}, since id(cs)={} matches, we will explore next step id(os)={}'
-                    #     .format(ps_id, state.id, os.id))  
+                for os in state.out_states:
+                    #print ('Debug: __step_special_state - id(is)={}, since id(cs)={} matches, we will explore next step id(os)={} char(os)={}'
+                    #  .format(ps_id, state.id, os.id, os.char))  
 
                     if self.step_counter in  self.step_os_is_leaf:
                         if os.id in self.step_os_is_leaf[self.step_counter]:
-                           # print ('Debug: __step_special_state - WARNING - id(os)={} already present in self.step_os_is_leaf[{}]={}'.format(os.id, self.step_counter,self.step_os_is_leaf[self.step_counter]))
-                           # exit()
+                            #print ('Debug: __step_special_state - WARNING - id(os)={} already present in self.step_os_is_leaf[{}]={}'.format(os.id, self.step_counter,self.step_os_is_leaf[self.step_counter]))
+                            # exit()
                             self.step_os_is_leaf[self.step_counter][os.id].extend([ps_id, state.id, state.group_pile])
                         else:
                             self.step_os_is_leaf[self.step_counter][os.id] = []
@@ -1180,8 +1220,9 @@ class NFA(object):
                         self.step_os_is_leaf[self.step_counter] = dict()
                         self.step_os_is_leaf[self.step_counter][os.id] = []
                         self.step_os_is_leaf[self.step_counter][os.id].extend([ps_id, state.id, state.group_pile])
-                    # print ('Debug: __step_special_state - at step={} we store the following association from id(os)={} to id(is)={} (with leaf/sub={})'.format(self.step_counter, os.id, ps_id, state.id))
-                    # print ('Debug: __step_special_state - so after extension={})'.format(self.step_os_is_leaf[self.step_counter]))
+                    #print ('Debug: __step_special_state - at step={} we store the following association from id(os)={} to id(is)={} (with leaf/sub={})'
+                    #  .format(self.step_counter, os.id, ps_id, state.id))
+                    #print ('Debug: __step_special_state - so after extension={})'.format(self.step_os_is_leaf[self.step_counter]))
 
 
                     # patch
@@ -1192,8 +1233,15 @@ class NFA(object):
                     # So I store it on fly now...
                     if not (os.id in self.states_dict):
                         # print('Debug: __step_special_state - id(cs)={} is absent from states_dict. Should have be added during NFA build ! We store now.'.format(state.id)) 
-                        self.states_dict[os.id] = os        
+                        self.states_dict[os.id] = os
+                    # else:
+                    #   print ('Debug: __step_special_state - state.id={} already present registered_state={} and state={}'.format(os.id, self.states_dict[os.id], os))        
+                    #   if os != self.states_dict[os.id]:
+                    #     print ('Warning: __step_special_state - state.id={} already present but with a different registered state registered_state={} and state={}'.format(os.id, self.states_dict[os.id], os))        
 
+                    if os.char == "#M":
+                      #print ('Debug: __step_special_state - last_state_id={})'.format(os.id))
+                      self.last_state_id = os.id
                 # patch
                 # I did not success to find when in building the NFA some state were lost 
                 # (not added in states_dict ; so I did not find where to add my storing code...)
@@ -1203,6 +1251,13 @@ class NFA(object):
                 if not (state.id in self.states_dict):
                     # print('Debug: __step_special_state - id(cs)={} is absent from states_dict. Should have be added during NFA build ! We store now.'.format(state.id)) 
                     self.states_dict[state.id] = state
+                # else:
+                #     print ('Debug: __step_special_state - state.id={} already present registered_state={} and state={}'
+                #       .format(state.id, self.states_dict[state.id], state))        
+   
+                #     if state != self.states_dict[state.id]:
+                #         print ('Warning: __step_special_state - state.id={} already present but with a different registered state registered_state={} and state={}'
+                #           .format(state.id, self.states_dict[state.id], state))        
 
                 #                 
                 states_add.update(state.out_states)
@@ -1222,6 +1277,12 @@ class NFA(object):
                 if not (state.id in self.states_dict):
                     # print('Debug: __step_special_state - id(cs)={} is absent from states_dict. Should have be added during NFA build ! We store now.'.format(state.id)) 
                     self.states_dict[state.id] = state
+                # else:
+                #     print ('Debug: __step_special_state - state.id={} already present registered_state={} and state={}'
+                #       .format(state.id, self.states_dict[state.id], state))  
+                #     if state != self.states_dict[state.id]:
+                #       print ('Warning: __step_special_state - state.id={} already present but with a different registered state registered_state={} and state={}'
+                #         .format(state.id, self.states_dict[state.id], state))        
 
                 states_add.update(self.__step_special_state(char, state, os, lexicons))
         return states_add

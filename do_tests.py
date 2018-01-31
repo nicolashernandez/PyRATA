@@ -162,13 +162,50 @@ class PyrataReTest(unittest.TestCase):
 
 
   # ----------------------------------------------------------------------
-  def test_fullmatch_quantified_wildcard_wi_search(self):
-    """Test fullmatch method with a sequence. The pattern matches the data."""
+  def test_search_quantified_wildcard_wi_search(self):
+    """Test search method with a sequence. The pattern matches the data."""
     pattern = '.*'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     result = pyrata.re.search(pattern, data)
     self.assertEqual(result.group(),expected)
+
+
+# --------------------------------------------------------------------------------------
+# compiled version of re methods 
+# --------------------------------------------------------------------------------------
+
+  # ----------------------------------------------------------------------
+  def test_search_compiled_step(self):
+    """Test search method with a compiled step pattern. The pattern fires at some points."""
+    pattern = 'pos="JJ"'
+    compiled_pattern = pyrata.re.compile(pattern)
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [{'pos': 'JJ', 'raw': 'fast'}]
+    result = compiled_pattern.search(data)
+    self.assertEqual(result.group(),expected)
+
+
+  # ----------------------------------------------------------------------
+  def test_finditer_compiled_step(self):
+    """Test finditer method with a compiled step pattern. The pattern matches several times the data."""
+    pattern = 'pos="JJ"'
+    compiled_pattern = pyrata.re.compile(pattern)
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    matcheslist = pyrata.match.MatchesList()  
+    matcheslist.append(pyrata.match.Match (start=2, end=3, value=[{'pos': 'JJ', 'raw': 'fast'}]))
+    matcheslist.append(pyrata.match.Match (start=3, end=4, value=[{'pos': 'JJ', 'raw': 'easy'}]))
+    matcheslist.append(pyrata.match.Match (start=5, end=6, value=[{'pos': 'JJ', 'raw': 'funny'}]))
+    matcheslist.append(pyrata.match.Match (start=8, end=9, value=[{'pos': 'JJ', 'raw': 'regular'}]))
+    expected = matcheslist
+    result = compiled_pattern.finditer(data)
+    self.assertEqual(result, expected)
+
+
+
+# --------------------------------------------------------------------------------------
+# fullmatch method with various maching conditions i.e. data matching fully/partially (at the beginning/end) or not 
+# --------------------------------------------------------------------------------------
 
   # ----------------------------------------------------------------------
   def test_fullmatch_quantified_wildcard(self):
@@ -443,22 +480,54 @@ class PyrataReTest(unittest.TestCase):
 
 
   # ----------------------------------------------------------------------
-  def test_match_step_pos_present(self):
-    """Test match method at a given pos."""
-    pattern = 'raw="it"'
+  def test_search_step_endpos_present(self):
+    """Test search method that ends at endpos. Data is present"""
+    pattern = 'raw="fast"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [ {'pos': 'JJ', 'raw': 'fast'}]
+    result = pyrata.re.search(pattern, data,  endpos=3)
+    self.assertEqual(result.group(),expected)
+
+  # ----------------------------------------------------------------------
+  def test_search_step_endpos_not_present(self):
+    """Test search method that ends at endpos. Data is not present"""
+    pattern = 'raw="fast"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = None
-    result = pyrata.re.match(pattern, data, pos = 1)
+    result = pyrata.re.search(pattern, data,  endpos=1)
+    self.assertEqual(result,expected)
+
+
+
+  # ----------------------------------------------------------------------
+  def test_match_step_endpos_present(self):
+    """Test search method that ends at endpos. Data is present"""
+    pattern = 'raw="fast"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = None
+    result = pyrata.re.search(pattern, data,  endpos=2)
     self.assertEqual(result,expected)
 
   # ----------------------------------------------------------------------
-  def test_match_step_pos_and_endpos_present(self):
-    """Test match method at a given pos and endpos."""
-    pattern = 'raw="is"'
+  def test_match_step_endpos_not_present(self):
+    """Test search method that ends at endpos. Data is not present"""
+    pattern = 'raw="fast"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
     expected = None
-    result = pyrata.re.match(pattern, data, pos = 1, endpos=2)
+    result = pyrata.re.search(pattern, data,  endpos=1)
     self.assertEqual(result,expected)
+
+  # ----------------------------------------------------------------------
+  def test_match_step_endpos_gt_len_data_present(self):
+    """Test search method that ends at endpos gt than len data. Data is present"""
+    pattern = 'raw="fast"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
+    expected = [{'pos': 'JJ', 'raw': 'fast'}]
+    result = pyrata.re.search(pattern, data,  endpos=100)
+    self.assertEqual(result.group(),expected)
+
+
+
 
 
   # ----------------------------------------------------------------------
@@ -466,9 +535,9 @@ class PyrataReTest(unittest.TestCase):
     """Test search method at a negative pos."""
     pattern = 'raw="is"'
     data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'VBZ', 'raw': 'is'}, {'pos': 'JJ', 'raw': 'fast'}, {'pos': 'JJ', 'raw': 'easy'}, {'pos': 'CC', 'raw': 'and'}, {'pos': 'JJ', 'raw': 'funny'}, {'pos': 'TO', 'raw': 'to'}, {'pos': 'VB', 'raw': 'write'}, {'pos': 'JJ', 'raw': 'regular'}, {'pos': 'NNS', 'raw': 'expressions'}, {'pos': 'IN', 'raw': 'with'}, {'pos': 'NNP', 'raw': 'Pyrata'}]
-    expected = None
+    expected = [{'pos': 'VBZ', 'raw': 'is'}]
     result = pyrata.re.search(pattern, data, pos = -20)
-    self.assertEqual(result,expected)
+    self.assertEqual(result.group(),expected)
 
   # ----------------------------------------------------------------------
   def test_search_step_pos_gt_endpos(self):
@@ -2310,7 +2379,6 @@ class PyrataReTest(unittest.TestCase):
   def test_eq_operator_on_Matches(self):
     """Test eq operator on Matches"""
 
-
     # Choose Life. Choose a job. Choose a career. Choose a family. Choose a fucking big television, choose washing machines, cars, compact disc players and electrical tin openers. Choose good health, low cholesterol, and dental insurance. 
     data = [ {'raw':'Choose', 'pos':'VB'},
       {'raw':'Life', 'pos':'NN' }, 
@@ -2615,7 +2683,7 @@ class PyrataReTest(unittest.TestCase):
      
 
      
-   # ----------------------------------------------------------------------
+  # ----------------------------------------------------------------------
   def test_len_on_MatchesList(self):
     """Test test_len_on_MatchesList"""
 
@@ -2672,8 +2740,179 @@ class PyrataReTest(unittest.TestCase):
     self.assertTrue(success)
 
 
-         
-    
+  # ----------------------------------------------------------------------
+  def test_search_step_in_empty_data_wo_lexicon(self):
+    """Test search method in empty data."""
+    pattern = 'pos="JJ"'
+    data = []
+    expected =None
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result,expected)
+
+  # ----------------------------------------------------------------------
+  def test_finditer_step_in_empty_data_wo_lexicon(self):
+    """Test finditer method in empty data."""
+    pattern = 'pos="JJ"'
+    data = []
+    expected =None
+    result = pyrata.re.finditer(pattern, data)
+    self.assertEqual(result,expected)
+
+  # ----------------------------------------------------------------------
+  def test_search_step_in_empty_data_wi_lexicon(self):
+    """Test search method in empty data with a lexicon."""
+    pattern = 'pos="JJ"'
+    data = []
+    expected =None
+    result = pyrata.re.search(pattern, data, lexicons = {'mylexicon':['a', 'b']})
+    self.assertEqual(result,expected)
+
+  # ----------------------------------------------------------------------
+  def test_finditer_step_in_empty_data_wi_lexicon(self):
+    """Test finditer method in empty data with a lexicon."""
+    pattern = 'pos="JJ"'
+    data = []
+    expected =None
+    result = pyrata.re.finditer(pattern, data, lexicons = {'mylexicon':['a', 'b']})
+    self.assertEqual(result,expected)
+
+
+  # ----------------------------------------------------------------------
+  def test_search_apostrophe_in_constraint_value(self):
+    """Test search apostrophe in constraint value. The pattern fires at some points."""
+    pattern = 'raw~"n\'t"'
+    data = [{'pos': 'PRP', 'raw': 'It'}, {'pos': 'MD', 'raw': 'can\'t'}]
+    expected = [{'pos': 'MD', 'raw': 'can\'t'}]
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.group(),expected)
+
+  # ----------------------------------------------------------------------
+  def test_search_wi_an_empty_constraint_value(self):
+    """Test search wi empty constraint value. The pattern fires at some points."""
+    # python3 pyrata_re.py 'raw~"\""' "[{'raw':'\"'}]"
+    pattern = 'raw=""'
+    data = [{'raw': ''}]
+    expected = [{'raw': ''}]
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.group(),expected) 
+
+
+# --------------------------------------------------------------------------------------
+# double quotes
+# --------------------------------------------------------------------------------------
+
+
+  # # ----------------------------------------------------------------------
+  # def test_search_sequence_wi_backslashed_double_quotation_mark_in_constraint_value_wo_backslached_mark_in_data(self):
+  #   """Test search backslached double quotation mark  in constraint value _wo_backslached_mark_in_data. The pattern fires at some points."""
+  #   # python3 pyrata_re.py 'raw~"\""' "[{'raw':'\"'}]"
+  #   pattern = 'raw="\"" next="value"'
+  #   data = [{'raw': '"'}]
+  #   expected = [{'raw': '"'}]
+  #   result = pyrata.re.search(pattern, data)
+  #   self.assertEqual(result.group(),expected) 
+
+  # # ----------------------------------------------------------------------
+  # def test_search_backslashed_double_quotation_mark_in_constraint_value_wo_backslached_mark_in_data(self):
+  #   """Test search backslached double quotation mark  in constraint value _wo_backslached_mark_in_data. The pattern fires at some points."""
+  #   # python3 pyrata_re.py 'raw~"\""' "[{'raw':'\"'}]"
+  #   pattern = 'raw="\""'
+  #   data = [{'raw': '"'}]
+  #   expected = [{'raw': '"'}]
+  #   result = pyrata.re.search(pattern, data)
+  #   self.assertEqual(result.group(),expected) 
+
+  # # ----------------------------------------------------------------------
+  # def test_search_backslashed_double_quotation_mark_something_in_constraint_value_wo_backslached_mark_in_data(self):
+  #   """Test search backslached double quotation mark  in constraint value _wo_backslached_mark_in_data. The pattern fires at some points."""
+  #   # python3 pyrata_re.py 'raw~"\""' "[{'raw':'\"'}]"
+  #   pattern = 'raw="\"something"'
+  #   data = [{'raw': '"something'}]
+  #   expected = [{'raw': '"something'}]
+  #   result = pyrata.re.search(pattern, data)
+  #   self.assertEqual(result.group(),expected) 
+
+  # # ----------------------------------------------------------------------
+  # def test_search_something_backslashed_double_quotation_mark_in_constraint_value_wo_backslached_mark_in_data(self):
+  #   """Test search backslached double quotation mark  in constraint value _wo_backslached_mark_in_data. The pattern fires at some points."""
+  #   # python3 pyrata_re.py 'raw~"\""' "[{'raw':'\"'}]"
+  #   pattern = 'raw="something\""'
+  #   data = [{'raw': 'something"'}]
+  #   expected = [{'raw': 'something"'}]
+  #   result = pyrata.re.search(pattern, data)
+  #   self.assertEqual(result.group(),expected) 
+
+  # # ----------------------------------------------------------------------
+  # def test_search_backslashed_double_quotation_mark_something_backslashed_double_quotation_mark_in_constraint_value_wo_backslached_mark_in_data(self):
+  #   """Test search backslached double quotation mark  in constraint value _wo_backslached_mark_in_data. The pattern fires at some points."""
+  #   # python3 pyrata_re.py 'raw~"\""' "[{'raw':'\"'}]"
+  #   pattern = 'raw="\"something\""'
+  #   data = [{'raw': '"something"'}]
+  #   expected = [{'raw': '"something"'}]
+  #   result = pyrata.re.search(pattern, data)
+  #   self.assertEqual(result.group(),expected) 
+
+
+
+
+  # ----------------------------------------------------------------------
+  def test_finditer_2_element_pattern_1st_e_quantified_matching_2_consecutive_tok_wi_same_constraint_2nd_e_matching_2nd_tok_wi_distinct_constraint(self):
+    """Test finditer pattern made of two elements, the first one being quantified 
+    and matching two consecutive data tokens with the same constraint
+    and the latter matching only the second data token thanks to another constraint. """    
+    lexicons = {'LEX':['B']}    
+    pattern = '(a~"A|B"+) (b@"LEX")'
+    data = [{'c':'C'}, {'a':'A'}, {'a':'A', 'b':'B'}, {'d':'D'}]
+    expected = [ {'a':'A', 'b':'B'}]
+    result = pyrata.re.finditer(pattern, data, lexicons = lexicons)
+    for e in result:
+      self.assertEqual(e.group(2),expected) 
+
+  # ----------------------------------------------------------------------
+  def test_finditer_2_element_pattern_1st_e_quantified_matching_2_consecutive_tok_wi_same_constraint_2nd_e_matching_2nd_tok_wi_same_constraint_key(self):
+    """Test finditer pattern made of two elements, the first one being quantified 
+    and matching two consecutive data tokens with the same constraint
+    and the latter matching only the second data token thanks to constraint having the same key as the first one. """ 
+    lexicons = {'LEX':['B']}    
+    pattern = '(a~"A|B"+) (a@"LEX")'
+    data = [{'c':'C'}, {'a':'A'}, {'a':'B'}, {'d':'D'}]
+    expected = [{'a':'B'}]
+    result = pyrata.re.finditer(pattern, data, lexicons = lexicons)
+    for e in result:
+      self.assertEqual(e.group(2),expected) 
+
+  # ----------------------------------------------------------------------
+  def test_search_2_element_pattern_1st_e_quantified_matching_2_consecutive_tok_wi_same_constraint_2nd_e_matching_2nd_tok_wi_distinct_constraint_key_and_lexicon(self):
+    """Test search pattern made of two elements, the first one being quantified matching two consecutive data tokens 
+    and the latter matching only the second data token.  The pattern is present in the data."""
+    lexicons = {'LEX':['B']}    
+    pattern = '(a~"A|B"+) (b@"LEX")'
+    data = [{'c':'C'}, {'a':'A'}, {'a':'A', 'b':'B'}, {'d':'D'}]
+    expected = [ {'a':'A', 'b':'B'}]
+    result = pyrata.re.search(pattern, data, lexicons = lexicons)
+    self.assertEqual(result.group(2),expected) 
+
+
+  # ----------------------------------------------------------------------
+  def test_search_2_element_pattern_1st_e_quantified_matching_2_consecutive_tok_wi_same_constraint_2nd_e_matching_2nd_tok_wi_distinct_constraint_key_and_equal(self):
+    """Test search pattern made of two elements, the first one being quantified matching two consecutive data tokens 
+    and the latter matching only the second data token.  """
+    pattern = '(a~"A|B"+) (b="B")'
+    data = [{'c':'C'}, {'a':'A'}, {'a':'A', 'b':'B'}, {'d':'D'}]
+    expected = [ {'a':'A', 'b':'B'}]
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.group(2),expected) 
+
+  # ----------------------------------------------------------------------
+  def test_search_2_element_pattern_1st_e_matching_1st_tok_2nd_e_matching_2nd_tok(self):
+    """Test search pattern made of two elements, the first one no quantified matching the first data token 
+    and the latter matching only the second data token. """
+    pattern = '(a~"A|B") (b="B")'
+    data = [{'c':'C'}, {'a':'A'}, {'a':'A', 'b':'B'}, {'d':'D'}]
+    expected = [ {'a':'A', 'b':'B'}]
+    result = pyrata.re.search(pattern, data)
+    self.assertEqual(result.group(2),expected) 
+
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # Run all the tests
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

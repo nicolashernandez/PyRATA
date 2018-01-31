@@ -143,7 +143,7 @@ class SyntacticPatternParser(object):
     #logging.info ('step sympy expression:{}'.format(p[0]))
 
     #p.lexer.automata = atom(p[0])
-
+    #print ('Debug: symbolic_step_expression={}'.format(p[0]))
     p.lexer.symbolic_step_expression.append(p[0])
 
 # _______________________________________________________________
@@ -222,6 +222,7 @@ class SyntacticPatternParser(object):
     c['name'] = p[1]
     c['operator'] = p[2]
     c['value'] = p[3][1:-1]
+    # print ('Debug: single_constraint value={}'.format(c['value']))
     # deep_copy cannot copy re so we move the re evaluate at runtime...
     #if c['operator'] == '~': 
       #c['value'] = re.compile(c['value'])
@@ -270,29 +271,8 @@ class SyntacticPatternParser(object):
       self.tokens = kwargs['tokens']
     kwargs.pop('tokens', None)
 
-    
-    #print ('Debug: len(argv):',len(argv),'; argv:',*argv)
-    #if len(argv) > 0:
-    #  self.debug = argv[0]
-    self.build(**kwargs)
-
-  # Build the parser
-  def build(self, **kwargs):
-    """ the start attribute is mandatory !
-        When calling the method with a start distinct from expression you may get the following message
-        WARNING: Symbol 'expression' is unreachable
-        Nothing to be aware of
-    """
-
-    # keep track of 
-
-    # # start the parser
-    # start = 'expression'
-    # if 'start' in kwargs.keys(): # MANDATORY
-    #   start = kwargs['start'] 
-    # kwargs.pop('start', None)      
     # debugging and logging http://www.dabeaz.com/ply/ply.html#ply_nn44 
-    #self.parser = yacc.yacc(module=self, start=start, errorlog=yacc.NullLogger(), debug = False, **kwargs) 
+    #self.parser = yacc.yacc(module=self, start='step', errorlog=yacc.NullLogger(), debug = True, debugfile='debug_file', **kwargs) 
     self.parser = yacc.yacc(module=self, start='step', errorlog=yacc.NullLogger(), debug = False, **kwargs) 
 
     # https://github.com/dabeaz/ply/blob/master/ply/yacc.py

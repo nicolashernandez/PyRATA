@@ -43,7 +43,7 @@ import copy
    
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def compile (pattern, lexicons = {}, **kwargs):    
+def compile (pattern, **kwargs):    # lexicons = {}, 
   """ 
   Compile a regular expression pattern into a regular expression object, 
   which can be used for matching using match(), search()... methods, described below.
@@ -54,10 +54,9 @@ def compile (pattern, lexicons = {}, **kwargs):
   # build nfa  
   compiled_nfa = CompiledPattern()
 
-  compiled_nfa.compile(pattern)
+  compiled_nfa.compile(pattern, **kwargs)
 
-  #
-  compiled_nfa.lexicons = lexicons
+
 
   return compiled_nfa
 

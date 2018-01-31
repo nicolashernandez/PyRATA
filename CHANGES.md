@@ -4,10 +4,17 @@ Revision History
 v0.4.1 
 ---------------------
 * demo implementation of phrase-extraction.py (Justeson and Katz 1995) and (Handel et al 2016)
-* enhancement of pyrata_re.py wi data path parameter, match and fullmatch methods
+* demo implementation of sentiment-analysis.py: Illustration  of implementation of some constraints present in (Hutto et al. 2014), evaluation with nltk movie_reviews corpus
 * api/engine implementation of match and fullmatch methods + some tests
 * api/engine implementation of pos and endpos arguments for all matching methods + some tests
-
+* grammar implementation of backslash in constraint value
+* enhancement of pyrata_re.py wi data path parameter, match and fullmatch methods, nlp with lc (lowercase) feature, lexicons parameter
+* fix+change the behavior of re methods when pos was lower than 0 or endpos parameter was greater than len(data), realign on O or len(data) instead of returning None
+* fix re finditer method when data was empty, a variable was not correctly initialized
+* fix nfa last_state_id computation for such a case '(a~"A|B"+) (b="B")' "[{'c':'C'}, {'a':'A'}, {'a':'A', 'b':'B'}, {'d':'D'}]" the id was a matching state but not mandatory a final state #M
+* fix re and nfa compile to pass lexicons argument in the CompiledPattern.compile() method
+* fix the `ImportError: No module named 'graph_tool'` issue by specifying the graph_tool installation procedure. 
+* doc user-guide grammar clarification about the change in 0.3.3 (negative constraint are for now only allowed in class elements)
 
 
 v0.4 (October 12, 2017)  

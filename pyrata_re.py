@@ -53,6 +53,9 @@ usage:
 
 """
 
+# python3 pyrata_re.py '(pos~"RB.?|VBG"+) (lc@"SENTIMENT" ((lc~"\," .)* lc~"and|or" .)*)' "incredibly horrible , strange and funny" --nlp  --lexicons "{'SENTIMENT':['horrible', 'funny']}"
+
+
 import sys
 
 import pyrata.nfa
@@ -86,12 +89,8 @@ def main(argv):
     
         # p =  pyrata.nfa_utils.pattern_to_guiguan_nfa_pattern_input(p)
 
-    if NLP: 
-      s = [{'raw':word, 'pos':pos, 'stem':nltk.stem.SnowballStemmer('english').stem(word), 'lem':nltk.WordNetLemmatizer().lemmatize(word.lower()), 'sw':(word in nltk.corpus.stopwords.words('english')), 'chunk':chunk} for (word, pos, chunk) in tree2conlltags(ne_chunk(pos_tag(word_tokenize(s))))]
-    else:
-      s = ast.literal_eval(s) # interprete as a list a list formulated as a string
 
-    nfa = compiled_nfa.compile(p)
+    nfa = compiled_nfa.compile(p, lexicons = lexicons)
 
     if DEBUG:  
       if not STEP:
@@ -106,21 +105,21 @@ def main(argv):
             #r = sol.search(p, s)
             #print('Debug: {}'.format(r.group()))
       if method == 'findall':
-        result = compiled_nfa.findall(s, mode = mode)
+        result = compiled_nfa.findall(s, mode = mode, pos = pos, endpos = endpos)
       elif method == 'finditer':
-        result = compiled_nfa.finditer(s, mode = mode)
+        result = compiled_nfa.finditer(s, mode = mode, pos = pos, endpos = endpos)
       elif method == 'match':
-        result = compiled_nfa.match(s, mode = mode)
+        result = compiled_nfa.match(s, mode = mode, pos = pos, endpos = endpos)
       elif method == 'fullmatch':
-        result = compiled_nfa.fullmatch(s, mode = mode)
+        result = compiled_nfa.fullmatch(s, mode = mode, pos = pos, endpos = endpos)
       elif method == 'sub':
         a = ast.literal_eval(annotation)
-        result = compiled_nfa.sub(a,  s, group = [group], iob = iob, mode = mode)  
+        result = compiled_nfa.sub(a,  s, group = [group], iob = iob, mode = mode, pos = pos, endpos = endpos)  
       elif method == 'extend':
         a = ast.literal_eval(annotation)
-        result = compiled_nfa.extend(a,  s, group = [group], iob = iob, mode = mode)  
+        result = compiled_nfa.extend(a,  s, group = [group], iob = iob, mode = mode, pos = pos, endpos = endpos)  
       else:
-        result = compiled_nfa.search(s, mode = mode)
+        result = compiled_nfa.search(s, mode = mode, pos = pos, endpos = endpos)
     
 
     except pyrata.nfa.CompiledPattern.InvalidRegexPattern as e:
@@ -129,6 +128,9 @@ def main(argv):
 
     print("Pattern:   {}".format(pattern))
     print("Data:      {}".format(data))
+    print("Lexicons:  {}".format(lexicons))
+    print("pos:       {}".format(pos))
+    print("endpos:    {}".format(endpos))
     print("Method:    {}".format(method))
     print("Mode:      {}".format(mode))
     print("Group:     {}".format(group))
@@ -145,7 +147,6 @@ if __name__ == '__main__':
 
   DEBUG = False
   STEP = False
-  NLP = False
   
   if len(sys.argv) < 2:
         print('%s: invalid arguments' % sys.argv[0])
@@ -173,6 +174,10 @@ if __name__ == '__main__':
   parser.add_argument("--iob", help="extend method allow to specify if the annotation to extend will be iob", action="store_true", default = False)
   parser.add_argument("--mode", help="define the pattern matching policy (greedy or reluctant). Default is greedy, ",  nargs=1, default = ['greedy'])
   parser.add_argument("--log", help="log and export into the pyrata_re_py.log file ", action="store_true")
+  parser.add_argument("--pos", help="index in the data where the search is to start; it defaults to 0. ", nargs=1, type=int, default=[])
+  parser.add_argument("--endpos", help="endpos limits how far the data will be searched ", nargs=1, type=int, default=[])
+  parser.add_argument("--lexicons", help="lexicons expressed as a dict of list, each key being a lexicon name", nargs=1, default=[])
+
 
   # method_group = parser.add_mutually_exclusive_group(required=True)
   # method_group.add_argument('-a', nargs=2)
@@ -196,6 +201,16 @@ if __name__ == '__main__':
   pattern = args.pattern
   data = args.data
 
+  if args.nlp:
+    data = [{'raw':word, 'lc':word.lower(), 'pos':pos, 'stem':nltk.stem.SnowballStemmer('english').stem(word), 'lem':nltk.WordNetLemmatizer().lemmatize(word.lower()), 'sw':(word in nltk.corpus.stopwords.words('english')), 'chunk':chunk} for (word, pos, chunk) in tree2conlltags(ne_chunk(pos_tag(word_tokenize(data))))]
+  else:
+    data = ast.literal_eval(data) # interprete as a list a list formulated as a string
+
+  if len(args.lexicons) >0:
+    lexicons = ast.literal_eval(args.lexicons[0]) # interprete as a dict a list formulated as a string
+  else:
+    lexicons = []
+
   # interpret data as a data path
   if args.path:
     #infile=open(data)
@@ -206,7 +221,6 @@ if __name__ == '__main__':
     #infile.close()
     with open(data) as f: # no need to close the connection
       data = f.read()
-
 
 
   method = args.method[0]
@@ -221,13 +235,18 @@ if __name__ == '__main__':
   if args.pdf_file_name:
     pdf_file_name = args.pdf_file_name[0]
 
+  pos = 0
+  endpos = len(data) 
+  if len(args.pos) >0:
+    pos = args.pos[0]
+  if len(args.endpos) >0:
+    endpos = args.endpos[0]
 
   if args.draw:
     DEBUG = True
   if args.step:
       STEP = True
-  if args.nlp:
-      NLP = True
+
   pyrata.nfa.DEBUG = DEBUG
   pyrata.nfa.STEP = STEP
     

@@ -125,7 +125,11 @@ live upload
     python setup.py register -r pypi
     python setup.py sdist upload -r pypi
 
+remove from local/install from local
+:: 
 
+  sudo pip3 uninstall pyrata
+  sudo pip3 install .
 
 
 
@@ -267,6 +271,17 @@ Communication and code quality
 
 
 * quality evaluate performance http://www.marinamele.com/7-tips-to-time-python-scripts-and-control-memory-and-cpu-usage
+
+
+Ply debug
+=================
+Edit syntactic_step_parser.py
+::
+
+    self.parser = yacc.yacc(module=self, start='step', errorlog=yacc.NullLogger(), debug = True, **kwargs) 
+
+Turn the debug option to True
+It will generate a ``pyrata/parser.out`` file
 
 
 Testing sympy

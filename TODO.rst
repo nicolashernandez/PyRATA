@@ -12,11 +12,12 @@ Last report
 TODO list (almost following a decreasing priority order)
 -------------------------------
 
-* communication add a note to specify the language evolution to 3.3 ; <3.3 admit !pos="JJ" ; now you must do a [!pos="JJ"] 
+* communication demo for sentiment analysis https://github.com/cjhutto/vaderSentiment ; http://alt.qcri.org/semeval2014/task4/index.php?id=data-and-tools ; http://alt.qcri.org/semeval2015/task12/ http://ai.stanford.edu/~amaas/data/sentiment/ ; test_movie_reviews () compare by using the same data set as streamhacker (see the sentiment-analysis.py code) ; evaluate vader on this corpus ; precompile the patterns ; build only full sentence pattern to demonstrate the forms "... but ...", "despite..., ....", "..., ... and ..." ... ; currently implementing booster extraction (should imagine how to assign them a weight by considering if negate is present and the current label), reuse them for extraction (if occurs twice)
+
+* api/engine implement operation merge_tokens_matching_a_pattern e.g. raw=":" raw=")" -> raw=":)" and by default get the features of the first token minus some overwritten. 
 * how to launch a beta test campaign?
 * quality test real use cases (search lexicon made of multi words, lowercase... e.g. [raw@"POSITIVE" & raw~"^[A-Z]"])
-* communication demo for noun-phrase extraction http://slanglab.cs.umass.edu/phrasemachine/ ; see chunk/ne evaluation http://www.nltk.org/book/ch07.html
-* communication demo for opinion analysis https://github.com/cjhutto/vaderSentiment ; 
+* communication demo for noun-phrase extraction http://slanglab.cs.umass.edu/phrasemachine/ ; see chunk/ne evaluation http://www.nltk.org/book/ch07.html ; see https://github.com/boudinfl/pke and https://github.com/boudinfl/semeval-2010-pre for benchmark ; http://www.aclweb.org/anthology/S10-1004
 * communication demo for clause http://www.nltk.org/book/ch07.html, verb-phrase (cf. handel diaporama)
 
 * ihm pyrata_re add more features such as input-file lexicon, lexicon-file, output-dfa, output-group, 
@@ -56,7 +57,7 @@ TODO list (almost following a decreasing priority order)
 * api/engine - implement re : see the pattern search module and its facilities
 * quality code revise the __main__ section of each py
 * api/engine negation of groups/alternatives is not possible ; a step is possible by the concept of class
-* grammar - allow escaped " character in constraint values - pattern_to_guiguan_nfa_pattern_input ; if a " occurs when in_constraint_value is true and when the previous char is \ then do not aso do not change the value of in_constraint_value
+* grammar - double quote in constraint value ; the parse is not effective or at least state.symbolic_step_expression is never initalized I guessed it was because the parser ends at the quote inside the value... indeed raw=""" is the parser input... ;  pb seems to come to the lexer "t_VALUE";  if a " occurs when in_constraint_value is true and when the previous char is \ then do not aso do not change the value of in_constraint_value ; switching off the reluctant mode i.e. from t_VALUE = r'\"([^\\\n]|(\\.))*?\"' to  t_VALUE = r'\"((\\\")|[^\\\n]|(\\.))*\"' makes it work... at which price ? constraint combination does not work anymore. So I commented the "double quote" tests  
 * grammar think of an alternative as re implementation of the chunk operator in the grammar.
 * grammar implement predefined quantifiers {n} Match exactly n times; {n,} Match at least n times; {n,m} Match at least n but not more than m times
 * grammar implement backreference group reference so they can be matched later in the data with the \number special sequence

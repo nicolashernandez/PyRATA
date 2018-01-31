@@ -68,14 +68,16 @@ class Lexer(object):
 #    ,'IS',
    # 'QUOTE',
   #  'LPAREN','RPAREN',
-# Tokens
+# Tokens 
 
   t_NAME = r'[a-zA-Z_][a-zA-Z0-9_]*'
   #t_VALUE    = r'\"[a-zA-Z_][a-zA-Z0-9_]*\"' # FIXME whatever character except un excaped QUOTE 
   #found at http://wordaligned.org/articles/string-literals-and-regular-expressions
   #TODO: This does not work with the string "bla \" bla"
   #t_STRING_LITERAL = r'"([^"\\]|\\.)*"'
-  t_VALUE = r'\"([^\\\n]|(\\.))*?\"'
+  t_VALUE = r'\"([^\\\n]|(\\.))*?\"'       # accept combination but single constraint value with double quotes
+  #t_VALUE = r'\"((\\\")|[^\\\n]|(\\.))*\"' # accept single constraint with backslashed double quote but not logical combination
+  #t_VALUE = r'\"([^\\\n]|(\\.))*?[^\\]?\"'  # accept combination and single constraint value with double quotes only if it is the only character...
 
   t_EQ  = r'='
   t_MATCH  = r'\~'
@@ -98,7 +100,7 @@ class Lexer(object):
 #t_EOI  = r'\;'
 
   # Ignored characters
-  t_ignore = " \t"
+  t_ignore = " \t\\"
 
 
   def t_NUMBER(self,t):

@@ -92,6 +92,7 @@ Limitations
 Download and installation procedure
 ===========
 
+
 The simplest way
 ------------------------
 Right now PyRATA is `published on PyPI <https://pypi.python.org/pypi/PyRATA>`_, so the simplest procedure to install is to type in a console:
@@ -128,13 +129,22 @@ Of course, as any python module you can barely copy the PyRATA sub dir in your p
 Requirement
 ------------------------
 
-PyRATA uses 
+In addition to ``python3``, PyRATA uses 
 
 * the `PLY <http://www.dabeaz.com/ply/ply.html>`_ implementation of lex and yacc parsing tools for Python (version 3.10). 
 * the `sympy <http://www.sympy.org/fr>`_ library for symbolic evaluation of logical expression.
 * the `graph_tool <http://graph-tool.skewed.de>`_ library for drawing out PDF (optional)
 
-You do not need to care about this stage if you performed the pip3 install procedure above.
+If you encounter the ``ImportError: No module named 'graph_tool'`` issue, then `check the fix for the graph_tool module import here <https://github.com/nicolashernandez/PyRATA/issues/2>`_
+
+Since graph_tool is more a wrapper for C++ code than a python module, it requires a dedicated installation. Roughly speaking, under Ubuntu 16:04, you have to   
+::
+
+    echo deb http://downloads.skewed.de/apt/xenial xenial universe > /etc/apt/sources.list.d/my_xenial.list
+    echo deb-src http://downloads.skewed.de/apt/xenial xenial universe >> /etc/apt/sources.list.d/my_xenial.list
+
+    apt-get update \
+    && apt-get install -y --allow-unauthenticated python3-graph-tool 
 
 If you do not properly install PyRATA, you will have to manually install ply (or download it manually to copy it in your local working dir).
 ::
@@ -306,6 +316,7 @@ An **element class** offers a way to combine several simple constraints in the d
 
 Consequently ``[pos="NNS" | pos="NNP"]``, ``pos~"NN[SP]"`` and ``pos~"(NNS|NNP)"`` are equivalent (give the same result). They may not have the same processing time.
 
+__Warning__ Since version 0.3.3, the grammar has a bit changed. It does not accept any longer raw negative element. ``'!pos="NNS"+'`` must be rewritten into ``'[!pos="NNS"]+'``.
 
 
 Wildcard element

@@ -5,7 +5,7 @@ from setuptools import setup
 
 # https://packaging.python.org/distributing/
 setup(name='PyRATA',
-  version='0.4.0',
+  version='0.4.1',
   description='Python Rule-based feAture sTructure Analysis',
   author='Nicolas Hernandez',
   author_email='nicolas.hernandez@gmail.com',
