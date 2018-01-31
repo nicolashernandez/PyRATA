@@ -12,6 +12,9 @@ Last report
 TODO list (almost following a decreasing priority order)
 -------------------------------
 
+* temporarly comment spacy in do_benchmark.py because of bug
+
+
 * communication demo for sentiment analysis https://github.com/cjhutto/vaderSentiment ; http://alt.qcri.org/semeval2014/task4/index.php?id=data-and-tools ; http://alt.qcri.org/semeval2015/task12/ http://ai.stanford.edu/~amaas/data/sentiment/ ; test_movie_reviews () compare by using the same data set as streamhacker (see the sentiment-analysis.py code) ; evaluate vader on this corpus ; precompile the patterns ; build only full sentence pattern to demonstrate the forms "... but ...", "despite..., ....", "..., ... and ..." ... ; currently implementing booster extraction (should imagine how to assign them a weight by considering if negate is present and the current label), reuse them for extraction (if occurs twice)
 
 * api/engine implement operation merge_tokens_matching_a_pattern e.g. raw=":" raw=")" -> raw=":)" and by default get the features of the first token minus some overwritten. 

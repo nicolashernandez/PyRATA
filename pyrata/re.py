@@ -36,7 +36,7 @@ import re
 
 from pyrata.lexer import *
 import pyrata.match
-from pyrata.nfa import *
+from pyrata.compiled_pattern import *
 import copy
 
 #from graph_tool.all import *
@@ -84,7 +84,7 @@ def search (pattern, data, lexicons = {},  **kwargs):
     r = None
     r = compiled_nfa.search(data, **kwargs)  # greedy = True
 
-  #except pyrata.nfa.CompiledPattern.InvalidRegexPattern as e:
+  #except pyrata.CompiledPattern.CompiledPattern.InvalidRegexPattern as e:
   except CompiledPattern.InvalidRegexPattern as e:
     sys.exit('Error: re - search - %s' % e)
   return r

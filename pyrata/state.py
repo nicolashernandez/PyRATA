@@ -59,6 +59,14 @@ class State(object):
         self.id = State.class_counter           # unique id for this State
         State.class_counter += 1
         logging.debug('State - create object - char={} id={} self={}'.format(char, self.id, self))
+        # print ('Debug: State type(self.char)={}'.format(self.char))
+        # print ('Debug: State type(self.in_states)={}'.format(self.in_states))
+        # print ('Debug: State type(self.symbolic_step_expression)={}'.format(self.symbolic_step_expression))
+        # print ('Debug: State type(self.single_constraint_tuple_list)={}'.format(self.single_constraint_tuple_list))
+        # print ('Debug: State type(self.single_constraint_variable_list)={}'.format(self.single_constraint_variable_list))
+        # print ('Debug: State type(self.group_pile)={}'.format(self.group_pile))
+        # print ('Debug: State type(self.id)={}'.format(self.id))
+ 
 
 
     def is_start(self):

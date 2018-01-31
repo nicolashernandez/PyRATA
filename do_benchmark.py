@@ -277,33 +277,33 @@ def test_noun_phrase():
 
 
 
-  # ----------------------------------------------------
-  # spacy
-  # ----------------------------------------------------
-  text = ' '.join(tokens)
-  nlp = spacy.load('en')                 # You are here.
-  global matcher 
-  analyzer_name = 'spaCy'
+  # # ----------------------------------------------------
+  # # spacy
+  # # ----------------------------------------------------
+  # text = ' '.join(tokens)
+  # nlp = spacy.load('en')                 # You are here.
+  # global matcher 
+  # analyzer_name = 'spaCy'
   
-  spacy_grammar = [{POS: "DET", 'OP':"?"}, {POS: "ADJ", 'OP':"*"}, {POS: "NOUN", 'OP':"+"}]
-  matcher = Matcher(nlp.vocab)
-  matcher.add_pattern("NounPhrase", spacy_grammar)
-  # # matcher.add_pattern("NounPhrase", [{POS: "DET", 'OP':"?"}, {POS: "ADJ", 'OP':"*"}, {POS: "NOUN"}])
-  # #<DT>?<JJ|NN>*<NN|NNS>
-  global doc
-  doc = nlp(text)
-  # matches = matcher(doc)
-  # matches
-  # for ent_id, label, start, end in matches:
-  #   span = doc[start:end]
-  #   # First token is our noun_phrase_0
-  #   np_0 = span[0]
-  #   # Last token is noun_phrase_1
-  #   np_1 = span[-1]
-  #   print("span({})".format(span))
-  spacy_rule_based_matcher_result = []
-  runtimes, averagetime, mintime = measure_time(spacy_rule_based_matcher, iteration_number)
-  print ('{}\t{}\t{}\t{}'.format(analyzer_name, spacy_grammar, averagetime, mintime))
+  # spacy_grammar = [{POS: "DET", 'OP':"?"}, {POS: "ADJ", 'OP':"*"}, {POS: "NOUN", 'OP':"+"}]
+  # matcher = Matcher(nlp.vocab)
+  # matcher.add_pattern("NounPhrase", spacy_grammar)
+  # # # matcher.add_pattern("NounPhrase", [{POS: "DET", 'OP':"?"}, {POS: "ADJ", 'OP':"*"}, {POS: "NOUN"}])
+  # # #<DT>?<JJ|NN>*<NN|NNS>
+  # global doc
+  # doc = nlp(text)
+  # # matches = matcher(doc)
+  # # matches
+  # # for ent_id, label, start, end in matches:
+  # #   span = doc[start:end]
+  # #   # First token is our noun_phrase_0
+  # #   np_0 = span[0]
+  # #   # Last token is noun_phrase_1
+  # #   np_1 = span[-1]
+  # #   print("span({})".format(span))
+  # spacy_rule_based_matcher_result = []
+  # runtimes, averagetime, mintime = measure_time(spacy_rule_based_matcher, iteration_number)
+  # print ('{}\t{}\t{}\t{}'.format(analyzer_name, spacy_grammar, averagetime, mintime))
 
 
 
