@@ -12,4 +12,5 @@ then
   mv pyrata/syntactic_step_parser.py.save  pyrata/syntactic_step_parser.py 
   mv pyrata/lexer.py.save pyrata/lexer.py  
   mv pyrata/match.py.save pyrata/match.py
+  mv pyrata/compiled_pattern.py.save pyrata/compiled_pattern.py
 fi
