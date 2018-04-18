@@ -12,10 +12,38 @@ Last report
 TODO list (almost following a decreasing priority order)
 -------------------------------
 
-* temporarly comment spacy in do_benchmark.py because of bug
 
+* test pupy version and its requirement for pdf : graph_tool is required for using pyrata api so install procedure should be updated consequently, but in practice only, pyrata_re.py uses it. Since the module reference are only present in pyrata_re.py   pyrata/compiled_pattern.py, pyrata/nfa.py see if we can clean/go out the concerned code, possibly duplicate nfa for pyrata_re...  
+-> externalize draw from nfa do a nfa_graph module and do a pyrata_re.py using this module or a version of pyrata with this module
+* upload the last version on pupy (engine, wo comments), possibly wo pdf 
+* revise README.rst quick overview (add LREC bib ; remove do_stuff...)
+* bug fix wrong accepted value 
+-La phrase "S'il te plait" (ou tout autre comprenant un pronom personnel)
+-étiquetage {'lemme': 'se', 'word': "s'", 'pos': 'PRO:PER'}, {'lemme':
+'il', 'word': 'il', 'pos': 'PRO:PER'}, {'lemme': 'te', 'word': 'te',
+'pos': 'PRO:PER'}, {'lemme': 'plaire', 'word': 'plaît', 'pos': 'VER:pres'}
+(on voit bien que 'te' est reconnu comme PRO:PER)
+-Et l'expression qui devrait la reconnaître '([word="il"|word="Il"]
+word="PRO:PER"? lemme="plaire")'
 
+* doc add ref in user guide to https://nlp.stanford.edu/software/tokensregex.html and https://nlp.stanford.edu/software/tregex.shtml
+* revise user guide to present the Match object 
+* temporarly comment spacy in do_benchmark.py because of bug ; solved ?
+* ilimp implement extend the data structure with 'ilimp_hyp' = True for the annotation use case, externalize rules definition, and define rules...
+* use case http://infolingu.univ-mlv.fr/ opinons et sentiments (DoXa),
+* code optimization : look at https://docs.python.org/3/library/multiprocessing.html
 * communication demo for sentiment analysis https://github.com/cjhutto/vaderSentiment ; http://alt.qcri.org/semeval2014/task4/index.php?id=data-and-tools ; http://alt.qcri.org/semeval2015/task12/ http://ai.stanford.edu/~amaas/data/sentiment/ ; test_movie_reviews () compare by using the same data set as streamhacker (see the sentiment-analysis.py code) ; evaluate vader on this corpus ; precompile the patterns ; build only full sentence pattern to demonstrate the forms "... but ...", "despite..., ....", "..., ... and ..." ... ; currently implementing booster extraction (should imagine how to assign them a weight by considering if negate is present and the current label), reuse them for extraction (if occurs twice)
+
+* python3 pyrata_re.py '(  ((pos="JJ"|pos="NN")* (pos="NN" pos="IN")? (pos="JJ"|pos="NN")* | (pos="JJ"|pos="NN")+) pos="NN" ' "[{'name':'value'}]" --draw
+Traceback (most recent call last):
+  File "pyrata_re.py", line 255, in <module>
+    main(sys.argv)
+  File "pyrata_re.py", line 85, in main
+    compiled_nfa = pyrata.nfa.CompiledPattern()
+AttributeError: module 'pyrata.nfa' has no attribute 'CompiledPattern'
+
+fixed with the right import
+
 
 * api/engine implement operation merge_tokens_matching_a_pattern e.g. raw=":" raw=")" -> raw=":)" and by default get the features of the first token minus some overwritten. 
 * how to launch a beta test campaign?
@@ -69,6 +97,17 @@ TODO list (almost following a decreasing priority order)
 * grammar think about the context notion 
 * api/engine performance - parallelize NFA running, implementation cython ?
 * api/engine implement lex.lex(reflags=re.UNICODE)
+* quality code : do a better error event handling (here the data is not in the right format)
+>>> pyrata_re.search('a="A"',{'a':'A'})
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/usr/local/lib/python3.5/dist-packages/pyrata/re.py", line 78, in search
+    r = compiled_nfa.search(data, **kwargs)  # greedy = True
+  File "/usr/local/lib/python3.5/dist-packages/pyrata/nfa.py", line 579, in search
+    c = s[j]
+KeyError: 0
+>>> pyrata_re.search('a="A"',[{'a':'A'}])
+<pyrata.re Match object; groups=[[[{'a': 'A'}], 0, 1]]>
 
 
 

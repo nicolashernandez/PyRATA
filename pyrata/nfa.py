@@ -202,7 +202,7 @@ class NFA(object):
         self.step_counter += 1
         # print ('Debug: step - new cs=\t\t\t{}'.format(self.cur_states))    
 
-
+    # @profile
     def __step_special_state(self, char, previous_state, state, lexicons):
         states_add = set()
         logging.debug('NFA - __step_special_state - id(cs)={}\tstate={}'.format(state.id, state)) 

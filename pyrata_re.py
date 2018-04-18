@@ -64,6 +64,9 @@ import ply.yacc as yacc
 from pyrata.lexer import *
 from pyrata.syntactic_step_parser import *
 
+from pyrata.compiled_pattern import *
+
+
 import ast
 
 import nltk
@@ -82,7 +85,7 @@ def main(argv):
     """Entry point
     """
 
-    compiled_nfa = pyrata.nfa.CompiledPattern()
+    compiled_nfa = CompiledPattern()
     p = pattern
     s = data
     result = None

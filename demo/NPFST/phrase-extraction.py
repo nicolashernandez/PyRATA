@@ -116,6 +116,20 @@ https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html
 We provide the complete definition in the appendix.
 
 
+Transducteur à états finis (FST) pour capturer via un jeu de réécriture différents niveaux d'imbrications syntaxiques des groupes nominaux : de la séquence de noms ou d'adjectifs à tête nominal au groupe nominal admettant des coordinations en passant par des inclusions de groupes prépositionnels, éventuellement avec déterminants, et des segments entre parenthèses. 
+
+
+1. normalisation des étiquettes par une règle de réécriture des étiquettes multi-sources vers une étiquette référente.
+2. capture des coordinations entre mots simples
+3. définition d'un groupe nominal à base de nom et/ou d'adjectifs éventuellement coordonnés
+4. définition groupes nominaux prépositionnels potentiellement avec déteminants et adjectifs.
+5. groupes nominaux 
+différents degrés de complexité des groupes nominaux décrits dans une succession de quelques règles, chacune profitant des définitions qui les précèdent et suivant globalement un ordre de priorité 
+adjectifs, préposition, parenthèse, coordination 
+
+définition qui profite des réécritures précédentes
+
+
 The following foma grammar defines the rewrite phrase transducer P :
 # POS tag categories. "Coarse" refer to the Petrov Univeral tag set.
 # We directly use PTB tags, but for Twitter, we assume they’ve been
