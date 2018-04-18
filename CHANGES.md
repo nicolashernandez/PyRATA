@@ -17,6 +17,7 @@ v0.4.1
 * doc user-guide grammar clarification about the change in 0.3.3 (negative constraint are for now only allowed in class elements)
 * enhancement of the time processing by a factor of 4: implementation of a dedicated deepcopy method instead of the one from copy module
 * code refactoring by separating compiled_pattern from nfa
+* minor user-guide enhancements
 
 v0.4 (October 12, 2017)  
 ---------------------

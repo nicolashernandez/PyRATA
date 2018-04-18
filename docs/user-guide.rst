@@ -75,6 +75,9 @@ Alternatives
 * `Apache UIMA RUTA <https://uima.apache.org/ruta.html>`_ JAVA 8, Apache v2
 * `Nooj <http://www.nooj-association.org>`_ C++/Java 1.7, LGPL
 * `unitex <http://unitexgramlab.org>`_ GPL restricted license: Academic Only, Non Commercial Use Only.
+* `unitex <http://unitexgramlab.org>`_ GPL restricted license: Academic Only, Non Commercial Use Only.
+* `tokensregex <https://nlp.stanford.edu/software/tokensregex.html>`_  GPL restricted license: Academic Only, Non Commercial Use Only.
+
 
 .. [nltk.RegexpParser](https://gist.github.com/alexbowe/879414) ; http://nbviewer.jupyter.org/github/lukewrites/NP_chunking_with_nltk/blob/master/NP_chunking_with_the_NLTK.ipynb ; https://gist.github.com/alexbowe/879414
 .. https://github.com/clips/pattern

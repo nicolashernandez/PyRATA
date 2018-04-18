@@ -25,8 +25,6 @@ TODO list (almost following a decreasing priority order)
 (on voit bien que 'te' est reconnu comme PRO:PER)
 -Et l'expression qui devrait la reconnaître '([word="il"|word="Il"]
 word="PRO:PER"? lemme="plaire")'
-
-* doc add ref in user guide to https://nlp.stanford.edu/software/tokensregex.html and https://nlp.stanford.edu/software/tregex.shtml
 * revise user guide to present the Match object 
 * temporarly comment spacy in do_benchmark.py because of bug ; solved ?
 * ilimp implement extend the data structure with 'ilimp_hyp' = True for the annotation use case, externalize rules definition, and define rules...
