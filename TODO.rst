@@ -13,8 +13,8 @@ TODO list (almost following a decreasing priority order)
 -------------------------------
 
 
-* test pupy version and its requirement for pdf : graph_tool is required for using pyrata api so install procedure should be updated consequently, but in practice only, pyrata_re.py uses it. Since the module reference are only present in pyrata_re.py   pyrata/compiled_pattern.py, pyrata/nfa.py see if we can clean/go out the concerned code, possibly duplicate nfa for pyrata_re...  
--> externalize draw from nfa do a nfa_graph module and do a pyrata_re.py using this module or a version of pyrata with this module
+* dev 'import pyrata.re as pyrata_re' fails if graph-tool dependencies are not satisfied on the system. The motivation is to avoid to fail and to allow to use the engine even if graph-tool is not installed. So two alternatives: either move graph-tool references out from pyrata/compiled_pattern.py and pyrata/nfa.py, make pyrata_re.py use this reference. graphtool is well integrated so this may not be easy. Or check the use of the DEBUG var, make the __main__ declaration in top of the file like in guiguan_nfa/regex_matching.py implementation.   
+
 * upload the last version on pupy (engine, wo comments), possibly wo pdf 
 * revise README.rst quick overview (add LREC bib ; remove do_stuff...)
 * bug fix wrong accepted value 
