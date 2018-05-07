@@ -17,7 +17,7 @@ PyRATA
     :alt: Apache License 2.0
 
 
-PyRATA is an acronym which stands both for "*Python Rule-based feAture sTructure Analysis*" and "*Python Rule-bAsed Text Analysis*".
+PyRATA is an acronym which stands for "*Python Rule-based feAture sTructure Analysis*".
 
 Features
 ===========
@@ -32,7 +32,7 @@ PyRATA
 * is implemented in **python 3**;
 * can draw out beautifully the *NFA to a PDF file*;
 * can output the actual matches as *Deterministic Finite Automata (DFA)*;
-* uses the `PLY <http://www.dabeaz.com/ply/ply.html>`_ implementation of lex and yacc parsing tools for Python (version 3.10), the `sympy <http://www.sympy.org/fr>`_ library for symbolic evaluation of logical expression, the `graph_tool <http://graph-tool.skewed.de>`_ library for drawing out PDF (optional)
+* uses the `PLY <http://www.dabeaz.com/ply/ply.html>`_ implementation of lex and yacc parsing tools for Python (version 3.10), the `sympy <http://www.sympy.org/fr>`_ library for symbolic evaluation of logical expression, the `graph_tool <http://graph-tool.skewed.de>`_ library for drawing out PDF 
 * is released under the **`Apache License 2.0 <https://www.apache.org/licenses/LICENSE-2.0>`_** which allows you to *do what you like with the software, as long as you include the required notice*;
 * published on `PyPI <https://pypi.python.org/pypi/PyRATA>`_;
 * is *fun and easy to use* to explore data for research study, solve deterministic problems, formulate expert knowledge in a declarative way, prototype quickly models and generate training data for Machine Learning (ML) systems, extract ML features, augment ML models...
@@ -75,12 +75,7 @@ Let's work with a sentence as data:
     >>> sentence = "It is fast easy and funny to write regular expressions with PyRATA"
 
 Do the process you want on the data...
-
-.. doctest ::
-
-    >>> result = do_stuff(data)
-
-Your analysis results should be represented in the PyRATA data structure format, **a list of dict** i.e. a sequence of features sets, each feature having a name and a value. Here a possible resulting example of such structure: 
+Your analysis results should be represented in the PyRATA data structure format, **a list of dict** i.e. a sequence of features sets, each feature having a name and a value. Here a possible resulting example of such structure after tokenization and pos tagging: 
 
 .. doctest ::
 
@@ -120,6 +115,27 @@ And you get the following output:
 In python, ``list`` are marked by squared brackets, ``dict`` by curly brackets. Elements of ``list`` or ``dict``  are then separated by commas. Feature names are quoted. And so values when they are Strings. Names and values  are separated by a colon.
 
 Here you can read an ordered list of four matches, each one corresponding to one specific adjective of the sentence. 
+
+Reference
+===========
+
+.. doctest ::
+
+    @InProceedings{HERNANDEZ18.732,
+      author = {Nicolas Hernandez and Amir Hazem},
+      title = {PyRATA, Python Rule-based feAture sTructure Analysis},
+      booktitle = {Proceedings of the Eleventh International Conference on Language Resources and Evaluation (LREC 2018)},
+      year = {2018},
+      month = {may},
+      date = {7-12},
+      location = {Miyazaki, Japan},
+      editor = {Nicoletta Calzolari (Conference chair) and Khalid Choukri and Christopher Cieri and Thierry Declerck and Sara Goggi and Koiti Hasida and Hitoshi Isahara and Bente Maegaard and Joseph Mariani and Hélène Mazo and Asuncion Moreno and Jan Odijk and Stelios Piperidis and Takenobu Tokunaga},
+      publisher = {European Language Resources Association (ELRA)},
+      address = {Paris, France},
+      isbn = {979-10-95546-00-9},
+      language = {english}
+      }
+       
 
 Documentation
 ===========
