@@ -36,10 +36,16 @@ from pyrata.state import *
 import re
 
 #if DEBUG:
-from graph_tool.all import *
+#  from graph_tool.all import *
 
-DEBUG = False
-STEP = False
+try:
+    from graph_tool.all import *
+except ImportError:
+    DEBUG=False
+else: 
+    DEBUG = True
+#DEBUG = False
+#STEP = False
 
 
 
@@ -68,7 +74,7 @@ def evaluate_single_constraint (data, name, operator, value, lexicons):
   return False   
 
 
-
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class NFA(object):
 
 
@@ -104,49 +110,49 @@ class NFA(object):
 
         self.last_state_id = -1     # state id of the last state matching #M   
 
-    #if DEBUG:
-    def draw(self, filename = "NFA.pdf"):
-        self.g.set_vertex_filter(self.gf)
-        v_text = self.g.new_vertex_property('string')
-        vertex_fill_color = self.g.new_vertex_property('vector<float>')
-        active_vertex_fill_color = [1.0000, 0.5216, 0.1216, 1]
-        normal_vertex_fill_color = [0.0157, 0.6667, 0.9686, 1]
-        vertex_color = self.g.new_vertex_property('vector<float>')
-        active_vertex_color = [0.9843, 0.5882, 0.3098, 1]
-        normal_vertex_color = [0.1294, 0.7216, 0.9961, 1]
-        for v in self.g.vertices():
-            v_text[v] = State.get_state_description(
-                self.vp[v])
-            vertex_fill_color[v] = active_vertex_fill_color if STEP and self.vp[
-                v] in self.cur_states else normal_vertex_fill_color
-            vertex_color[v] = active_vertex_color if STEP and self.vp[
-                v] in self.cur_states else normal_vertex_color
-        if self.pos:
-            pos = self.pos
-        else:
-            pos = sfdp_layout(self.g)
-        #output_size = 225 + 25 * self.g.num_vertices()
-        output_size = 225 + 25 * self.g.num_vertices()
-        output_size = (output_size, output_size)
-        graph_draw(self.g, pos=pos, nodesfirst=True,
-                   vertex_text=v_text,
-                   vertex_font_size=6, #12
-                   vertex_pen_width=1, #3
-                   vertex_color=vertex_color,
-                   vertex_fill_color=vertex_fill_color,
-                   vertex_text_color=[1, 1, 1, 1],
-                   edge_pen_width=1,
-                   edge_marker_size=8, # 8
-                  # edge_marker='circle',
-                   edge_color=[0.6157, 0.6353, 0.6431, 1],
-                   output_size=output_size,
-                   output=filename)
-        # the following allows further deep_copy
-        del self.g
-        del self.gf
-        del self.vp
-        del self.states
-        del self.pos
+    if DEBUG:
+        def draw(self, filename = "NFA.pdf"):
+            self.g.set_vertex_filter(self.gf)
+            v_text = self.g.new_vertex_property('string')
+            vertex_fill_color = self.g.new_vertex_property('vector<float>')
+            active_vertex_fill_color = [1.0000, 0.5216, 0.1216, 1]
+            normal_vertex_fill_color = [0.0157, 0.6667, 0.9686, 1]
+            vertex_color = self.g.new_vertex_property('vector<float>')
+            active_vertex_color = [0.9843, 0.5882, 0.3098, 1]
+            normal_vertex_color = [0.1294, 0.7216, 0.9961, 1]
+            for v in self.g.vertices():
+                v_text[v] = State.get_state_description(
+                    self.vp[v])
+                vertex_fill_color[v] = active_vertex_fill_color if STEP and self.vp[
+                    v] in self.cur_states else normal_vertex_fill_color
+                vertex_color[v] = active_vertex_color if STEP and self.vp[
+                    v] in self.cur_states else normal_vertex_color
+            if self.pos:
+                pos = self.pos
+            else:
+                pos = sfdp_layout(self.g)
+            #output_size = 225 + 25 * self.g.num_vertices()
+            output_size = 225 + 25 * self.g.num_vertices()
+            output_size = (output_size, output_size)
+            graph_draw(self.g, pos=pos, nodesfirst=True,
+                       vertex_text=v_text,
+                       vertex_font_size=6, #12
+                       vertex_pen_width=1, #3
+                       vertex_color=vertex_color,
+                       vertex_fill_color=vertex_fill_color,
+                       vertex_text_color=[1, 1, 1, 1],
+                       edge_pen_width=1,
+                       edge_marker_size=8, # 8
+                      # edge_marker='circle',
+                       edge_color=[0.6157, 0.6353, 0.6431, 1],
+                       output_size=output_size,
+                       output=filename)
+            # the following allows further deep_copy
+            del self.g
+            del self.gf
+            del self.vp
+            del self.states
+            del self.pos
         
 
     def elem(self):
@@ -340,57 +346,57 @@ class NFA(object):
 
         return last_appended_state
 
-#if DEBUG:
-    def __check_and_clear_in_states(self, state):
-        if state in self.states:
-            self.states.remove(state)
-            v_state = self.vp.pop(state)
-            self.vp.pop(v_state)
-            self.g.clear_vertex(v_state)
-            self.gf[v_state] = False
+    if DEBUG:
+        def __check_and_clear_in_states(self, state):
+            if state in self.states:
+                self.states.remove(state)
+                v_state = self.vp.pop(state)
+                self.vp.pop(v_state)
+                self.g.clear_vertex(v_state)
+                self.gf[v_state] = False
 
-    def __add_debug_info_from(self, state):
-        """Add necessary debug information from given state. Normally
-        the given state should have already existed in current NFA. If
-        it is not the case, the given state must have newly created to
-        be preceding any other states. Then, the given state's debug
-        information will be added as well.
-        """
-        if DEBUG:
-            if state not in self.states:
-                # state has no in_states
-                new_v = self.g.add_vertex()
-                self.vp[new_v] = state
-                self.vp[state] = new_v
-                self.gf[new_v] = True
-                self.states.add(state)
-            for ins in state.in_states:
-                v_state = self.vp[state]
-                if ins in self.states:
-                    v_ins = self.vp[ins]
-                    if not self.g.edge(v_ins, v_state):
-                        self.g.add_edge(v_ins, v_state)
-            cur_states = set([state])
-            while len(cur_states) > 0:
-                # needs to check and add the rest states
-                next_states = set()
-                for cs in cur_states:
-                    for os in cs.out_states:
-                        if os in self.states:
-                            v_cs = self.vp[cs]
-                            v_os = self.vp[os]
-                            if not self.g.edge(v_cs, v_os):
-                                self.g.add_edge(
-                                    v_cs, v_os)
-                        else:
-                            new_v = self.g.add_vertex()
-                            self.vp[new_v] = os
-                            self.vp[os] = new_v
-                            self.gf[new_v] = True
-                            self.g.add_edge(self.vp[cs], new_v)
-                            self.states.add(os)
-                            next_states.add(os)
-                cur_states = next_states
+        def __add_debug_info_from(self, state):
+            """Add necessary debug information from given state. Normally
+            the given state should have already existed in current NFA. If
+            it is not the case, the given state must have newly created to
+            be preceding any other states. Then, the given state's debug
+            information will be added as well.
+            """
+            if DEBUG:
+                if state not in self.states:
+                    # state has no in_states
+                    new_v = self.g.add_vertex()
+                    self.vp[new_v] = state
+                    self.vp[state] = new_v
+                    self.gf[new_v] = True
+                    self.states.add(state)
+                for ins in state.in_states:
+                    v_state = self.vp[state]
+                    if ins in self.states:
+                        v_ins = self.vp[ins]
+                        if not self.g.edge(v_ins, v_state):
+                            self.g.add_edge(v_ins, v_state)
+                cur_states = set([state])
+                while len(cur_states) > 0:
+                    # needs to check and add the rest states
+                    next_states = set()
+                    for cs in cur_states:
+                        for os in cs.out_states:
+                            if os in self.states:
+                                v_cs = self.vp[cs]
+                                v_os = self.vp[os]
+                                if not self.g.edge(v_cs, v_os):
+                                    self.g.add_edge(
+                                        v_cs, v_os)
+                            else:
+                                new_v = self.g.add_vertex()
+                                self.vp[new_v] = os
+                                self.vp[os] = new_v
+                                self.gf[new_v] = True
+                                self.g.add_edge(self.vp[cs], new_v)
+                                self.states.add(os)
+                                next_states.add(os)
+                    cur_states = next_states
 
     def or_nfa(self, nfa):
         """Or NFA B to A (putting NFA B in parallel with NFA A)
