@@ -208,8 +208,8 @@ Which briefly outputs:
     usage: pyrata_re.py [-h] [--path] [--draw] [--pdf_file_name PDF_FILE_NAME]
                     [--draw_steps] [--pyrata_data] [--method METHOD]
                     [--annotation ANNOTATION] [--group GROUP] [--iob]
-                    [--mode MODE] [--log] [--pos POS] [--endpos ENDPOS]
-                    [--lexicons LEXICONS]
+                    [--mode MODE] [--pos POS] [--endpos ENDPOS]
+                    [--lexicons LEXICONS] [--verbose_output] [--log]
                     pattern data
 
     positional arguments:
@@ -245,12 +245,13 @@ Which briefly outputs:
                             extend will be iob
       --mode MODE           define the pattern matching policy (greedy or
                             reluctant). Default is greedy,
-      --log                 log and export into the pyrata_re_py.log file
       --pos POS             index in the data where the search is to start; it
                             defaults to 0.
       --endpos ENDPOS       endpos limits how far the data will be searched
       --lexicons LEXICONS   lexicons expressed as a dict of list, each key being a
                             lexicon name
+      --verbose_output      verbose output              
+      --log                 log and export into the pyrata_re_py.log file
 
 For example to search the first match of given pattern by using some basic nlp processing (tokenization, pos tagging...):  
 

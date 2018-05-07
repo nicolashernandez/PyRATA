@@ -92,6 +92,7 @@ DRAW_STEPS = False
 
 import argparse
 
+import pprint
 
 def main(): #argv):
     """ Perform the specified search request over the input data.
@@ -140,22 +141,23 @@ def main(): #argv):
     except pyrata.nfa.CompiledPattern.InvalidRegexPattern as e:
             sys.exit('Error: %s' % e)
 
-
-    print("Pattern:   {}".format(pattern))
-    print("Data:      {}".format(data))
-    print("Lexicons:  {}".format(lexicons))
-    print("pos:       {}".format(pos))
-    print("endpos:    {}".format(endpos))
-    print("Method:    {}".format(method))
-    print("Mode:      {}".format(mode))
-    print("Group:     {}".format(group))
-    print("Annotation:{}".format(annotation))
-    print("IOB:       {}".format(iob))
-    print("Draw:      {}".format(DRAW))
-    print("pdffile:   {}".format(pdf_file_name))
-    print("logger.disabled:   {}".format(logger.disabled))
-    print("Result:    {}".format(result))    
-
+    if verbose_output:
+      print("Pattern:   {}".format(pattern))
+      print("Data:      {}".format(data))
+      print("Lexicons:  {}".format(lexicons))
+      print("pos:       {}".format(pos))
+      print("endpos:    {}".format(endpos))
+      print("Method:    {}".format(method))
+      print("Mode:      {}".format(mode))
+      print("Group:     {}".format(group))
+      print("Annotation:{}".format(annotation))
+      print("IOB:       {}".format(iob))
+      print("Draw:      {}".format(DRAW))
+      print("pdffile:   {}".format(pdf_file_name))
+      print("logger.disabled:   {}".format(logger.disabled))
+      print("Result:    {}".format(result))    
+    else:
+      pprint.pprint(result)
 
 if __name__ == '__main__':
   """
@@ -187,10 +189,12 @@ if __name__ == '__main__':
   parser.add_argument("--group", help="'extend' method allows to specify the group you want to extend", nargs=1, default=[0])
   parser.add_argument("--iob", help="'extend' method allows to specify if the annotation to extend will be iob", action="store_true", default = False)
   parser.add_argument("--mode", help="define the pattern matching policy (greedy or reluctant). Default is greedy, ",  nargs=1, default = ['greedy'])
-  parser.add_argument("--log", help="log and export into the pyrata_re_py.log file ", action="store_true")
   parser.add_argument("--pos", help="index in the data where the search is to start; it defaults to 0. ", nargs=1, type=int, default=[])
   parser.add_argument("--endpos", help="endpos limits how far the data will be searched ", nargs=1, type=int, default=[])
   parser.add_argument("--lexicons", help="lexicons expressed as a dict of list, each key being a lexicon name", nargs=1, default=[])
+
+  parser.add_argument("--verbose_output", help="verbose output", action="store_true")
+  parser.add_argument("--log", help="log and export into the pyrata_re_py.log file ", action="store_true")
 
 
   # method_group = parser.add_mutually_exclusive_group(required=True)
@@ -200,8 +204,6 @@ if __name__ == '__main__':
 
   args = parser.parse_args()
   
-
-
   #  if len(sys.argv) < 2:
   #      print('%s: invalid arguments' % sys.argv[0])
   #      print(__doc__)
@@ -237,6 +239,11 @@ if __name__ == '__main__':
     lexicons = []
 
   # ---------------------------------------------------------------------
+  verbose_output = False
+  if args.verbose_output:
+    verbose_output = True
+
+  # ---------------------------------------------------------------------
   # interpret data as a data path
   if args.path:
     #infile=open(data)
@@ -248,7 +255,7 @@ if __name__ == '__main__':
     with open(data) as f: # no need to close the connection
       data = f.read()
 
-
+  # ---------------------------------------------------------------------
   method = args.method[0]
   if len(args.annotation) >0:
     annotation = args.annotation[0]
@@ -257,10 +264,13 @@ if __name__ == '__main__':
   group = args.group[0]
   iob = args.iob
   mode = args.mode[0]
+
+  # ---------------------------------------------------------------------
   pdf_file_name = None
   if args.pdf_file_name:
     pdf_file_name = args.pdf_file_name[0]
 
+  # ---------------------------------------------------------------------
   pos = 0
   endpos = len(data) 
   if len(args.pos) >0:
@@ -268,6 +278,7 @@ if __name__ == '__main__':
   if len(args.endpos) >0:
     endpos = args.endpos[0]
 
+  # ---------------------------------------------------------------------
   if args.draw:
     DRAW = True
   if args.draw_steps:
