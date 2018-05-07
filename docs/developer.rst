@@ -6,8 +6,9 @@ Release procedure
 
 - develop
 - list TODO in TODO.rst
-- make the test run Ok ``python3 do_tests.py``
-- edit do_tests.py to set logger.disabled to True
+- make the test run Ok ``python3 do_tests.py``, 
+- edit ``do_tests.py`` to set logger.disabled to True
+- reinstall/test in controled environment (docker) ``import pyrata.re as pyrata_re`` in python3 interpreter; as well as ``pyrata_re.py --draw``
 - review the README.rst (update badges)
 - review the docs/user-guide.rst (update last modified date in the header)
 - review the docs/developer.rst doc (update last modified date in the header)
