@@ -15,8 +15,9 @@ TODO list (almost following a decreasing priority order)
 
 * dev 'import pyrata.re as pyrata_re' fails if graph-tool dependencies are not satisfied on the system. The motivation is to avoid to fail and to allow to use the engine even if graph-tool is not installed. So two alternatives: either move graph-tool references out from pyrata/compiled_pattern.py and pyrata/nfa.py, make pyrata_re.py use this reference. graphtool is well integrated so this may not be easy. Or check the use of the DEBUG var, make the __main__ declaration in top of the file like in guiguan_nfa/regex_matching.py implementation.   
 
-* upload the last version on pupy (engine, wo comments), possibly wo pdf 
 * revise README.rst quick overview (add LREC bib ; remove do_stuff...)
+
+* upload the last version on pupy (engine, wo comments), possibly wo pdf 
 * bug fix wrong accepted value 
 -La phrase "S'il te plait" (ou tout autre comprenant un pronom personnel)
 -étiquetage {'lemme': 'se', 'word': "s'", 'pos': 'PRO:PER'}, {'lemme':
@@ -42,8 +43,13 @@ AttributeError: module 'pyrata.nfa' has no attribute 'CompiledPattern'
 
 fixed with the right import
 
-
+* doc add description of the 'match' method in the user-guide
+* doc in edit methods, annotation and replacement are not clear. Substitute annotation with data. Note sure
+* doc give signature of matching methods in similar abstract way that edit methods
 * api/engine implement operation merge_tokens_matching_a_pattern e.g. raw=":" raw=")" -> raw=":)" and by default get the features of the first token minus some overwritten. 
+* pyrata_re implement 'draw_steps' as regex_matching_py3: "match string against pattern and draw the internal NFA at every step to  'NFA.pdf' (requires graph_tool). It is best to run this option and observe the result with a PDF viewer that can detect file change and reload the changed file. For example, the Skim app (http://skim-app.sourceforge.net)"
+
+
 * how to launch a beta test campaign?
 * quality test real use cases (search lexicon made of multi words, lowercase... e.g. [raw@"POSITIVE" & raw~"^[A-Z]"])
 * communication demo for noun-phrase extraction http://slanglab.cs.umass.edu/phrasemachine/ ; see chunk/ne evaluation http://www.nltk.org/book/ch07.html ; see https://github.com/boudinfl/pke and https://github.com/boudinfl/semeval-2010-pre for benchmark ; http://www.aclweb.org/anthology/S10-1004

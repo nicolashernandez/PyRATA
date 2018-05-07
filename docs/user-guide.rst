@@ -187,25 +187,101 @@ Then import the main PyRATA regular expression module:
 In command line
 --------------
 
-PyRATA comes with a script which allow to test the API. In v0.4 it is an alpha code. As we said, it is provided "as is"...
+PyRATA comes with a script which allow to test the API and plots pretty graphs of NFAs. 
+In v0.4 it is an alpha code. It is provided "as is"...
 
-More information on parameters with:
+Takes at least two parameters: the pattern to search and the data to process.
+
+By default, it performs English natural language processing (nlp) with NLTK on the input data 
+and search the first occurrence of the specified pattern with a greedy pattern matching policy.
+No pdf draw. No log export.
+
+More information on parameters, API usage and language syntax with:
 
 :: 
    
     python3 pyrata_re.py -h
 
-For example to search a given pattern by using some nlp processing:  
+Which briefly outputs:
+::
+
+    usage: pyrata_re.py [-h] [--path] [--draw] [--pdf_file_name PDF_FILE_NAME]
+                    [--draw_steps] [--pyrata_data] [--method METHOD]
+                    [--annotation ANNOTATION] [--group GROUP] [--iob]
+                    [--mode MODE] [--log] [--pos POS] [--endpos ENDPOS]
+                    [--lexicons LEXICONS]
+                    pattern data
+
+    positional arguments:
+      pattern               a pattern
+      data                  data string or path to a data file. Use --path to mean
+                            a path. By default the data is assumed to be English
+                            text and so nlp processed with NLTK. Use --pyrata_data
+                            to consider it as a list of dicts.
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --path                force the interpretation of the data argument as a
+                            file path
+      --draw                draw the internal NFA to a pdf file. Default is
+                            'NFA.pdf'. Requires graph_tool.
+      --pdf_file_name PDF_FILE_NAME
+                            output pdf filename for the draw (--draw must be set)
+      --draw_steps          draw draw the internal NFA at every steps to a pdf
+                            file. Default is 'NFA.pdf'. Requires graph_tool. It is
+                            best to run this option and observe the result with a
+                            PDF viewer that can detect file change and reload the
+                            changed file.
+      --pyrata_data         interpret the string data as a list of dict
+      --method METHOD       set the search/edit method to perform among 'search',
+                            'findall', 'match', 'fullmatch', 'finditer', 'sub',
+                            'extend' (default is 'search')
+      --annotation ANNOTATION
+                            'extend' method requires to specify the annotation
+                            extension
+      --group GROUP         'extend' method allows to specify the group you want
+                            to extend
+      --iob                 'extend' method allows to specify if the annotation to
+                            extend will be iob
+      --mode MODE           define the pattern matching policy (greedy or
+                            reluctant). Default is greedy,
+      --log                 log and export into the pyrata_re_py.log file
+      --pos POS             index in the data where the search is to start; it
+                            defaults to 0.
+      --endpos ENDPOS       endpos limits how far the data will be searched
+      --lexicons LEXICONS   lexicons expressed as a dict of list, each key being a
+                            lexicon name
+
+For example to search the first match of given pattern by using some basic nlp processing (tokenization, pos tagging...):  
 
 ::
 
-    python3 pyrata_re.py 'pos="JJ"' "It is fast easy and funny to write regular expressions with PyRATA" --nlp
+    python3 pyrata_re.py 'pos="JJ"' "It is fast easy and funny to write regular expressions with PyRATA"
 
-Or operating with the raw data structure finding all matches in reluctant mode while drawing the corresponding nfa in a filename my_nfa.pdf and logging the process in a pyrata_re_py.log file.
+To operate with the raw PyRATA data structure 
 
 ::
 
-    python3 pyrata_re.py 'pos="JJ"' "[{'raw': 'It', 'pos': 'PRP'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}, {'raw': 'write', 'pos': 'VB'}, {'raw': 'regular', 'pos': 'JJ'}, {'raw': 'expressions', 'pos': 'NNS'}, {'raw': 'with', 'pos': 'IN'}, {'raw': 'PyRATA', 'pos': 'NNP'}]" --method findall --mode reluctant --draw --pdf_file_name my_nfa.pdf --log
+    python3 pyrata_re.py 'pos="JJ"' "[{'raw': 'It', 'pos': 'PRP'}, {'raw': 'is', 'pos': 'VBZ'}, {'raw': 'fast', 'pos': 'JJ'}, {'raw': 'easy', 'pos': 'JJ'}, {'raw': 'and', 'pos': 'CC'}, {'raw': 'funny', 'pos': 'JJ'}, {'raw': 'to', 'pos': 'TO'}, {'raw': 'write', 'pos': 'VB'}, {'raw': 'regular', 'pos': 'JJ'}, {'raw': 'expressions', 'pos': 'NNS'}, {'raw': 'with', 'pos': 'IN'}, {'raw': 'PyRATA', 'pos': 'NNP'}]"  --pyrata_data
+
+To find all occurrences in reluctant mode 
+
+::
+
+    python3 pyrata_re.py 'pos="JJ"' "It is fast easy and funny to write regular expressions with PyRATA"  --method findall --mode reluctant 
+
+To draw the corresponding NFA in a filename my_nfa.pdf. *Trick*: No need to specify some data to draw a NFA.
+
+::
+
+    python3 pyrata_re.py 'pos="DT"? pos~"JJ|NN"* pos~"NN.?"+' "" --draw --pdf_file_name my_nfa.pdf && evince my_nfa.pdf
+
+
+To log the process in a ``pyrata_re_py.log`` file.
+
+::
+
+    python3 pyrata_re.py 'pos="JJ"' "It is fast easy and funny to write regular expressions with PyRATA"  --log
 
 
 Language expressivity
@@ -1114,7 +1190,8 @@ So far (v0.4), the drawing option are only available in the ``pyrata_re.py`` scr
 Time performance
 ===========================
 
-If you running the git version, you may make the code faster by removing the logging instructions.
+If you run the git version, you may make the code faster by removing the logging instructions.
+
 Simply run:
   
 .. doctest ::

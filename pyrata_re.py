@@ -25,36 +25,47 @@
 #
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+"""
+PyRATA Command Line Demo to interface the PyRATA API and plots pretty graphs of NFAs. 
+In v0.4 it is an alpha code. It is provided "as is"...
+Takes at least two parameters: the pattern to search and the data to process.
+By default, it performs English natural language processing (nlp) with NLTK on the input data 
+and search the first occurrence of the specified pattern with a greedy pattern matching policy.
+No pdf draw. No log export.
 
-"""PyRATA Command Line Demo ()
-
-usage: 
-
-\033[1m$ ./pyrata_re.py -h\033[0m
-
-    informs about all the available parameters
-
-+--------+
-| Syntax |
-+--------+
-'.' matches any single element
-'*' matches zero or more of the preceding element
-'+' matches one or more of the preceding element
-'?' matches zero or 1 of the preceding element
-'|' matches the preceding element or following element
-'()' groups a sequence of elements into one element
-'^' matches the beginning of the data
-'$' matches the end of the data
-'[]' defines a class of elements with logical connectors '()', '&', '|' and '!' 
-'NAME=\042VALUE\042' the element has a feature NAME with the value VALUE
-'NAME~\042VALUE\042' the element has a feature NAME whose value matches the regex defined in VALUE
-'NAME@\042VALUE\042' the element has a feature NAME whose value belongs in the lexicon named VALUE
-'NAME-\042VALUE\042' the element has a feature NAME whose value corresponds to a BIO chunk with VALUE as tag 
+  ./pyrata_re.py -h
+    informs about all the available parameters and documentation
 
 """
 
-# python3 pyrata_re.py '(pos~"RB.?|VBG"+) (lc@"SENTIMENT" ((lc~"\," .)* lc~"and|or" .)*)' "incredibly horrible , strange and funny" --nlp  --lexicons "{'SENTIMENT':['horrible', 'funny']}"
+api_language_documentation = """
+language syntax:
+  'NAME=\042VALUE\042' the token has a feature NAME with the value VALUE
+  'NAME~\042VALUE\042' the token has a feature NAME whose value matches the regex defined in VALUE
+  'NAME@\042VALUE\042' the token has a feature NAME whose value belongs in the lexicon named VALUE
+  'NAME-\042VALUE\042' the token has a feature NAME whose value corresponds to a BIO chunk with VALUE as tag  
 
+  '[]' defines a class of tokens with logical connectors '()', '&', '|' and '!' 
+  
+  '*' matches zero or more of the preceding element
+  '+' matches one or more of the preceding element
+  '?' matches zero or 1 of the preceding element
+
+  '.' matches any single token
+
+  '()' groups a sequence of tokens into one element
+  '|' matches the preceding element or following element
+
+  '^' matches the beginning of the data
+  '$' matches the end of the data
+
+more:
+  https://github.com/nicolashernandez/PyRATA/blob/master/docs/user-guide.rst
+
+"""
+# python3 pyrata_re.py 'pos="DT"? pos~"JJ|NN"* pos~"NN.?"+' "" --draw --pdf_file_name my_nfa.pdf && evince my_nfa.pdf
+
+# python3 pyrata_re.py '(pos~"RB.?|VBG"+) (lc@"SENTIMENT" ((lc~"\," .)* lc~"and|or" .)*)' "incredibly horrible, strange and funny" --lexicons "{'SENTIMENT':['horrible', 'funny']}"
 
 import sys
 
@@ -73,17 +84,20 @@ import nltk
 from nltk import word_tokenize, pos_tag, ne_chunk
 from nltk.chunk import tree2conlltags
 
+DRAW = False
+DRAW_STEPS = False
 
-if pyrata.nfa.DEBUG:
-    from graph_tool.all import *
+#if pyrata.nfa.DRAW:
+#   from graph_tool.all import *
 
 import argparse
 
 
-
-def main(argv):
-    """Entry point
+def main(): #argv):
+    """ Perform the specified search request over the input data.
+        Optionally plots a graph.
     """
+    print ('Debug: data={}'.format(data))
 
     compiled_nfa = CompiledPattern()
     p = pattern
@@ -95,12 +109,11 @@ def main(argv):
 
     nfa = compiled_nfa.compile(p, lexicons = lexicons)
 
-    if DEBUG:  
-      if not STEP:
-        if pdf_file_name:
-          nfa.draw(filename = pdf_file_name)
-        else:
-          nfa.draw()
+    if DRAW:  
+      if pdf_file_name:
+        nfa.draw(filename = pdf_file_name)
+      else:
+        nfa.draw()
 
     try:
             #r = sol.exact_match(p, s)
@@ -139,42 +152,41 @@ def main(argv):
     print("Group:     {}".format(group))
     print("Annotation:{}".format(annotation))
     print("IOB:       {}".format(iob))
-    print("Draw:      {}".format(DEBUG))
+    print("Draw:      {}".format(DRAW))
     print("pdffile:   {}".format(pdf_file_name))
     print("logger.disabled:   {}".format(logger.disabled))
     print("Result:    {}".format(result))    
 
 
 if __name__ == '__main__':
-
-
-  DEBUG = False
-  STEP = False
-  
-  if len(sys.argv) < 2:
-        print('%s: invalid arguments' % sys.argv[0])
-        print(__doc__)
-        exit()
-
-
+  """
+    parsing the arguments
+  """
   # -------------------------------------------------------------------
-  parser = argparse.ArgumentParser()
+  # https://docs.python.org/3/library/argparse.html
+  # default description
+  parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, 
+    description= __doc__, 
+    epilog=api_language_documentation) # epilog= description
+  
+
   # wo -- we are in presence of positional arguments
   parser.add_argument("pattern",  help="a pattern")
-  parser.add_argument("data",  help="data string or path to a data file. Use --path to mean a path. By default the data is expressed as a list of dicts. Use --nlp to process.")
-  
+  parser.add_argument("data",  help="data string or path to a data file. Use --path to mean a path. By default the data is assumed to be English text and so nlp processed with NLTK. Use --pyrata_data to consider it as a list of dicts.")
+  #parser.add_argument('data', help="data string or path to a data file. Use --path to mean a path. By default the data is assumed to be English text and so nlp processed with NLTK. Use --pyrata_data to consider it as a list of dicts.", nargs='?', type=argparse.FileType('r'), default=sys.stdin)
+
   # wi -- we are in presence of optional arguments
   parser.add_argument("--path", help="force the interpretation of the data argument as a file path", action="store_true")
 
-  parser.add_argument("--draw", help="draw the internal NFA to a pdf file (default is NFA.pdf)", action="store_true")
+  parser.add_argument("--draw", help="draw the internal NFA to a pdf file. Default is 'NFA.pdf'. Requires graph_tool.", action="store_true")
   parser.add_argument("--pdf_file_name", help="output pdf filename for the draw (--draw must be set) ",  nargs=1)
+  parser.add_argument("--draw_steps", help="draw draw the internal NFA at every steps to a pdf file. Default is 'NFA.pdf'. Requires graph_tool. It is best to run this option and observe the result with a PDF viewer that can detect file change and reload the changed file.", action="store_true")
 
-  parser.add_argument("--step", help="draw the internal NFA at every step to NFA.pdf", action="store_true")
-  parser.add_argument("--nlp", help="perform nlp on the sentence (default is to interprete the string as a list of dict)", action="store_true")
-  parser.add_argument("--method", help="set the method to perform among search, findall, match, fullmatch, finditer, sub, extend (default is 'search')", nargs=1, default=['search'])
-  parser.add_argument("--annotation", help="extend method requires to specify the annotation extension", nargs=1, default=[])
-  parser.add_argument("--group", help="extend method allow to specify the group you want to extend", nargs=1, default=[0])
-  parser.add_argument("--iob", help="extend method allow to specify if the annotation to extend will be iob", action="store_true", default = False)
+  parser.add_argument("--pyrata_data", help="interpret the string data as a list of dict", action="store_true")
+  parser.add_argument("--method", help="search/edit method to perform among 'search', 'findall', 'match', 'fullmatch', 'finditer', 'sub', 'extend' (default is 'search')", nargs=1, default=['search'])
+  parser.add_argument("--annotation", help="'extend' method requires to specify the annotation extension", nargs=1, default=[])
+  parser.add_argument("--group", help="'extend' method allows to specify the group you want to extend", nargs=1, default=[0])
+  parser.add_argument("--iob", help="'extend' method allows to specify if the annotation to extend will be iob", action="store_true", default = False)
   parser.add_argument("--mode", help="define the pattern matching policy (greedy or reluctant). Default is greedy, ",  nargs=1, default = ['greedy'])
   parser.add_argument("--log", help="log and export into the pyrata_re_py.log file ", action="store_true")
   parser.add_argument("--pos", help="index in the data where the search is to start; it defaults to 0. ", nargs=1, type=int, default=[])
@@ -187,33 +199,45 @@ if __name__ == '__main__':
   # method_group.add_argument('-b', nargs=3)
   # method_group.add_argument('-c', nargs=1)
 
-
   args = parser.parse_args()
+  
+
+
+  #  if len(sys.argv) < 2:
+  #      print('%s: invalid arguments' % sys.argv[0])
+  #      print(__doc__)
+  #      #parser = argparse.ArgumentParser(description='A foo that bars')
+  #      #parser.print_help()
+  #      exit()
+
 
   # ---------------------------------------------------------------------
   logging.basicConfig(format='%(levelname)s:\t%(message)s', filename='pyrata_re_py.log', level=logging.DEBUG)
   # logging.basicConfig(format='%(levelname)s:\t%(message)s', filename='pyrata_re_py.log', level=logging.INFO)
   logger = logging.getLogger()
-  logger.disabled = False
-  
+
   # ---------------------------------------------------------------------
   logger.disabled = True
   if args.log:
     logger.disabled = False
 
+  # ---------------------------------------------------------------------
   pattern = args.pattern
   data = args.data
 
-  if args.nlp:
-    data = [{'raw':word, 'lc':word.lower(), 'pos':pos, 'stem':nltk.stem.SnowballStemmer('english').stem(word), 'lem':nltk.WordNetLemmatizer().lemmatize(word.lower()), 'sw':(word in nltk.corpus.stopwords.words('english')), 'chunk':chunk} for (word, pos, chunk) in tree2conlltags(ne_chunk(pos_tag(word_tokenize(data))))]
-  else:
+  # ---------------------------------------------------------------------
+  if args.pyrata_data:
     data = ast.literal_eval(data) # interprete as a list a list formulated as a string
-
+  else:
+    data = [{'raw':word, 'lc':word.lower(), 'pos':pos, 'stem':nltk.stem.SnowballStemmer('english').stem(word), 'lem':nltk.WordNetLemmatizer().lemmatize(word.lower()), 'sw':(word in nltk.corpus.stopwords.words('english')), 'chunk':chunk} for (word, pos, chunk) in tree2conlltags(ne_chunk(pos_tag(word_tokenize(data))))]
+ 
+  # ---------------------------------------------------------------------
   if len(args.lexicons) >0:
     lexicons = ast.literal_eval(args.lexicons[0]) # interprete as a dict a list formulated as a string
   else:
     lexicons = []
 
+  # ---------------------------------------------------------------------
   # interpret data as a data path
   if args.path:
     #infile=open(data)
@@ -246,13 +270,31 @@ if __name__ == '__main__':
     endpos = args.endpos[0]
 
   if args.draw:
-    DEBUG = True
-  if args.step:
-      STEP = True
+    DRAW = True
+  if args.draw_steps:
+    DRAW_STEPS = True
 
-  pyrata.nfa.DEBUG = DEBUG
-  pyrata.nfa.STEP = STEP
-    
-  # ---------------------------------------------------------------------
+  # TODO
+  if DRAW_STEPS:
+    print ("Error: '--draw_steps' parameters not implemented yet.")
+    parser.print_help()
+    exit()  
 
-  main(sys.argv)
+  pyrata.nfa.DEBUG = DRAW
+  pyrata.nfa.STEP = DRAW_STEPS
+
+
+# ---------------------------------------------------------------------
+"""
+Loading the dependency
+"""
+if DRAW or DRAW_STEPS:
+  from graph_tool.all import *
+
+# ---------------------------------------------------------------------
+if __name__ == '__main__':
+  """
+    performing the job
+  """
+
+  main() # (sys.argv) # FIXME sys ?
