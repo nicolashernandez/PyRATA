@@ -101,6 +101,13 @@ annotated tag of a previous commited
 
     git tag -a v0.4 -m "Thompson's algorithm of NFA and Guan Gui implementation" efce8347d81b6bff6a7e1caa2e563d848e51b99b
 
+remove a local tag 
+:: 
+  
+    git tag -d v0.4.1
+    Étiquette 'v0.4.1' supprimée (elle était sur 7088ea8)
+
+
 push the tag
 :: 
     git push origin v0.4 
