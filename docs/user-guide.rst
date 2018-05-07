@@ -75,7 +75,6 @@ Alternatives
 * `Apache UIMA RUTA <https://uima.apache.org/ruta.html>`_ JAVA 8, Apache v2
 * `Nooj <http://www.nooj-association.org>`_ C++/Java 1.7, LGPL
 * `unitex <http://unitexgramlab.org>`_ GPL restricted license: Academic Only, Non Commercial Use Only.
-* `unitex <http://unitexgramlab.org>`_ GPL restricted license: Academic Only, Non Commercial Use Only.
 * `tokensregex <https://nlp.stanford.edu/software/tokensregex.html>`_  GPL restricted license: Academic Only, Non Commercial Use Only.
 
 
@@ -187,8 +186,9 @@ Then import the main PyRATA regular expression module:
 In command line
 --------------
 
-PyRATA comes with a script which allow to test the API and plots pretty graphs of NFAs. 
+PyRATA comes with a script, ``pyrata_re.py``, which allow to test the API and plots pretty graphs of NFAs. 
 In v0.4 it is an alpha code. It is provided "as is"...
+Set your ``PATH`` environment variable consequently or run it from its install directory.
 
 Takes at least two parameters: the pattern to search and the data to process.
 
