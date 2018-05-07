@@ -82,6 +82,7 @@ found_noun_phrases = pyrata_re.findall(pyrata_np_pattern , pyrata_data)
 pprint.pprint(found_noun_phrases)
 
 :: 
+
     [[{'lem': 'an', 'pos': 'DT', 'raw': 'an'},
       {'lem': 'american', 'pos': 'JJ', 'raw': 'American'},
       {'lem': 'actor', 'pos': 'NN', 'raw': 'actor'}],
@@ -124,6 +125,7 @@ found_noun_phrases = pyrata_re.finditer(pyrata_np_pattern , pyrata_data)
 found_noun_phrases
 
 :: 
+
     <pyrata.re MatchesList object; matcheslist="[
     <pyrata.re Match object; groups=[[[{'pos': 'NNP', 'raw': 'Van', 'lem': 'van'}, {'pos': 'NNP', 'raw': 'Damme', 'lem': 'damme'}], 0, 2]]>, 
     <pyrata.re Match object; groups=[[[{'pos': 'NNP', 'raw': 'Chuck', 'lem': 'chuck'}, {'pos': 'NNP', 'raw': 'Norris', 'lem': 'norris'}], 6, 8]]>, 
@@ -317,6 +319,7 @@ is_better_than_pattern = 'chunk-"NP" lem="be" ([ (pos="RB" & !lem@"NEG_ADV") | (
 is_better_than = pyrata_re.search (is_better_than_pattern, extended_pyrata_data, lexicons = my_lexicons).groups()[2]
 
 is_better_than
+
 ::
 
     [[{'pos': 'RB', 'raw': 'much', 'lem': 'much'}, 
@@ -377,6 +380,7 @@ python3 pyrata_re.py 'pos="JJ"+' "[{'raw': 'It', 'pos': 'PRP'}, {'raw': 'is', 'p
 python3 pyrata_re.py 'pos="JJ"+' "It is fast easy and funny to write regular expressions with PyRATA"  --method findall 
 
 # we see 3 matches
+
 ::
 
     [[{'chunk': 'O',
@@ -417,6 +421,7 @@ python3 pyrata_re.py 'pos="JJ"+' "It is fast easy and funny to write regular exp
 
 
 # each adjective is a match
+
 ::
 
     [[{'chunk': 'O',
@@ -455,6 +460,7 @@ python3 pyrata_re.py 'pos="DT"? pos~"JJ|NN"* pos~"NN.?"+' "" --draw --pdf_file_n
 
 # && evince my_nfa.pdf
 
+
 to copy files from the docker container to the local file system (to use a pdf viewer for instance)
 --------------------------------------- 
 
@@ -485,7 +491,9 @@ from nltk.corpus import brown
 # selection of a sub-corpus
 
 text_length = 200000 # len(brown.words())
+
 tokens = brown.words()
+
 tokens = tokens[:text_length]
 
 # nlp processing 
@@ -497,6 +505,7 @@ pos_tags = nltk.pos_tag(tokens)
 pyrata_data = [{'raw':w, 'pos':p} for (w, p) in pos_tags]
 
 # who is what (takes a few seconds) 
+
 result = pyrata_re.findall('[pos~"NN" & raw~"^[A-Z]"]+ raw~"^(is|are)$" pos="DT"? pos~"JJ|NN.?"* pos~"NN.?"+', pyrata_data)
 
 pprint.pprint(result)
