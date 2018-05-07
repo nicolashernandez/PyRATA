@@ -12,6 +12,10 @@ Last report
 TODO list (almost following a decreasing priority order)
 -------------------------------
 
+* docker 
+import nltk
+  >>> nltk.download('punkt')
+python3 pyrata_re.py 'pos="DT"? pos~"JJ|NN"* pos~"NN.?"+' "[{}]" --pyrata_data --draw 
 
 * dev 'import pyrata.re as pyrata_re' fails if graph-tool dependencies are not satisfied on the system. The motivation is to avoid to fail and to allow to use the engine even if graph-tool is not installed. So two alternatives: either move graph-tool references out from pyrata/compiled_pattern.py and pyrata/nfa.py, make pyrata_re.py use this reference. graphtool is well integrated so this may not be easy. Or use of the DEBUG var, like in the __main__ declaration in top of the file like in guiguan_nfa/regex_matching.py implementation. Implemented. To be test.  
 

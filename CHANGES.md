@@ -1,6 +1,10 @@
 Revision History
 ================
 
+v0.4.2 
+---------------------
+* add a docker environment for demo
+
 v0.4.1 
 ---------------------
 * demo implementation of phrase-extraction.py (Justeson and Katz 1995) and (Handel et al 2016)
