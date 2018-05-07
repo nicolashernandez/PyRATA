@@ -97,7 +97,6 @@ def main(): #argv):
     """ Perform the specified search request over the input data.
         Optionally plots a graph.
     """
-    print ('Debug: data={}'.format(data))
 
     compiled_nfa = CompiledPattern()
     p = pattern
