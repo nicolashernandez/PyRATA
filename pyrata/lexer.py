@@ -96,6 +96,7 @@ class Lexer(object):
   t_ANY  = r'\*'
   t_BEFORE_FIRST_TOKEN  = r'\^'
   t_AFTER_LAST_TOKEN  = r'\$'
+  #t_COLON = r'\:'
 
 #t_EOI  = r'\;'
 
@@ -246,6 +247,7 @@ class Lexer(object):
     self.lexer.lexTokenList = [] # LexToken (self.type, self.value, self.lineno, self.lexpos)
     while True:
       tok = self.lexer.token()
+      #print ('Debug: tok=',tok)
       if not tok: 
         break      # No more input
       #print(tok)
@@ -253,6 +255,7 @@ class Lexer(object):
       self.lexer.lexTokenEndDict[tok.lexpos+len(tok.value)] = tok
     #print (lexTokenList)  
     # reinit the lexer
+    #print ('Debug: self.lexer.lexdata',self.lexer.lexdata)
     self.lexer.input(self.lexer.lexdata)
   
 #  def build(self, debug=False, debuglog=None, **kwargs):

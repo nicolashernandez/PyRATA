@@ -14,10 +14,12 @@ v0.4.1
 * fix nfa last_state_id computation for such a case '(a~"A|B"+) (b="B")' "[{'c':'C'}, {'a':'A'}, {'a':'A', 'b':'B'}, {'d':'D'}]" the id was a matching state but not mandatory a final state #M
 * fix re and nfa compile to pass lexicons argument in the CompiledPattern.compile() method
 * fix the `ImportError: No module named 'graph_tool'` issue by specifying the graph_tool installation procedure. 
+* improvement of the separation of graph_tool from the business code (in pyrata_re.py and nfa.py)
 * doc user-guide grammar clarification about the change in 0.3.3 (negative constraint are for now only allowed in class elements)
 * enhancement of the time processing by a factor of 4: implementation of a dedicated deepcopy method instead of the one from copy module
+* fix bug due to sympy behavior when processing pattern token with colon characters in the value field
 * code refactoring by separating compiled_pattern from nfa
-* minor user-guide enhancements
+* user-guide enhancements
 
 v0.4 (October 12, 2017)  
 ---------------------

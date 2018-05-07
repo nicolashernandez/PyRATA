@@ -198,7 +198,7 @@ class NFA(object):
         states_add = set()
 
         for cs in self.cur_states:
-            # print ('Debug: step \t\t\tid(cs)={}\tcs=\t{}'.format(cs.id, cs.char, cs)) 
+            #print ('Debug: step \t\t\tid(cs)={}\tcs=\t{}'.format(cs.id, cs.char, cs)) 
             states_remove.add(cs)
             states_add.update(self.__step_special_state(char, None, cs, lexicons))
         # print ('Debug: step - cs=\t\t\t\t{} \nDebug: step minus states_remove=\t{} \nDebug: step plus states_add=\t\t{}'
@@ -228,6 +228,12 @@ class NFA(object):
                 single_constraint_evaluation_list = [evaluate_single_constraint(char, single_constraint_dict['name'], single_constraint_dict['operator'], single_constraint_dict['value'], lexicons) for single_constraint_dict in state.single_constraint_tuple_list]
                 var_list = state.single_constraint_variable_list
                 substitution_list = list(zip (var_list, single_constraint_evaluation_list))
+                # print ('Debug: state.single_constraint_tuple_list {}'.format(state.single_constraint_tuple_list))
+                # print ('Debug: single_constraint_evaluation_list {}'.format(single_constraint_evaluation_list))
+                # print ('Debug: state.single_constraint_variable_list {}'.format(state.single_constraint_variable_list))
+                # print ('Debug: substitution_list {}'.format(substitution_list))
+                # print ('Debug: state.symbolic_step_expression[0] {}'.format(state.symbolic_step_expression[0]))
+                
                 step_evaluation = state.symbolic_step_expression[0].subs(substitution_list)
 
 

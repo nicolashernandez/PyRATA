@@ -468,7 +468,7 @@ class CompiledPattern(object):
                 cur_elem = State.create_element_question_mark_state(last_elem)
                 last_elem = None
             else:
-
+                #print ('Debug: last_elem=',last_elem)
                 if last_elem:
                     #print ('Debug: __parse_current_pattern_pos - c - no special character')
                     nfa.append_element(last_elem)

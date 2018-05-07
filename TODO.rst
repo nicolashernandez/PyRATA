@@ -13,42 +13,22 @@ TODO list (almost following a decreasing priority order)
 -------------------------------
 
 
-* dev 'import pyrata.re as pyrata_re' fails if graph-tool dependencies are not satisfied on the system. The motivation is to avoid to fail and to allow to use the engine even if graph-tool is not installed. So two alternatives: either move graph-tool references out from pyrata/compiled_pattern.py and pyrata/nfa.py, make pyrata_re.py use this reference. graphtool is well integrated so this may not be easy. Or check the use of the DEBUG var, make the __main__ declaration in top of the file like in guiguan_nfa/regex_matching.py implementation.   
-
-* revise README.rst quick overview (add LREC bib ; remove do_stuff...)
+* dev 'import pyrata.re as pyrata_re' fails if graph-tool dependencies are not satisfied on the system. The motivation is to avoid to fail and to allow to use the engine even if graph-tool is not installed. So two alternatives: either move graph-tool references out from pyrata/compiled_pattern.py and pyrata/nfa.py, make pyrata_re.py use this reference. graphtool is well integrated so this may not be easy. Or use of the DEBUG var, like in the __main__ declaration in top of the file like in guiguan_nfa/regex_matching.py implementation. Implemented. To be test.  
 
 * upload the last version on pupy (engine, wo comments), possibly wo pdf 
-* bug fix wrong accepted value 
--La phrase "S'il te plait" (ou tout autre comprenant un pronom personnel)
--étiquetage {'lemme': 'se', 'word': "s'", 'pos': 'PRO:PER'}, {'lemme':
-'il', 'word': 'il', 'pos': 'PRO:PER'}, {'lemme': 'te', 'word': 'te',
-'pos': 'PRO:PER'}, {'lemme': 'plaire', 'word': 'plaît', 'pos': 'VER:pres'}
-(on voit bien que 'te' est reconnu comme PRO:PER)
--Et l'expression qui devrait la reconnaître '([word="il"|word="Il"]
-word="PRO:PER"? lemme="plaire")'
-* revise user guide to present the Match object 
+
 * temporarly comment spacy in do_benchmark.py because of bug ; solved ?
 * ilimp implement extend the data structure with 'ilimp_hyp' = True for the annotation use case, externalize rules definition, and define rules...
 * use case http://infolingu.univ-mlv.fr/ opinons et sentiments (DoXa),
 * code optimization : look at https://docs.python.org/3/library/multiprocessing.html
 * communication demo for sentiment analysis https://github.com/cjhutto/vaderSentiment ; http://alt.qcri.org/semeval2014/task4/index.php?id=data-and-tools ; http://alt.qcri.org/semeval2015/task12/ http://ai.stanford.edu/~amaas/data/sentiment/ ; test_movie_reviews () compare by using the same data set as streamhacker (see the sentiment-analysis.py code) ; evaluate vader on this corpus ; precompile the patterns ; build only full sentence pattern to demonstrate the forms "... but ...", "despite..., ....", "..., ... and ..." ... ; currently implementing booster extraction (should imagine how to assign them a weight by considering if negate is present and the current label), reuse them for extraction (if occurs twice)
 
-* python3 pyrata_re.py '(  ((pos="JJ"|pos="NN")* (pos="NN" pos="IN")? (pos="JJ"|pos="NN")* | (pos="JJ"|pos="NN")+) pos="NN" ' "[{'name':'value'}]" --draw
-Traceback (most recent call last):
-  File "pyrata_re.py", line 255, in <module>
-    main(sys.argv)
-  File "pyrata_re.py", line 85, in main
-    compiled_nfa = pyrata.nfa.CompiledPattern()
-AttributeError: module 'pyrata.nfa' has no attribute 'CompiledPattern'
-
-fixed with the right import
-
+* doc revise user guide to present the Match object 
 * doc add description of the 'match' method in the user-guide
 * doc in edit methods, annotation and replacement are not clear. Substitute annotation with data. Note sure
 * doc give signature of matching methods in similar abstract way that edit methods
 * api/engine implement operation merge_tokens_matching_a_pattern e.g. raw=":" raw=")" -> raw=":)" and by default get the features of the first token minus some overwritten. 
 * pyrata_re implement 'draw_steps' as regex_matching_py3: "match string against pattern and draw the internal NFA at every step to  'NFA.pdf' (requires graph_tool). It is best to run this option and observe the result with a PDF viewer that can detect file change and reload the changed file. For example, the Skim app (http://skim-app.sourceforge.net)"
-
 
 * how to launch a beta test campaign?
 * quality test real use cases (search lexicon made of multi words, lowercase... e.g. [raw@"POSITIVE" & raw~"^[A-Z]"])

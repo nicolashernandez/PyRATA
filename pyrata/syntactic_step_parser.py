@@ -128,6 +128,7 @@ class SyntacticPatternParser(object):
     #log(p, '(step->...)')
     if len(p) == 2:
       p[0] = p[1]
+
       #log(p, '(step->single_constraint)')
     
     #elif p[1] == '!':
@@ -183,7 +184,6 @@ class SyntacticPatternParser(object):
     
     #log(p, '(constraint_class_part->...)')  
 
-
     if p[1] == '(':
       p[0] = p[2]
       #log(p, '(constraint_class_part->LPAREN constraint_class RPAREN)')
@@ -216,6 +216,11 @@ class SyntacticPatternParser(object):
     # add to the temporary list of single constraint string
     single_constraint_string = ''.join([p[1],p[2],p[3]])
     p.lexer.single_constraint_symbol_list.append(single_constraint_string)
+    # print ('Debug: single_constraint_string='.format(single_constraint_string))
+    # print ('Debug: p[1]='.format(p[1]))
+    # print ('Debug: p[2]='.format(p[2]))
+    # print ('Debug: p[3]='.format(p[3]))
+
 
     # add single contraint tuple to lists in the lexer 
     c = {}
@@ -232,8 +237,11 @@ class SyntacticPatternParser(object):
     # build a variable and a name
     indice = str(len(p.lexer.single_constraint_tuple_list)-1)
     var = {} 
-    var[indice] =  symbols(single_constraint_string.replace(' ','\\ '))
+    var[indice] =  symbols(single_constraint_string.replace(' ','\\ ').replace(':','\\:'))
     p[0] = var[indice]
+    #print ('Debug: c='.format(c))
+    #print ('Debug: single_constraint_string='.format(single_constraint_string))
+    #print ('Debug: var[indice]='.format(var[indice]))
     p.lexer.single_constraint_variable_list.append(var[indice])
 
     # nfa guiguan
