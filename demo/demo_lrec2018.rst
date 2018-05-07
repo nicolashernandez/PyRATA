@@ -12,14 +12,19 @@ Requirement in python interpreter
 python3
 
 # only required for pyrata_re.py, a demo script to test PyRATA API in command line and plot NFA graphs
+
 import nltk
+
 from nltk import word_tokenize, pos_tag, ne_chunk
+
 from nltk.chunk import tree2conlltags
 
 # nice display
+
 import pprint
 
 # pyrata
+
 import pyrata.re as pyrata_re
 
 
@@ -27,16 +32,20 @@ Generating a PyRATA data structure from a text
 ---------------------------------------------------
 
 # our data (here a simple sentence)
+
 data = 'Van Damme is much cooler than Chuck Norris. Silvester Stalone is an American actor and filmmaker.'
 
-# nltk to process the data and format it into a list of dicts 
+# nltk to process the data and format it into a list of dicts
+
 pyrata_data =  [{'raw':word, 'pos':pos, 'lem':nltk.WordNetLemmatizer().lemmatize(word.lower())} for (word, pos) in nltk.pos_tag(nltk.word_tokenize(data))]
 
 
 # have a look at the result 
+
 pyrata_data
 
 # or
+
 pprint.pprint(pyrata_data)
 
 ::
@@ -131,9 +140,11 @@ Class element
 # can be used with quantifiers
 
 # below the pattern accepts a sequence of tokens starting with an uppercase letter but not an adjective, or a NNP pos tag. 
+
 NE_pattern = '[ (raw~"^[A-Z]" & !pos="JJ") | pos="NNP"]+'
 
 # findall
+
 NE = pyrata_re.findall (NE_pattern, pyrata_data)
 
 pprint.pprint(NE)  
@@ -263,9 +274,11 @@ specify group you want to work on with parenthesis
 --------------------------------------------------
 
 # the group is marked with parenthesis
+
 who_is_an_actor_pattern = '(chunk-"NP") lem="be" [pos="DT" | pos="JJ"]* lem="actor"'
 
 # we search the first occurrence and get the first group in the recognized pattern
+
 who_is_an_actor = pyrata_re.search (who_is_an_actor_pattern, extended_pyrata_data).groups()[1]
 
 who_is_an_actor
@@ -276,26 +289,31 @@ who_is_an_actor
 
 
 # here how to get a list of actors in the whole corpus
+
 who_is_an_actor_list = [i.groups()[1] for i in pyrata_re.finditer (who_is_an_actor_pattern, extended_pyrata_data)]
 
 # Note: ``chunk-"NP"`` is actually rewritten in ``(chunk="B-NP" chunk="I-NP"*)`` which is a group. So by marking explicitly groups around chunks, it is redundant. Without parenthesis it gives so the same:
 
 who_is_an_actor_pattern = 'chunk-"NP" lem="be" [pos="DT" | pos="JJ"]* lem="actor"'
+
 who_is_an_actor = pyrata_re.search (who_is_an_actor_pattern, extended_pyrata_data).groups()[1]
 
 
 (matching operator) token features can be constraint to belong to lexicons thanks to ``@``operator
 ----------------------------------------------------  
 # declaration of 4 lexicons (name then a list of values)
+
 my_lexicons = { 'POS_ADJ':['cooler', 'stronger'], 
                 'NEG_ADJ':['weaker', 'worst'],
                 'POS_ADV':['much', 'more'],
                 'NEG_ADV':['less', 'not']}
 
 # sequence of adverbs which are not negative and adjectives which are positive
+
 is_better_than_pattern = 'chunk-"NP" lem="be" ([ (pos="RB" & !lem@"NEG_ADV") | (pos~"JJ." & lem@"POS_ADJ") ]+) lem="than" chunk-"NP"'
 
 # searching the first occurrence by giving the lexicons in parameters
+
 is_better_than = pyrata_re.search (is_better_than_pattern, extended_pyrata_data, lexicons = my_lexicons).groups()[2]
 
 is_better_than
@@ -311,6 +329,7 @@ group alternatives
 # positive adjective optionally stressed by a positive adverb
 # or 
 # negative adjective mandatory preceded by a negative adverb to reverse the polarity 
+
 is_better_than_pattern = 'lem="be" (lem@"POS_ADV"? lem@"POS_ADJ"| lem@"NEG_ADV" lem@"NEG_ADJ") lem="than"'
 
 # 
@@ -335,6 +354,7 @@ pyrata_re.py
 # By default, it performs English natural language processing (nlp) with NLTK on the input data and search the first occurrence of the specified pattern with a greedy pattern matching policy. No pdf draw. No log export. 
 
 # assuming pyrata_re.py is in the current directory. Change directory so. In the docker image:
+
 cd /root
 
 # More information on parameters, API usage and language syntax with:
@@ -432,40 +452,48 @@ python3 pyrata_re.py 'pos="JJ"+' "It is fast easy and funny to write regular exp
 #To draw the corresponding NFA in a filename my_nfa.pdf. Trick: No need to specify some data to draw a NFA.
 
 python3 pyrata_re.py 'pos="DT"? pos~"JJ|NN"* pos~"NN.?"+' "" --draw --pdf_file_name my_nfa.pdf 
+
 # && evince my_nfa.pdf
 
 to copy files from the docker container to the local file system (to use a pdf viewer for instance)
 --------------------------------------- 
 
 # get the container NAME 
+
 sudo docker ps
 
 # then from a terminal in the local file system do
 # sudo docker cp NAME:/root/my_nfa.pdf /tmp/my_nfa.pdf && evince my_nfa.pdf
 
 # if NAME is *nostalgic_northcutt* then do
+
 sudo docker cp nostalgic_northcutt:/root/my_nfa.pdf /tmp/my_nfa.pdf && evince /tmp/my_nfa.pdf
 
 
 
 more nlp processing
 -----------------------
+
 pyrata_data = [{'raw':word, 'lc':word.lower(), 'pos':pos, 'stem':nltk.stem.SnowballStemmer('english').stem(word), 'lem':nltk.WordNetLemmatizer().lemmatize(word.lower()), 'sw':(word in nltk.corpus.stopwords.words('english')), 'chunk':chunk} for (word, pos, chunk) in tree2conlltags(ne_chunk(pos_tag(word_tokenize(data))))]
 
 
-working on brown corpus (experimental)
+working on brown corpus as a concordancer (experimental)
 -------------------
+
 from nltk.corpus import brown
 
 # selection of a sub-corpus
+
 text_length = 200000 # len(brown.words())
 tokens = brown.words()
 tokens = tokens[:text_length]
 
 # nlp processing 
+
 pos_tags = nltk.pos_tag(tokens)
 
 # and pyrata formating
+
 pyrata_data = [{'raw':w, 'pos':p} for (w, p) in pos_tags]
 
 # who is what (takes a few seconds) 
