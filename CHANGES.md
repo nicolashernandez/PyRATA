@@ -4,6 +4,7 @@ Revision History
 v0.4.2 
 ---------------------
 * add a docker environment for demo
+* fix graph_tool partitioning from the business code when it is not available
 
 v0.4.1 
 ---------------------
