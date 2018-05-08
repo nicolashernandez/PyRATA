@@ -55,6 +55,7 @@ First install PyRATA (`available on PyPI <https://pypi.python.org/pypi/PyRATA>`_
 
     sudo pip3 install pyrata
 
+*v0.4.0* and *v0.4.1* check how to solve `importError No module named graph_tool <https://github.com/nicolashernandez/PyRATA/issues/2>`_ issue.
 
 Run python
 

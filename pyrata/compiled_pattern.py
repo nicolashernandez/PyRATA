@@ -56,9 +56,12 @@ STEP = False
 (PREFIX_BEGIN, PREFIX_INSIDE, PREFIX_OTHER) = ('B-', 'I-', 'O-')
 
 
-
-#if DEBUG:
-from graph_tool.all import *
+try:
+    from graph_tool.all import *
+except ImportError:
+    DEBUG=False
+else: 
+    DEBUG = True
 
 from pyrata.nfa import *
 
