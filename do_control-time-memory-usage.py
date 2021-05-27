@@ -93,7 +93,7 @@ if __name__ == '__main__':
   # ----------------------------------------------------
   # brown
 
-  size = 10000 # 1161192 # # brown corpus 1 161 192 words ; can also be interpreted as number of sentences
+  size = 1000 # 1161192 # # brown corpus 1 161 192 words ; can also be interpreted as number of sentences
 
   print ('Info: Start...')
   print ('Info: get {} brown.words'.format(size))
@@ -101,6 +101,8 @@ if __name__ == '__main__':
   tokens = tokens[:size]
 
   print ('Info: annotate pos_tag ({} tokens)'.format(len(tokens)))
+  print('Info: annotate pos_tag ({} unique tokens)'.format(len(set(tokens))))
+
   pos_tags = nltk.pos_tag(tokens)
 
   print ('Info: convert to pyrata format ')

@@ -37,7 +37,6 @@ from re import compile
 
 from pprint import pprint, pformat
 import ply.yacc as yacc
-from sympy import *
 #import sympy.not as sympy_not
 #from FAdo.fa import *
 #from FAdo.reex import *
@@ -151,8 +150,7 @@ class SyntacticPatternParser(object):
   def p_constraint_class(self,p):
     '''constraint_class : constraint_class AND constraint_class_part
             | constraint_class OR constraint_class_part 
-            | constraint_class_part ''' 
-    
+            | constraint_class_part '''
     #log(p, '(constraint_class->...)')  
     if len(p) == 2:
       p[0] = p[1] 
@@ -160,14 +158,15 @@ class SyntacticPatternParser(object):
     #
     else:
       if p[2] == '&':
-        p[0] = And(p[1], p[3]) 
+        p[0] = (p[1] + " & " + p[3])
         #log(p, '(constraint_class->constraint_class AND constraint_class_part)')
         # nfa guiguan
         #p3 = p.lexer.nfa_guiguan_pattern_input.pop()
         #p1 = p.lexer.nfa_guiguan_pattern_input.pop() 
         #p.lexer.nfa_guiguan_pattern_input.append(p1+'&'+p3)     
       else: 
-        p[0] = Or(p[1], p[3])
+
+        p[0] = (p[1] + " | " + p[3])
         #log(p, '(constraint_class->constraint_class OR constraint_class_part)')
         # nfa guiguan
         #p3 = p.lexer.nfa_guiguan_pattern_input.pop()
@@ -191,7 +190,7 @@ class SyntacticPatternParser(object):
       #last = p.lexer.nfa_guiguan_pattern_input.pop() 
       #p.lexer.nfa_guiguan_pattern_input.append('('+last+')')
     elif p[1] == '!':
-      p[0] = Not(p[2])
+      p[0] = "!"+p[2]
       #log(p, '(constraint_class_part->NOT constraint_class)')
       # nfa guiguan
       #last = p.lexer.nfa_guiguan_pattern_input.pop() 
@@ -236,8 +235,8 @@ class SyntacticPatternParser(object):
 
     # build a variable and a name
     indice = str(len(p.lexer.single_constraint_tuple_list)-1)
-    var = {} 
-    var[indice] =  symbols(single_constraint_string.replace(' ','\\ ').replace(':','\\:'))
+    var = {}
+    var[indice] = single_constraint_string.replace(' ','\\ ').replace(':','\\:')
     p[0] = var[indice]
     #print ('Debug: c='.format(c))
     #print ('Debug: single_constraint_string='.format(single_constraint_string))

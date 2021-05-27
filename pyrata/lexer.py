@@ -246,6 +246,7 @@ class Lexer(object):
     self.lexer.lexTokenEndDict = {}
     self.lexer.lexTokenList = [] # LexToken (self.type, self.value, self.lineno, self.lexpos)
     while True:
+
       tok = self.lexer.token()
       #print ('Debug: tok=',tok)
       if not tok: 

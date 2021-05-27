@@ -31,6 +31,9 @@
 import sys
 import logging
 
+#only mandatory if getting rid of sympy
+#import re
+
 from pyrata.state import *
 
 import re
@@ -75,6 +78,40 @@ def evaluate_single_constraint (data, name, operator, value, lexicons):
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+#REMOVE this function
+def solve(s):
+    stack = []
+    op = {
+        "|": lambda x, y: x or y,
+        "&": lambda x, y: x and y,
+    }
+    for v in s.split():
+        if v[0] == "(":
+            stack.append(v[v.count("("):] == "True")
+        elif v.count(")") > 0:
+            ct = v.count(")")
+            stack.append(v[:-ct] == "True")
+            for _ in range(ct):
+                right = stack.pop()
+                o = stack.pop()
+                left = stack.pop()
+                stack.append(o(left, right))
+        elif v in ["True", "False"]:
+            stack.append(v == "True")
+        elif v in ["!True", "!False"] :
+            stack.append(v == "!False")
+        else:
+            stack.append(op[v])
+
+    if len(stack) > 1:
+        for i in range(0, len(stack) - 1, 2):
+            stack[i + 2] = stack[i + 1](stack[i], stack[i + 2])
+        return stack[-1]
+
+    return stack[0]
+
+
 class NFA(object):
 
 
@@ -233,8 +270,27 @@ class NFA(object):
                 # print ('Debug: state.single_constraint_variable_list {}'.format(state.single_constraint_variable_list))
                 # print ('Debug: substitution_list {}'.format(substitution_list))
                 # print ('Debug: state.symbolic_step_expression[0] {}'.format(state.symbolic_step_expression[0]))
-                
-                step_evaluation = state.symbolic_step_expression[0].subs(substitution_list)
+                #TODO Quentin actual line :
+                #step_evaluation = state.symbolic_step_expression[0].subs(substitution_list)
+
+                # Method 1 : replace().
+                # Result : +3s
+
+                # step_evaluation = state.symbolic_step_expression[0]
+                # for n in range(0,len(substitution_list)):
+                #     step_evaluation = step_evaluation.replace(substitution_list[n][0], substitution_list[n][1])
+
+                #Method 2 : re.sub()
+                # Result : +1s (could be worth if sympy is removed)
+
+                step_evaluation = state.symbolic_step_expression[0]
+                print(substitution_list)
+                for n in range(0,len(substitution_list)):
+                    step_evaluation = re.sub(re.escape(str(substitution_list[n][0])), str(substitution_list[n][1]), str(step_evaluation))
+                    print(step_evaluation)
+                step_evaluation = solve(step_evaluation)
+
+
 
 
             #if state.char == '.' or state.char == char:
@@ -327,6 +383,8 @@ class NFA(object):
 
                 states_add.update(self.__step_special_state(char, state, os, lexicons))
         return states_add
+
+
 
     def append_element(self, elem):
 
@@ -494,6 +552,7 @@ class NFA(object):
 
     def finalise_nfa(self):
         if not self.last_appended_state:
+            from pyrata.compiled_pattern import CompiledPattern
             raise CompiledPattern.NFAHasAlreadyBeenFinalisedError
 
         new_matching_elem = State.create_matching_state()

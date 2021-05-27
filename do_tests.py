@@ -2911,9 +2911,17 @@ class PyrataReTest(unittest.TestCase):
     data = [{'c':'C'}, {'a':'A'}, {'a':'A', 'b':'B'}, {'d':'D'}]
     expected = [ {'a':'A', 'b':'B'}]
     result = pyrata.re.search(pattern, data)
-    self.assertEqual(result.group(2),expected) 
+    self.assertEqual(result.group(2),expected)
 
-# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    # ----------------------------------------------------------------------
+  def test_findall_regex_in_value:
+
+  def test_findall_similar_tokens_in_step:
+
+  def test_findall_token_inside_other_tokens:
+
+  def 
+    # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # Run all the tests
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 if __name__ == '__main__':
