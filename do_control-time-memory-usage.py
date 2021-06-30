@@ -67,8 +67,8 @@ def test_noun_phrase(dictlist):
   #global pyrata_grammar
 
   pyrata_grammar = 'pos="DT"? pos="JJ"* pos="NN"+'
-  pyrata_grammar = 'pos="DT"? [pos="NN" | pos="JJ"]* [pos="NN" | pos="NNS"]+'
-  pyrata_grammar = 'pos="DT"? [pos~"NN|JJ"]* pos~"NN.*"+'
+  #pyrata_grammar = 'pos="DT"? [pos="NN" | pos="JJ"]* [pos="NN" | pos="NNS"]+'
+  #pyrata_grammar = 'pos="DT"? [pos~"NN|JJ"]* pos~"NN.*"+'
   #nfa_pyrata_findall_result = []
   #nfa_pyrata_findall_result = 
   return pyrata_re.findall(pyrata_grammar, dictlist)
