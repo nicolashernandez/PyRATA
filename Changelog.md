@@ -1,4 +1,4 @@
-##Changelog - index based search:
+## Changelog - index based search:
 **compiled_pattern**:
 method create_index_dic() added and used in finditer() - _694_
 method remove_overlap() added and used in finditer() - _707_
@@ -15,7 +15,7 @@ replaced most NBSP (non breaking space) character by spaces in commentaries
 to make it more readable for some IDEs.
 
 
-##Past changelog - Sympy removal:
+## Past changelog - Sympy removal:
 **nfa**:
 method __step_special_state() changed to substitute Sympy with python RE - _275_
 method solve() added to substitute Sympy - _80_
