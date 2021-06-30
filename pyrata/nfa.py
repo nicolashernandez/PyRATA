@@ -31,8 +31,6 @@
 import sys
 import logging
 
-#only mandatory if getting rid of sympy
-#import re
 
 from pyrata.state import *
 
@@ -79,8 +77,11 @@ def evaluate_single_constraint (data, name, operator, value, lexicons):
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-#REMOVE this function
 def solve(s):
+    """ solves boolean expression using |,&,! operators
+    based on : https://www.tutorialspoint.com/program-to-evaluate-boolean-expression-from-a-string-in-python
+    by Arnab Chakraborty"""
+
     stack = []
     op = {
         "|": lambda x, y: x or y,
@@ -238,12 +239,12 @@ class NFA(object):
             #print ('Debug: step \t\t\tid(cs)={}\tcs=\t{}'.format(cs.id, cs.char, cs)) 
             states_remove.add(cs)
             states_add.update(self.__step_special_state(char, None, cs, lexicons))
-        # print ('Debug: step - cs=\t\t\t\t{} \nDebug: step minus states_remove=\t{} \nDebug: step plus states_add=\t\t{}'
-        #     .format(self.cur_states, states_remove, states_add))    
+        # print ('Debug: step - cs=\t\t\t\t{} \nDebug: step minus states_remove=\t{} \nDebug: step plus states_add=\t\t{}'
+        #     .format(self.cur_states, states_remove, states_add))
         self.cur_states.difference_update(states_remove)
         self.cur_states.update(states_add)
         self.step_counter += 1
-        # print ('Debug: step - new cs=\t\t\t{}'.format(self.cur_states))    
+        # print ('Debug: step - new cs=\t\t\t{}'.format(self.cur_states))
 
     # @profile
     def __step_special_state(self, char, previous_state, state, lexicons):
@@ -270,28 +271,13 @@ class NFA(object):
                 # print ('Debug: state.single_constraint_variable_list {}'.format(state.single_constraint_variable_list))
                 # print ('Debug: substitution_list {}'.format(substitution_list))
                 # print ('Debug: state.symbolic_step_expression[0] {}'.format(state.symbolic_step_expression[0]))
-                #TODO Quentin actual line :
-                #step_evaluation = state.symbolic_step_expression[0].subs(substitution_list)
-
-                # Method 1 : replace().
-                # Result : +3s
-
-                # step_evaluation = state.symbolic_step_expression[0]
-                # for n in range(0,len(substitution_list)):
-                #     step_evaluation = step_evaluation.replace(substitution_list[n][0], substitution_list[n][1])
-
-                #Method 2 : re.sub()
-                # Result : +1s (could be worth if sympy is removed)
 
                 step_evaluation = state.symbolic_step_expression[0]
-                print(substitution_list)
                 for n in range(0,len(substitution_list)):
+                    #apply substitution_list with re module
                     step_evaluation = re.sub(re.escape(str(substitution_list[n][0])), str(substitution_list[n][1]), str(step_evaluation))
-                    print(step_evaluation)
+                #solves boolean expression into a single boolean
                 step_evaluation = solve(step_evaluation)
-
-
-
 
             #if state.char == '.' or state.char == char:
             if state.char == '.' or step_evaluation:  
@@ -324,8 +310,8 @@ class NFA(object):
 
                     # patch
                     # I did not success to find when in building the NFA some state were lost 
-                    # (not added in states_dict ; so I did not find where to add my storing code...)
-                    # pattern=['raw="is"', '(', 'pos="JJ"', ')', 'pos="JJ"']
+                    # (not added in states_dict ; so I did not find where to add my storing code...)
+                    # pattern=['raw="is"', '(', 'pos="JJ"', ')', 'pos="JJ"']
                     # But actually the state was not lost since it is mentioned in the run
                     # So I store it on fly now...
                     if not (os.id in self.states_dict):
@@ -341,8 +327,8 @@ class NFA(object):
                       self.last_state_id = os.id
                 # patch
                 # I did not success to find when in building the NFA some state were lost 
-                # (not added in states_dict ; so I did not find where to add my storing code...)
-                # pattern=['raw="is"', '(', 'pos="JJ"', ')', 'pos="JJ"']
+                # (not added in states_dict ; so I did not find where to add my storing code...)
+                # pattern=['raw="is"', '(', 'pos="JJ"', ')', 'pos="JJ"']
                 # But actually the state was not lost since it is mentioned in the run
                 # So I store it on fly now...
                 if not (state.id in self.states_dict):

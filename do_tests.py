@@ -2914,13 +2914,26 @@ class PyrataReTest(unittest.TestCase):
     self.assertEqual(result.group(2),expected)
 
     # ----------------------------------------------------------------------
-  def test_findall_regex_in_value:
+  def test_findall_regex_in_value(self):
+    pattern = 'a="[A-Z]"'
+    data =  [{'c':'C'}, {'a':'[A-Z]'}, {'a':'A', 'b':'B'}, {'d':'D'}]
+    expected = [[{'a':'[A-Z]'}]]
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result,expected)
 
-  def test_findall_similar_tokens_in_step:
+  def test_findall_similar_tokens_in_step(self):
+    pattern = 'a="A" | [(a="A" & b="B")]'
+    data = [{'c': 'C'}, {'a': 'A'}, {'a': 'A', 'b': 'B'}, {'d': 'D'}]
+    expected = [[{'a': 'A'}],[{'a': 'A', 'b': 'B'}]]
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result, expected)
 
-  def test_findall_token_inside_other_tokens:
-
-  def 
+  def test_findall_token_inside_other_tokens(self):
+    pattern = 'a="A"'
+    data = [{'c': 'a="A"'}, {'a': 'A'}, {'a': 'C', 'b': 'B'}, {'d': 'D'}]
+    expected = [[{'a': 'A'}]]
+    result = pyrata.re.findall(pattern, data)
+    self.assertEqual(result,expected)
     # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # Run all the tests
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

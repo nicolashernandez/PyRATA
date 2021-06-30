@@ -66,9 +66,31 @@ def test_noun_phrase(dictlist):
 
   #global pyrata_grammar
 
+  #basic grammars
+
   pyrata_grammar = 'pos="DT"? pos="JJ"* pos="NN"+'
   #pyrata_grammar = 'pos="DT"? [pos="NN" | pos="JJ"]* [pos="NN" | pos="NNS"]+'
   #pyrata_grammar = 'pos="DT"? [pos~"NN|JJ"]* pos~"NN.*"+'
+  #pyrata_grammar = 'pos="JJ" [!raw="The"]'
+
+  #matches single token
+  #pyrata_grammar = 'pos="NN"'
+
+  #matches no tokens
+  #pyrata_grammar = 'pos="DCJD"'
+
+  #first mandatory token, next optionnal tokens
+  #pyrata_grammar = 'pos="JJ" pos~"NN."* pos="IN"*'
+
+  #last mandatory token, firsts optionnal tokens
+  #pyrata_grammar = 'pos"JJ"* pos~"NN."? pos="IN"'
+
+  #only mandatory tokens
+  #pyrata_grammar = 'pos="JJ"* pos~"NN."? pos="IN"*'
+
+  #large mixed pattern
+  #pyrata_grammar = 'pos="JJ"* pos~"NN."? pos="IN" pos~"J.*" pos="NNS"+ [!raw="to" & !raw="action"]+ pos="DT"'
+
   #nfa_pyrata_findall_result = []
   #nfa_pyrata_findall_result = 
   return pyrata_re.findall(pyrata_grammar, dictlist)
@@ -93,7 +115,7 @@ if __name__ == '__main__':
   # ----------------------------------------------------
   # brown
 
-  size = 1000 # 1161192 # # brown corpus 1 161 192 words ; can also be interpreted as number of sentences
+  size = 10000 # 1161192 # # brown corpus 1 161 192 words ; can also be interpreted as number of sentences
 
   print ('Info: Start...')
   print ('Info: get {} brown.words'.format(size))
@@ -102,6 +124,7 @@ if __name__ == '__main__':
 
   print ('Info: annotate pos_tag ({} tokens)'.format(len(tokens)))
   print('Info: annotate pos_tag ({} unique tokens)'.format(len(set(tokens))))
+  set()
 
   pos_tags = nltk.pos_tag(tokens)
 

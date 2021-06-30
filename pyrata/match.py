@@ -33,7 +33,6 @@ from pprint import pprint, pformat
 import ply.yacc as yacc
 
 from pyrata.lexer import *
-from sympy import Symbol, symbols
 
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -150,7 +149,6 @@ class Match(object):
       return False
     if self._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] == other._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.VALUE] and self._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] == other._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.START] and self._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END] == other._groups[self.get_group_id(Match.DEFAULT_GROUP_ID)][Match.END]:
       return True
-      return True
     return False  
    
   def __ne__(self, other):
@@ -163,7 +161,8 @@ class Match(object):
 
   def __len__(self):
     #logging.debug  ('groups=', self.groups)
-    return len(self._groups) 
+    return len(self._groups)
+
 
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class MatchesList(object):
@@ -249,7 +248,7 @@ class MatchesList(object):
       if s == o: matches += 1
     if matches == len(self.matcheslist): 
       return False
-    return True 
+    return True
 
   def __repr__(self):
     return ''.join(['<pyrata.re MatchesList object; matcheslist="',str(self.matcheslist),'">'])

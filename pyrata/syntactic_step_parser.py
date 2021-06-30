@@ -37,7 +37,7 @@ from re import compile
 
 from pprint import pprint, pformat
 import ply.yacc as yacc
-#import sympy.not as sympy_not
+
 #from FAdo.fa import *
 #from FAdo.reex import *
 

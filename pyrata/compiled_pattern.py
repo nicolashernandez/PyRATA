@@ -184,24 +184,24 @@ def build_matching_result (an_nfa, s, i, j, matcheslist):
 
     # print ('Debug: build_matching_result ------------------------------------------')
 
-    # print ('Debug: build_matching_result - i={} j={} step_counter={}'.format(i, j, an_nfa.step_counter))
+    # print ('Debug: build_matching_result - i={} j={} step_counter={}'.format(i, j, an_nfa.step_counter))
     # print ('Debug: build_matching_result an_nfa.cur_states={}'.format(an_nfa.cur_states))
 
-    # print ('Debug: build_matching_result - contains_matching_state #={} cur_states={}'.format(len(an_nfa.cur_states), an_nfa.cur_states))
+    # print ('Debug: build_matching_result - contains_matching_state #={} cur_states={}'.format(len(an_nfa.cur_states), an_nfa.cur_states))
 
-    # print ('Debug: build_matching_result - nfa_step_counter={}'.format(an_nfa.step_counter))
+    # print ('Debug: build_matching_result - nfa_step_counter={}'.format(an_nfa.step_counter))
     #print ('Debug: build_matching_result - nfa_step_os_is_leaf={}'.format( pformat(an_nfa.step_os_is_leaf)))
 
     #print ('Debug: build_matching_result - nfa_states_dict={}'.format( an_nfa.states_dict))
-    # print ('Debug: build_matching_result - nfa_states_dict={}'.format(pformat( an_nfa.states_dict)))
+    # print ('Debug: build_matching_result - nfa_states_dict={}'.format(pformat( an_nfa.states_dict)))
 
     # group
-    groups_start = dict () # position where the given group starts in the data (first seen)
-    groups_end = dict () # position where the given group ends in the data (last seen)
+    groups_start = dict () # position where the given group starts in the data (first seen)
+    groups_end = dict () # position where the given group ends in the data (last seen)
     #groups_start[0] = i
     #groups_end[0] = j +1
 
-    # DFA + group
+    # DFA + group
     DFA = []
     #other_possible_last_state_id = list(an_nfa.step_os_is_leaf[an_nfa.step_counter])[0] #.keys()
     #print ('Debug: build_matching_result - DFA building - At step={}, the other_possible_last_state_id reference is {} '.format(an_nfa.step_counter-1, other_possible_last_state_id))
@@ -223,7 +223,7 @@ def build_matching_result (an_nfa, s, i, j, matcheslist):
           #print ('Debug: build_matching_result - DFA building - and that there is actually one association at this stage')
           #print ('Debug: build_matching_result - DFA building - and that the corresponding state is #S')
           #print ('Debug: build_matching_result - DFA building - In that case we simply take the present io id')
-          # FIXME should to some tests (only one association and char #S)
+          # FIXME should to some tests (only one association and char #S)
           last_state_id = list(an_nfa.step_os_is_leaf[l])[0] #.keys()
 
 
@@ -519,6 +519,7 @@ class CompiledPattern(object):
         pass
 
 
+
     # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def search (self, s, mode = 'greedy', matchMethod = False, fullmatchMethod = False, pos = 0, endpos = None, **kwargs):
         """ Scan through data looking for the first location where the regular expression pattern produces a match, 
@@ -527,14 +528,16 @@ class CompiledPattern(object):
         logging.debug('----------------------------------------------------------------------------------------------------------')
         logging.debug("CompiledPattern - search")
 
+
+
         endpos = len(s) if endpos == None else endpos
         #if pos <0 or endpos < pos or endpos > len(s): return None
         if pos <0: pos = 0
         if endpos > len(s): endpos = len(s)
         if endpos < pos: return None
         
-        # while parsing the data we parse and alter the nfa
-        # each time the nfa did not match we reinit it by copying it from its original form 
+        # while parsing the data we parse and alter the nfa
+        # each time the nfa did not match we reinit it by copying it from its original form
         an_nfa = copy.deepcopy(self.nfa)
         #print ('Debug: CompiledPattern type(an_nfa)={}'.format(an_nfa))
 
@@ -548,7 +551,7 @@ class CompiledPattern(object):
         #    for j in range(i, len(s)):
         #        print ("Debug: search - i={} j={} s[j]={}".format(i, j, s[j]))
         i = pos
-        while i < endpos:           # data exploration  
+        while i < endpos:  # i position in data
             j = i      
             
             while j < endpos:       # pattern exploration 
@@ -566,8 +569,8 @@ class CompiledPattern(object):
                     an_nfa.step(c, self.lexicons)
                     
                     if not len(an_nfa.cur_states):
-                        # there is no more state to explore
-                        #print ("Debug: search - there is no more state to explore")
+                        # there is no more state to explore
+                        # print ("Debug: search - there is no more state to explore")
 
                         # if there was a backup we compute and create all the stuff with the current nfa
                         if last_matched_nfa != None:
@@ -575,7 +578,7 @@ class CompiledPattern(object):
 
 
                             # if we are here then it means we did a step too far
-                            # the same for i and j
+                            # the same for i and j
                             an_nfa.step_counter -= 1
                             #print ("Debug: search - i={} j={}".format(i, j))
                             # j -= 1
@@ -594,8 +597,8 @@ class CompiledPattern(object):
                                     return None
 
                                 return matcheslist.group(0)
-                            # i = last_matched_i
-                            # j = last_matched_j
+                            # i = last_matched_i
+                            # j = last_matched_j
                             last_matched_nfa = None
                             last_matched_i = -1
                             last_matched_j = -1    
@@ -611,8 +614,8 @@ class CompiledPattern(object):
 
                         if mode == 'greedy':
                             #print ("Debug: search - we are in greedy mode")
-                            if len(an_nfa.cur_states) >=2 or an_nfa.have_out_states(): # FIXME =>2 or =>1
-                                # at least one nfa path which could be explored
+                            if len(an_nfa.cur_states) >=2 or an_nfa.have_out_states(): # FIXME =>2 or =>1
+                                # at least one nfa path which could be explored
                                 #print ("Debug: search - the nfa contains_matching_state but we are in greedy mode so we save the nfa and pursue the exploration")
 
                                 # we backup what do we need for computing and creating all the stuff
@@ -620,12 +623,12 @@ class CompiledPattern(object):
                                 last_matched_i = i
                                 last_matched_j = j
                                 j += 1
-                                continue # we cut here and pursue the embedding loop at the next iteration
+                                continue # we cut here and pursue the embedding loop at the next iteration
                             #else: 
                                # no more path to explore, so we stop here
-                               # we compute and create all the stuff with the current nfa   
+                               # we compute and create all the stuff with the current nfa
                         #else: 
-                            # we compute and create all the stuff with the current nfa
+                            # we compute and create all the stuff with the current nfa
                         #print ("Debug: search - the current step ends the nfa (either no greedy or no more out_states) so we build_matching_result")
                         matcheslist = build_matching_result (an_nfa, s, i, j, MatchesList())
 
@@ -647,14 +650,15 @@ class CompiledPattern(object):
 
             if self.pattern_must_match_data_start or matchMethod or fullmatchMethod:
                 break    
-            i += 1       
+            i += 1
+
 
         # if there was a backup we compute and create all the stuff with the current nfa
         if last_matched_nfa != None:
             #print ("Debug: search - no more data to explore and previously matched nfa so we build_matching_result")
 
             # if we are here then it means we did a step too far
-            # the same for i and j
+            # the same for i and j
             an_nfa.step_counter -= 1
             #print ("Debug: search - i={} j={}".format(i, j))
 
@@ -686,6 +690,43 @@ class CompiledPattern(object):
       logging.debug ("match - we call search the get the match")      
       return  self.search (s, mode, fullmatchMethod = True,  **kwargs)
 
+    # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def create_index_dic(self,data):
+        """ creates an index corresponding to the given data in order to avoid useless duplicate tokens"""
+        token_index = dict()
+        for index in range(0, len(data)):
+            #storing dict as sorted tuple to put them as key of another dict (the index)
+            token = tuple(sorted(data[index].items()))
+            if token in token_index:
+                token_index[token].append(index)
+            else:
+                token_index[token] = [index]
+        return token_index
+
+    # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def remove_overlap(self, matcheslist):
+        """remove every overlapping match in a matcheslist.
+        this removal applies greedy behaviour, filtering matches left to right.
+        the returned matcheslist is sorted."""
+
+        m = matcheslist.matcheslist
+        #sort matches by start value
+        sorted(m, key=lambda match:match.start())
+        curr_end = 0
+        #i is current match index
+        i=-1
+        #using a list to retain all matches to be deleted
+        #deleting on the fly doesn't work as it changes the for _ in behaviour
+        toBeDeleted = []
+        for match in m:
+            i += 1
+            if(curr_end<=match.start()):
+                curr_end = match.end()
+            else:
+                toBeDeleted.append(i)
+        for i in reversed(toBeDeleted):
+            matcheslist.delete(i)
+        return matcheslist
 
     # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def finditer (self, s, mode = 'greedy', pos = 0, endpos = None, **kwargs):
@@ -697,14 +738,19 @@ class CompiledPattern(object):
         logging.debug('----------------------------------------------------------------------------------------------------------')
         logging.debug("CompiledPattern - finditer")
 
+        if not len(s):
+            return None
+
+        index = self.create_index_dic(s)
+
         endpos = len(s) if endpos == None else endpos
         if pos <0 or endpos < pos or endpos > len(s): return None
         if pos <0: pos = 0
         if endpos > len(s): endpos = len(s)
         if endpos < pos: return None
 
-        # while parsing the data we parse and alter the nfa
-        # each time the nfa did not match we reinit it by copying it from its original form 
+        # while parsing the data we parse and alter the nfa
+        # each time the nfa did not match we reinit it by copying it from its original form
         an_nfa = copy.deepcopy(self.nfa)       
 
         # in greedy mode, we do not stop the search after the first match
@@ -712,171 +758,151 @@ class CompiledPattern(object):
         last_matched_nfa = None
         last_matched_i = -1
         last_matched_j = -1
-        j = -1 # to process when data is empty
-        #
+        
         matcheslist = MatchesList()
 
-        i = pos
-        while i < endpos:           # i position in data   
-            j = i      
-            while j < endpos:       # j position in the current explored pattern 
+        for token in index:           # token to explore
+            index_to_explore = index[token]
+            for i in index_to_explore:      # actual index to explore
+                j = i
+                # if pattern has to match start
+                # we don't try to match unless we're at the beginning
+                if (self.pattern_must_match_data_start and i!=0):
+                    break
+                while j < endpos:
+                    # j is position in the current explored pattern
+                    c = s[j]            # c current data token
 
-                c = s[j]            # c current data token
+                    logging.debug ('-----------------------------------------------------')
+                    logging.debug ("finditer - nfa.step({}) data_index={} pattern_index={}".format(c, i, j))
+                    an_nfa.step(c, self.lexicons)
 
-                logging.debug ('-----------------------------------------------------')
-                logging.debug ("finditer - nfa.step({}) data_index={} pattern_index={}".format(c, i, j))
-                an_nfa.step(c, self.lexicons)
+                    if not len(an_nfa.cur_states):
+                        logging.debug ('finditer - no more state to explore')
 
-                if not len(an_nfa.cur_states):
-                    logging.debug ('finditer - no more state to explore')
+                        # greedy case
+                        # if there was a backup we compute and create all the stuff with the current nfa
+                        if last_matched_nfa != None:
+                            logging.debug ("finditer - but a previously matched nfa so we will build the previously matched nfa")
 
-                    # greedy case
-                    # if there was a backup we compute and create all the stuff with the current nfa
-                    if last_matched_nfa != None:
-                        logging.debug ("finditer - but a previously matched nfa so we will build the previously matched nfa")
+                            # if we are here then it means we did a step too far
+                            # the same for i and j
+                            an_nfa.step_counter -= 1
+                            j -= 1
 
-                        # if we are here then it means we did a step too far
-                        # the same for i and j
-                        an_nfa.step_counter -= 1
+                            # build results and update matchlist
+                            if self.pattern_must_match_data_end:
+                                logging.debug ("finditer - pattern_must_match_data_end so eventually we will build the result only if we are at the data end")
 
-                        # build results and update matchlist
-                        if self.pattern_must_match_data_end:
-                            logging.debug ("finditer - pattern_must_match_data_end so eventually we will build the result only if we are at the data end")
+                                if last_matched_j+1 == endpos:
+                                    logging.debug ("finditer - we are at the data end, so we consume last_matched_nfa and build the result")
+                                    matcheslist = build_matching_result (last_matched_nfa, s, last_matched_i, last_matched_j, matcheslist)
 
-                            if last_matched_j +1 == endpos:
-                                logging.debug ("finditer - we are at the data end, so we consume last_matched_nfa and build the result")
+                            else:
+                                logging.debug ("finditer - we build the result")
                                 matcheslist = build_matching_result (last_matched_nfa, s, last_matched_i, last_matched_j, matcheslist)
 
+                            # remove every already matched indexes to avoid creating overlapping matches
+                            # this was removed because of finditer's behaviour change.
+                            # should be uncommented if wanting a non-overlapping behaviour
+
+                            #index_to_explore = [x for x in index_to_explore if x > last_matched_j]
+
+                        # then we reinit so that next exploration starts after the end of the match
+                        logging.debug ("finditer - either a result built from a previous matched nfa or a no successful nfa match ")
+                        logging.debug ("finditer - reinit the nfa (last_matched_nfa = None and current_nfa restarts")
+                        logging.debug ("finditer - break to start i+1 if unsuccessful or i = last_matched_j if previously matched nfa")
+
+                        an_nfa = copy.deepcopy(self.nfa)
+
+                        break
+
+                    if an_nfa.contains_matching_state():
+                        logging.debug ("finditer - the nfa contains_matching_state")
+
+                        if mode == 'greedy':
+                            logging.debug ('finditer -we are in greedy mode')
+
+                            if len(an_nfa.cur_states) >=2 or an_nfa.have_out_states():
+                                # at least one nfa path which could be explored
+                                logging.debug ("finditer - the nfa contains_matching_state but we are in greedy mode so we save the nfa")
+                                logging.debug ("finditer - and pursue the exploration by directly jumping to the next j")
+
+                                # we backup what do we need for computing and creating all the stuff
+                                # and we pursue the pattern exploration
+                                last_matched_nfa = copy.deepcopy(an_nfa)
+                                last_matched_i = i
+                                last_matched_j = j
+                                j += 1
+
+                                continue # we cut here and pursue the embedding loop at the next iteration
+                            #else:
+                               # no more path to explore, so we stop here
+                               # we compute and create all the stuff with the current nfa
+                        #else:
+                            # reluctant mode
+                            # we compute and create all the stuff with the current nfa
+                        logging.debug ('finditer - the current step ends the nfa (either no greedy or no more out_states) so we build_matching_result we the current nfa')
+
+                        if self.pattern_must_match_data_end:
+                            logging.debug ("finditer - pattern_must_match_data_end so eventually we will build the result only if we are at the data end")
+                            # we build the matcheslist only if we're meeting the data end
+                            if j+1 == endpos:
+                                logging.debug ("finditer - we are at the data end, so we build the result")
+
+                                matcheslist = build_matching_result (an_nfa, s,  i, j, matcheslist)
                         else:
                             logging.debug ("finditer - we build the result")
-                            matcheslist = build_matching_result (last_matched_nfa, s, last_matched_i, last_matched_j, matcheslist)
+                            matcheslist = build_matching_result (an_nfa, s, i, j, matcheslist)
 
-                        i = last_matched_j 
-                        # j = last_matched_j # the next break will make j defined by i
-                        last_matched_nfa = None
-                        last_matched_i = -1
-                        last_matched_j = -1       
- 
+                        logging.debug ("finditer - reinit the nfa")
+                        logging.debug ("finditer - if there was a previously saved nfa we reinit it too")
+                        logging.debug ("finditer - break to start to i = j (ends of the current matched nfa)")
+
+                        an_nfa = copy.deepcopy(self.nfa)
+                        break
+                    #print ("Debug: finditer -about to inc j")
+                    j += 1
+                if last_matched_nfa != None and j == endpos:
+                    #meeting data end but previously matched some data
+                    #create biggest match found
+                    logging.debug ("finditer - actually the next j does not exist (the data ends)")
+                    logging.debug ("finditer - but a previously matched nfa so we build the previous matched nfa")
+
+                    # if we are here then it means we did a step too far
+                    # the same for i and j
+                    an_nfa.step_counter -= 1.
+                    # build results and update matchlist
+
+                    matcheslist = build_matching_result (last_matched_nfa, s, last_matched_i, last_matched_j, matcheslist)
+
                     # then we reinit so that next exploration starts after the end of the match
-                    logging.debug ("finditer - either a result built from a previous matched nfa or a no successful nfa match ")
-                    logging.debug ("finditer - reinit the nfa (last_matched_nfa = None and current_nfa restarts")
-                    logging.debug ("finditer - break to start i+1 if unsuccessful or i = last_matched_j if previously matched nfa")
-
-                    an_nfa = copy.deepcopy(self.nfa)
-
-                    break
-
-                if an_nfa.contains_matching_state():
-                    logging.debug ("finditer - the nfa contains_matching_state")
-
-                    if mode == 'greedy':
-                        logging.debug ('finditer -we are in greedy mode')
-
-                        if len(an_nfa.cur_states) >=2 or an_nfa.have_out_states():
-                            # at least one nfa path which could be explored
-                            logging.debug ("finditer - the nfa contains_matching_state but we are in greedy mode so we save the nfa")
-                            logging.debug ("finditer - and pursue the exploration by directly jumping to the next j")
-
-                            # we backup what do we need for computing and creating all the stuff
-                            # and we pursue the pattern exploration
-                            last_matched_nfa = copy.deepcopy(an_nfa)
-                            last_matched_i = i
-                            last_matched_j = j
-                            j += 1
-
-                            continue # we cut here and pursue the embedding loop at the next iteration
-                        #else: 
-                           # no more path to explore, so we stop here
-                           # we compute and create all the stuff with the current nfa   
-                    #else: 
-                        # reluctant mode
-                        # we compute and create all the stuff with the current nfa
-                    logging.debug ('finditer - the current step ends the nfa (either no greedy or no more out_states) so we build_matching_result we the current nfa')
-
-                    if self.pattern_must_match_data_end:
-                        logging.debug ("finditer - pattern_must_match_data_end so eventually we will build the result only if we are at the data end")
-                        if j +1 == endpos:
-                            logging.debug ("finditer - we are at the data end, so we build the result")
-                            matcheslist = build_matching_result (an_nfa, s,  i, j, matcheslist)
-                    else:
-                        logging.debug ("finditer - we build the result")
-                        matcheslist = build_matching_result (an_nfa, s, i, j, matcheslist)
-
                     logging.debug ("finditer - reinit the nfa")
-                    logging.debug ("finditer - if there was a previously saved nfa we reinit it too")
-                    logging.debug ("finditer - break to start to i = j (ends of the current matched nfa)")
-                    last_matched_nfa = None
-                    last_matched_i = -1
-                    last_matched_j = -1              
-                    i = j
+                    logging.debug ("finditer - reinit i = last_matched_j")
                     an_nfa = copy.deepcopy(self.nfa)
-                    
-                    break
-                #print ("Debug: finditer -about to inc j and maybe i")
 
-                j += 1    
-            if last_matched_nfa != None and j == endpos:
-                # to prevent from restarting to i+1 when incrementing j in greedy mode; indeed when j = len(s), then i +=1 and j = i 
-                # the underlying idea in the greedy mode is that a larger matching nfa may be possible and we try to get it 
-                logging.debug ("finditer - actually the next j does not exist (the data ends)")
-                logging.debug ("finditer - but a previously matched nfa so we build the previous matched nfa")
 
-                # if we are here then it means we did a step too far
-                # the same for i and j
-                an_nfa.step_counter -= 1.
-                # build results and update matchlist
-                matcheslist = build_matching_result (last_matched_nfa, s, last_matched_i, last_matched_j, matcheslist)
-
-                i = last_matched_j 
-                # the next break will make j defined by i
-                last_matched_nfa = None
-                last_matched_i = -1
-                last_matched_j = -1       
- 
-                # then we reinit so that next exploration starts after the end of the match
-                logging.debug ("finditer - reinit the nfa")
-                logging.debug ("finditer - reinit i = last_matched_j")
-                an_nfa = copy.deepcopy(self.nfa)    
-            if self.pattern_must_match_data_start:
-                logging.debug ("finditer - pattern_must_match_data_start and we were about to starting to explore new pattern at position 1 so we break here data exploration")
-                break
-            i += 1
-
-        # greedy case
+        # greedy case
         # if there was a backup we compute and create all the stuff with the current nfa
         if last_matched_nfa != None:
             logging.debug ("finditer - no more data to explore and previously matched nfa so we build_matching_result")
 
             # if we are here then it means we did a step too far
-            # the same for i and j
             an_nfa.step_counter -= 1.
             # build results and update matchlist
             matcheslist = build_matching_result (last_matched_nfa, s, last_matched_i, last_matched_j, matcheslist)
-        else:
-            # Warning we get here even when len(s) is 0
-            last_matched_i = i
-            last_matched_j = j
-
-
 
         if len(matcheslist)>0 :
-            #matches = []
-            #print ('Debug: matcheslist=',matcheslist)
-            
-            #print ('Debug: re finditer -final -  len(s)={} len(matcheslist)={} i={} j={}'.format(len(s), len(matcheslist), last_matched_i, last_matched_j))
-
-            #if self.pattern_must_match_data_start and last_matched_i != 0:
-            #    return None
-            if self.pattern_must_match_data_end and last_matched_j +1 != endpos:
-                logging.debug ("finditer - matcheslist but pattern_must_match_data_end and last_matched_j+1 does not correspond to the last data position so we return None")
-                return None    
-
             logging.debug ("finditer - we return matcheslist")
-            return matcheslist
+
+            #currently returns matcheslist without overlap
+            #overlap should be made into an option
+            return self.remove_overlap(matcheslist)
 
         logging.debug ("finditer - no matcheslist we return None")
-
         return None
+
+
 
 
     # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

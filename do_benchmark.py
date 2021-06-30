@@ -91,38 +91,38 @@ def measure_pattern_time_v1(iteration_number, size, pattern):
 # ---------------------------------------------------------
 import execnet
 
-def measure_pattern_time_v2(iteration_number, size, pattern):
-  gw      = execnet.makegateway("popen//python=python2.7")
-  channel = gw.remote_exec("""
-from nltk.corpus import brown
-words = brown.words()[:%s]
-text = ' '.join(words)
-from pattern.en import parsetree
-text_tree = parsetree(text,
- tokenize = True,         # Split punctuation marks from words?
-     tags = True,         # Parse part-of-speech tags? (NN, JJ, ...)
-   chunks = False,         # Parse chunks? (NP, VP, PNP, ...)
-relations = False,        # Parse chunk relations? (-SBJ, -OBJ, ...)
-  lemmata = False,        # Parse lemmata? (ate => eat)
- encoding = 'utf-8',       # Input string encoding.
-   tagset = None)         # Penn Treebank II (default) or UNIVERSAL.
-from pattern.search import search
-def measure_pattern_search():
-  global pattern_search_result    #Make measure_me able to modify the value
-  pattern_search_result = search("%s", text_tree)
-  #print ("clip.pattern len(result)="+str(len(pattern_search_result)))
-from timeit import Timer
-pattern_search_time = Timer(measure_pattern_search)
-#print ('pattern_search_time')
-def pattern_search_timeit():
-  runtimes = [pattern_search_time.timeit(number=1) for i in range (0, %s)]
-  average = sum(runtimes)/len(runtimes)
-#  return ''.join(['timit: #runs=', str(%s), ' ; average=', str(average),' ; min=', str(min(runtimes))])
-  return [runtimes, average, min(runtimes), len(pattern_search_result)]
-channel.send(pattern_search_timeit())
-  """ % (size, pattern, iteration_number, iteration_number))
-  channel.send([])
-  return channel.receive()
+#def measure_pattern_time_v2(iteration_number, size, pattern):
+#   gw      = execnet.makegateway("popen//python=python2.7")
+#   channel = gw.remote_exec("""
+# from nltk.corpus import brown
+# words = brown.words()[:%s]
+# text = ' '.join(words)
+# from pattern.en import parsetree
+# text_tree = parsetree(text,
+#  tokenize = True,         # Split punctuation marks from words?
+#      tags = True,         # Parse part-of-speech tags? (NN, JJ, ...)
+#    chunks = False,         # Parse chunks? (NP, VP, PNP, ...)
+# relations = False,        # Parse chunk relations? (-SBJ, -OBJ, ...)
+#   lemmata = False,        # Parse lemmata? (ate => eat)
+#  encoding = 'utf-8',       # Input string encoding.
+#    tagset = None)         # Penn Treebank II (default) or UNIVERSAL.
+# from pattern.search import search
+# def measure_pattern_search():
+#   global pattern_search_result    #Make measure_me able to modify the value
+#   pattern_search_result = search("%s", text_tree)
+#   #print ("clip.pattern len(result)="+str(len(pattern_search_result)))
+# from timeit import Timer
+# pattern_search_time = Timer(measure_pattern_search)
+# #print ('pattern_search_time')
+# def pattern_search_timeit():
+#   runtimes = [pattern_search_time.timeit(number=1) for i in range (0, %s)]
+#   average = sum(runtimes)/len(runtimes)
+# #  return ''.join(['timit: #runs=', str(%s), ' ; average=', str(average),' ; min=', str(min(runtimes))])
+#   return [runtimes, average, min(runtimes), len(pattern_search_result)]
+# channel.send(pattern_search_timeit())
+#   """ % (size, pattern, iteration_number, iteration_number))
+#   channel.send([])
+#   return channel.receive()
 
 
 
@@ -186,23 +186,6 @@ def time_noun_phrase_recognizers(size, analysers):
     # # print ('pattern_time_v1:', pattern_time)
     # # # can also be called by
     # # # python benchmark/measure_pattern_time_v1.py 1 1000 "DT? JJ|NN?+ NN"
-
-    # v2
-    pattern_grammar = 'DT? JJ?+ NN+'
-    runtimes, averagetime, mintime, len_matches = measure_pattern_time_v2(iteration_number, size, pattern_grammar)
-    #print ('{}'.format(len_matches))
-    print ('{}\t{}\t{}\t{}\t{}'.format(analyzer_name, pattern_grammar, averagetime, mintime, len_matches))
-
-    #pattern_time = measure_pattern_time_v2(iteration_number, size, grammar)
-    pattern_grammar = 'DT? JJ|NN?+ NN|NNS'
-    runtimes, averagetime, mintime, len_matches = measure_pattern_time_v2(iteration_number, size, pattern_grammar)
-    #print ('{}'.format(len_matches))
-    print ('{}\t{}\t{}\t{}\t{}'.format(analyzer_name, pattern_grammar, averagetime, mintime, len_matches))
-
-    pattern_grammar = 'DT? JJ|NN?+ NN|NNS+'
-    runtimes, averagetime, mintime, len_matches = measure_pattern_time_v2(iteration_number, size, pattern_grammar)
-    #print ('{}'.format(len_matches))
-    print ('{}\t{}\t{}\t{}\t{}'.format(analyzer_name, pattern_grammar, averagetime, mintime, len_matches))
 
     #print ('pattern_time_v2: grammar={} {}'.format(grammar,pattern_time))
 
