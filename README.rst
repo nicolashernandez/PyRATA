@@ -33,7 +33,7 @@ PyRATA
 * can draw out beautifully the *NFA to a PDF file*;
 * can output the actual matches as *Deterministic Finite Automata (DFA)*;
 * uses the `PLY <http://www.dabeaz.com/ply/ply.html>`_ implementation of lex and yacc parsing tools for Python (version 3.10), the `sympy <http://www.sympy.org/fr>`_ library for symbolic evaluation of logical expression, the `graph_tool <http://graph-tool.skewed.de>`_ library for drawing out PDF.
-as of v0.5.1 (https://github.com/nicolashernandez/PyRATA/commit/19d0c33347ce3d1355cfdb09ba4e7b1dd9500839)the sympy library was removed and replaced by a home made implementation for performance reason.
+as of v0.5.1 (https://github.com/nicolashernandez/PyRATA/commit/19d0c33347ce3d1355cfdb09ba4e7b1dd9500839) the sympy library was removed and replaced by a home made implementation for performance reason.
 * is released under the **`Apache License 2.0 <https://www.apache.org/licenses/LICENSE-2.0>`_** which allows you to *do what you like with the software, as long as you include the required notice*;
 * published on `PyPI <https://pypi.python.org/pypi/PyRATA>`_;
 * is *fun and easy to use* to explore data for research study, solve deterministic problems, formulate expert knowledge in a declarative way, prototype quickly models and generate training data for Machine Learning (ML) systems, extract ML features, augment ML models...
