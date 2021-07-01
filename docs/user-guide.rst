@@ -134,7 +134,6 @@ Requirement
 In addition to ``python3``, PyRATA uses 
 
 * the `PLY <http://www.dabeaz.com/ply/ply.html>`_ implementation of lex and yacc parsing tools for Python (version 3.10). 
-* the `sympy <http://www.sympy.org/fr>`_ library for symbolic evaluation of logical expression.
 * the `graph_tool <http://graph-tool.skewed.de>`_ library for drawing out PDF (optional)
 
 If you encounter the ``ImportError: No module named 'graph_tool'`` issue, then `check the fix for the graph_tool module import here <https://github.com/nicolashernandez/PyRATA/issues/2>`_
@@ -152,7 +151,8 @@ If you do not properly install PyRATA, you will have to manually install ply (or
 ::
 
     sudo pip3 install ply
-    sudo pip3 install sympy
+    
+as of v0.5.1 the sympy library was replaced and is no longer required
 
 Run tests (optional)
 ------------------------

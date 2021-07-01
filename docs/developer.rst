@@ -318,6 +318,18 @@ var[0], var[1] = symbols('pos="NN" x2')
 var[0], var[1] = symbols('pos="NN" pos~"\ "')
 works too
 
+as of v0.5.1 the sympy library was replaced and is no longer used in PyRATA
+
+
+Speedtesting PyRATA
+=================
+
+PyRATA contains the do_control-time-memory-usage.py script which allows to see
+PyRATA's speed performance in detail using a profiler.
+
+simply run 
+
+    python3 -m cProfile -s cumulative do_control-time-memory-usage.py
 
 
 The guiguan nfa

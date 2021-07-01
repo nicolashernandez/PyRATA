@@ -25,7 +25,14 @@
 # limitations under the License. 
 #
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
+#
+# Ressource requirement:
+#
+# import nltk
+#  >>> nltk.download('brown')
+#  >>> nltk.download('averaged_perceptron_tagger')
+#
+#
 """
 
 control cpu time and memory usage of a simple pyrata use case: part-of-speech (POS) patterns to find and extract NPs
