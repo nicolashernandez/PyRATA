@@ -107,6 +107,35 @@ def test_noun_phrase(dictlist):
 
 
 
+# alternative dataset meant for more specific tests towards index based search.
+# you may want to use Brown's dataset for more realistic cases,
+# while you may want to use this one for more controlled and specific cases.
+
+def getManualData(dataSize, vocabSize, patternOccurence):
+    """Creates artificial data meant for speed testing.
+    If vocabSize is 1 then all token will be pattern occurence.
+    Considers {'v': '0'} to be a matching token and {'v': '1'} to be a non matching token."""
+
+    #makes it impossible to have both full vocabulary and all of the pattern occurences
+    if(dataSize<=vocabSize+patternOccurence):
+        return None
+    if(vocabSize == 1):
+        patternOccurence = dataSize
+
+    retValue = []
+    patternOccurenceCount = 0
+
+    for i in range(1, vocabSize):
+        retValue.append({'v': str(i)})
+    for i in range (vocabSize+1, dataSize+1):
+        if(patternOccurenceCount<patternOccurence):
+            retValue.append({'v': '0'})
+            patternOccurenceCount+=1
+        else:
+            retValue.append({'v': '1'})
+
+    return retValue
+
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 # Control time memory usage
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -123,6 +152,7 @@ if __name__ == '__main__':
   # brown
 
   size = 10000 # 1161192 # # brown corpus 1 161 192 words ; can also be interpreted as number of sentences
+
 
   print ('Info: Start...')
   print ('Info: get {} brown.words'.format(size))
