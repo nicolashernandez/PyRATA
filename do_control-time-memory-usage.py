@@ -153,7 +153,7 @@ if __name__ == '__main__':
 
   size = 10000 # 1161192 # # brown corpus 1 161 192 words ; can also be interpreted as number of sentences
 
-
+  #whole data initialization may be replaced by getManualData
   print ('Info: Start...')
   print ('Info: get {} brown.words'.format(size))
   tokens = brown.words()
